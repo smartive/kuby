@@ -17,6 +17,9 @@ deploy image:
   image: docker:latest
   services:
     - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay
+    DOCKER_HOST: tcp://localhost:2375
   script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.smartive.ch
     - docker build -t registry.smartive.ch/smartive/kubernetes-deploy:$CI_COMMIT_TAG .
