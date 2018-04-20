@@ -1,0 +1,34 @@
+#!/bin/bash
+
+### Utilities
+
+printHelp() {
+  echo "smartive AG kubernetes deployment."
+  echo "Executes all prepared yaml files"
+  echo "usage: k8s-apply [deploymentfolder=./deployment]"
+  echo ""
+  echo "---"
+  echo "Options:"
+  echo ""
+  echo "deploymentfolder:    folder to copy the prepared files to"
+  echo ""
+}
+
+### Code
+
+# print help and exit if needed
+for arg in $@
+do
+  if [[ $arg = "-h" ]] || [[ $arg = "--help" ]]; then
+    printHelp
+    exit 0
+  fi
+done
+
+# set the variables
+SOURCE_DIR=$1
+SOURCE_DIR=${SOURCE_DIR:-"./deployment"}
+
+echo "Executing kubectl."
+
+kubectl apply -f $SOURCE_DIR
