@@ -2,9 +2,7 @@
   "name": "kubernetes-deploy",
   "version": "0.0.0-development",
   "description": "Deployment image for smartive AG CI deployments to kubernetes",
-  "scripts": {
-    "semantic-release": "semantic-release"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git@git.smartive.ch:smartive/kubernetes-deploy.git"

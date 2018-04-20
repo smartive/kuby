@@ -8,7 +8,7 @@ create release:
   script:
     - npm i -g npm
     - npm ci
-    - npm run semantic-release
+    - npx semantic-release
   only:
     - master
 
