@@ -1,0 +1,41 @@
+{
+  "name": "kubernetes-deploy",
+  "version": "0.0.0-development",
+  "description": "Deployment image for smartive AG CI deployments to kubernetes",
+  "scripts": {
+    "semantic-release": "semantic-release"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.smartive.ch:smartive/kubernetes-deploy.git"
+  },
+  "keywords": [
+    "k8s",
+    "kubernetes",
+    "deployment",
+    "ci"
+  ],
+  "author": "Christoph Bühler <christoph@smartive.ch>",
+  "license": "MIT",
+  "devDependencies": {
+    "@semantic-release/gitlab": "^2.1.2",
+    "semantic-release": "^15.1.7"
+  },
+  "release": {
+    "verifyConditions": [
+      {
+        "path": "@semantic-release/gitlab",
+        "gitlabUrl": "https://git.smartive.ch"
+      }
+    ],
+    "prepare": false,
+    "publish": [
+      {
+        "path": "@semantic-release/gitlab",
+        "gitlabUrl": "https://git.smartive.ch"
+      }
+    ],
+    "success": false,
+    "fail": false
+  }
+}
