@@ -5,7 +5,7 @@
 printHelp() {
   echo "smartive AG kubernetes deployment."
   echo "Executes all prepared yaml files"
-  echo "usage: k8s-apply [deploymentfolder=./deployment]"
+  echo "usage: k8s-apply [deploymentfolder=./deployment/]"
   echo ""
   echo "---"
   echo "Options:"
@@ -27,7 +27,7 @@ done
 
 # set the variables
 SOURCE_DIR=$1
-SOURCE_DIR=${SOURCE_DIR:-"./deployment"}
+SOURCE_DIR=${SOURCE_DIR:-"./deployment/"}
 
 echo "Executing kubectl."
 

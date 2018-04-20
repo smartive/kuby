@@ -6,7 +6,7 @@ printHelp() {
   echo "smartive AG kubernetes deployment."
   echo "Prepares all found yaml files and executes them."
   echo "(does send them into a ./deployment folder and replaces env vars)"
-  echo "usage: k8s-deploy [basefolder=./k8s] [deploymentfolder=./deployment]"
+  echo "usage: k8s-deploy [basefolder=./k8s/] [deploymentfolder=./deployment/]"
   echo ""
   echo "---"
   echo "Options:"
@@ -29,9 +29,9 @@ done
 
 # set the variables
 SOURCE_DIR=$1
-SOURCE_DIR=${SOURCE_DIR:-"./k8s"}
+SOURCE_DIR=${SOURCE_DIR:-"./k8s/"}
 DEST_DIR=$2
-DEST_DIR=${DEST_DIR:-"./deployment"}
+DEST_DIR=${DEST_DIR:-"./deployment/"}
 
 k8s-prepare $SOURCE_DIR $DEST_DIR
 k8s-apply $DEST_DIR
