@@ -32,7 +32,6 @@ SOURCE_DIR=$1
 SOURCE_DIR=${SOURCE_DIR:-"./k8s/"}
 DEST_DIR=$2
 DEST_DIR=${DEST_DIR:-"./deployment/"}
-EXTENSION="yml"
 
 # check for trailing slashes
 case "$SOURCE_DIR" in
@@ -56,7 +55,7 @@ if [ ! -d $SOURCE_DIR ]; then
   exit 1
 fi
 
-echo "Moving *.$EXTENSION from $SOURCE_DIR to $DEST_DIR"
+echo "Moving *.yaml and *.yml from $SOURCE_DIR to $DEST_DIR"
 
 if [ -d $DEST_DIR ]; then
   echo "Destination directory already exists, deleting directory."
@@ -66,7 +65,18 @@ fi
 echo "Creating destination directory"
 mkdir -p $DEST_DIR
 
-for file in $(find $SOURCE_DIR -regex ".*\.$EXTENSION$")
+for file in $(find $SOURCE_DIR -regex ".*\.yml$")
+do
+  name=${file#$SOURCE_DIR}
+  name=${name//\//-}
+  name=${name#-}
+  destFile=$DEST_DIR$name
+  echo "Copying $name to $destFile and replace env vars"
+
+  envsubst < "$file" > "$destFile"
+done
+
+for file in $(find $SOURCE_DIR -regex ".*\.yaml$")
 do
   name=${file#$SOURCE_DIR}
   name=${name//\//-}
