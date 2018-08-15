@@ -1,12 +1,11 @@
 FROM alpine:3.7
 
+ARG BUILD_DEPS="gettext"
+ARG RUNTIME_DEPS="libintl"
+
 WORKDIR /root
 
-COPY ./config/kube-config.yml /root/.kube/config
 COPY ./scripts /usr/local/bin/
-
-ENV BUILD_DEPS="gettext"  \
-    RUNTIME_DEPS="libintl"
 
 RUN set -x && \
     apk add --update $RUNTIME_DEPS && \
