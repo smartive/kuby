@@ -1,0 +1,87 @@
+#!/bin/bash
+
+### Utilities
+
+printHelp() {
+  echo "smartive AG kubernetes namespace creator."
+  echo "Create a new namespace on the cluster with all used configurations."
+  echo "If one of the docker arguments is not passed, all docker related commands are ignored."
+  echo "usage: k8s-namespace <name> [docker-user] [docker-pass] [docker-mail] [docker-registry] [kubernetes-secret-name]"
+  echo ""
+  echo "---"
+  echo "Options:"
+  echo ""
+  echo "name:                    the name of the new namespace"
+  echo "docker-user:             username that is used for the docker secret"
+  echo "docker-pass:             password for the given user"
+  echo "docker-mail:             mail address for the given user"
+  echo "docker-registry:         address of the registry"
+  echo "kubernetes-secret-name:  name of the kubernetes secret for the docker login (default: smartive-gitlab-registry)"
+  echo ""
+}
+
+### Code
+
+# print help and exit if needed
+for arg in $@
+do
+  if [[ $arg = "-h" ]] || [[ $arg = "--help" ]]; then
+    printHelp
+    exit 0
+  fi
+done
+
+# set the variables
+NAME=$1
+SERVER=$5
+USER=$2
+PASS=$3
+MAIL=$4
+SECRET=$6
+SECRET=${SECRET:-"smartive-gitlab-registry"}
+USE_DOCKER=true
+
+if [ -z "$NAME" ]; then
+    echo "Namespace name not set. Aborting."
+    exit 1
+fi
+
+if [ -z "$SERVER" ] || [ -z "$USER" ] || [ -z "$PASS" ] || [ -z "$MAIL" ] ; then
+    USE_DOCKER=false
+    echo "One of the docker options was not given."
+    echo "user:   $USER"
+    echo "pass:   $PASS"
+    echo "mail:   $MAIL"
+    echo "server: $SERVER"
+    echo ""
+    read -p "Do you want to proceed without the docker login secret? (y/n) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]
+    then
+        echo "Aborting.."
+        exit 1
+    fi
+    echo
+fi
+
+echo "Create a new namespace with the name '$NAME'."
+read -p "Do you want to proceed? (y/n) " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    echo "Aborting.."
+    exit 1
+fi
+
+echo "Create namespace."
+kubectl create ns $NAME
+
+if [ "$USE_DOCKER" = true ] ; then
+    echo "Create docker image pull secret."
+    kubectl create secret docker-registry $SECRET --docker-server=$SERVER --docker-username=$USER --docker-password=$PASS --docker-email=$MAIL -n $NAME
+
+    echo "Update default system account to use image pull secret."
+    kubectl patch serviceaccount default -p "{\"imagePullSecrets\":[{\"name\": \"$SECRET\"}]}" -n $NAME
+fi
+
+echo "Done."
