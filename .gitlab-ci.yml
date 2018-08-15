@@ -4,9 +4,8 @@ stages:
 
 create release:
   stage: release
-  image: node:9
+  image: node:10
   script:
-    - npm i -g npm
     - npm ci
     - npx semantic-release
   only:
