@@ -16,8 +16,8 @@
   "author": "Christoph Bühler <christoph@smartive.ch>",
   "license": "MIT",
   "devDependencies": {
-    "@semantic-release/gitlab": "^2.1.2",
-    "semantic-release": "^15.1.7"
+    "@semantic-release/gitlab": "^3.0.1",
+    "semantic-release": "^15.9.8"
   },
   "release": {
     "verifyConditions": [
