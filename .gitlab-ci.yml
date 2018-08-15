@@ -17,14 +17,18 @@ deploy image:
   services:
     - docker:dind
   variables:
-    DOCKER_DRIVER: overlay
+    DOCKER_DRIVER: overlay2
     DOCKER_HOST: tcp://localhost:2375
   script:
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.smartive.ch
-    - docker build -t registry.smartive.ch/smartive/kubernetes-deploy:$CI_COMMIT_TAG .
-    - docker tag registry.smartive.ch/smartive/kubernetes-deploy:$CI_COMMIT_TAG registry.smartive.ch/smartive/kubernetes-deploy:latest
-    - docker push registry.smartive.ch/smartive/kubernetes-deploy:$CI_COMMIT_TAG
-    - docker push registry.smartive.ch/smartive/kubernetes-deploy:latest
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG .
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG $CI_REGISTRY_IMAGE:latest
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG smartive/kubernetes-deploy:$CI_COMMIT_TAG
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG smartive/kubernetes-deploy:latest
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker push smartive/kubernetes-deploy:$CI_COMMIT_TAG
+    - docker push smartive/kubernetes-deploy:latest
   only:
     - tags
-
