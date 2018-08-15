@@ -31,4 +31,8 @@ SOURCE_DIR=${SOURCE_DIR:-"./deployment/"}
 
 echo "Executing kubectl."
 
+if [ ! -f $HOME/.kube/config ] ; then
+  k8s-login
+fi
+
 kubectl apply -f $SOURCE_DIR

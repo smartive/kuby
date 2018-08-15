@@ -32,4 +32,9 @@ SOURCE_DIR=${SOURCE_DIR:-"./k8s/"}
 DEST_DIR="./deployment/"
 
 k8s-prepare $SOURCE_DIR $DEST_DIR
+
+if [ ! -f $HOME/.kube/config ] ; then
+  k8s-login
+fi
+
 kubectl delete -f $DEST_DIR
