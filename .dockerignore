@@ -9,4 +9,3 @@ node_modules
 # Typescript stuff
 build
 coverage
-out

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "removeComments": true,
+    "outDir": "../build",
+    "rootDir": "../src",
+    "declaration": false,
+    "sourceMap": false,
+    "importHelpers": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "lib": [
+      "es2018"
+    ]
+  },
+  "include": [
+    "../src/**/*"
+  ],
+  "exclude": []
+}
