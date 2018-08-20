@@ -11,8 +11,7 @@
     "test": "npm run lint && npm run clean && jest -c ./jest.json",
     "test:watch": "npm run clean && jest -c ./jest.json --watch",
     "semantic-release": "semantic-release",
-    "package": "npm run build && pkg --out-path out .",
-    "prepack": "npm run build"
+    "package": "npm run build && pkg --out-path out ."
   },
   "bin": {
     "k8s": "./build/kubernetes-helpers.js"

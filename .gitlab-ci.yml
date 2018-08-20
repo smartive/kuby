@@ -7,6 +7,7 @@ create release:
   image: node:10
   script:
     - npm ci
+    - npm run build
     - npx semantic-release
   only:
     - master
