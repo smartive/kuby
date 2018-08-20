@@ -1,0 +1,27 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependency directory
+node_modules
+
+# Typescript stuff
+coverage/
+config/
+tsconfig.json
+tslint.json
+
+# Typescript files (but not the definitions)
+src/
+
+# Testfiles
+jest.json
+test/
+
+# Package
+out/
+Dockerfile
+
+# Dotfiles
+.*

@@ -32,3 +32,17 @@ deploy image:
     - docker push smartive/kubernetes-deploy:latest
   only:
     - tags
+
+deploy binaries:
+  stage: deploy
+  image: node:10
+  before_script:
+    - npm ci
+  script:
+    - npm run package
+  artifacts:
+    paths:
+      - out/*
+    expire_in: 1 year
+  only:
+    - tags
