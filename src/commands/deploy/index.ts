@@ -21,7 +21,7 @@ async function deploy(
   deployFolder: string = './deployment/',
   options: DeployOptions,
 ): Promise<number> {
-  console.group(chalk.underline('Delete deployment'));
+  console.group(chalk.underline('Execute deployment'));
 
   const prepareCode = await prepare(baseFolder, deployFolder);
   if (prepareCode !== 0) {
