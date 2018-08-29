@@ -5,7 +5,7 @@ import { RootOptions } from '../../root-options';
 import { ExitCode } from '../../utils/exit-code';
 import { promiseAction } from '../../utils/promise-action';
 import { spawn } from '../../utils/spawn';
-import { login } from '../login';
+import { kubeConfig } from '../kube-config';
 import { prepare } from '../prepare';
 
 command('delete [baseFolder=./k8s/] [deployFolder=./deployment/]')
@@ -32,7 +32,7 @@ async function deleteDeployment(
   }
 
   if (options.parent.ci) {
-    const loginCode = await login(undefined, { interaction: false });
+    const loginCode = await kubeConfig(undefined, { interaction: false });
     if (loginCode !== 0) {
       console.error(chalk.red('An error happend during the kube config process.'));
       console.groupEnd();

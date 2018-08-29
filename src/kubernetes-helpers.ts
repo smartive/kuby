@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import './utils/commander-extensions';
+
 import './commands';
 
 import chalk from 'chalk';
