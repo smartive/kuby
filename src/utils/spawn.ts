@@ -6,12 +6,12 @@ export function spawn(command: string, args: string[] = [], nativeCommand: boole
   console.log();
 
   const errLog = nativeCommand ?
-    (data: any) => process.stderr.write(data) :
-    (data: any) => console.error(`${chalk.red('[err]')}: ${data}`);
+    (data: Buffer) => data.toString().trim() && process.stderr.write(data) :
+    (data: Buffer) => console.error(`${chalk.red('[err]')}: ${data}`);
 
   const nfoLog = nativeCommand ?
-    (data: any) => process.stdout.write(data) :
-    (data: any) => console.log(`${chalk.cyan('[nfo]')}: ${data}`);
+    (data: Buffer) => data.toString().trim() && process.stdout.write(data) :
+    (data: Buffer) => console.log(`${chalk.cyan('[nfo]')}: ${data}`);
 
   return new Promise((resolve, reject) => {
     const child = procSpawn(
