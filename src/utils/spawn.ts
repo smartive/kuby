@@ -17,7 +17,7 @@ export function spawn(command: string, args: string[] = []): Promise<number> {
 
     child.stdout.on(
       'data',
-      data => console.error(`${chalk.cyan('[nfo]')}: ${data}`),
+      data => console.log(`${chalk.cyan('[nfo]')}: ${data}`),
     );
 
     child
