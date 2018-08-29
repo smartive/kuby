@@ -5,29 +5,26 @@ export function spawn(command: string, args: string[] = [], nativeCommand: boole
   console.group(chalk.blue(`Executing <${command} ${args.join(' ')}>`));
   console.log();
 
-  const errLog = nativeCommand ?
-    (data: Buffer) => data.toString().trim() && process.stderr.write(data) :
-    (data: Buffer) => console.error(`${chalk.red('[err]')}: ${data}`);
-
-  const nfoLog = nativeCommand ?
-    (data: Buffer) => data.toString().trim() && process.stdout.write(data) :
-    (data: Buffer) => console.log(`${chalk.cyan('[nfo]')}: ${data}`);
-
   return new Promise((resolve, reject) => {
     const child = procSpawn(
       command,
       args,
+      {
+        stdio: nativeCommand ? 'inherit' : 'pipe',
+      },
     );
 
-    child.stderr.on(
-      'data',
-      errLog,
-    );
+    if (!nativeCommand) {
+      child.stderr.on(
+        'data',
+        data => console.error(`${chalk.red('[err]')}: ${data}`),
+      );
 
-    child.stdout.on(
-      'data',
-      nfoLog,
-    );
+      child.stdout.on(
+        'data',
+        data => console.log(`${chalk.cyan('[nfo]')}: ${data}`),
+      );
+    }
 
     child
       .on('error', (err) => {
