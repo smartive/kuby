@@ -9,9 +9,14 @@ command('*')
   .description(`Catch all command. Forwards everything to ${chalk.yellow('kubectl')}.`)
   .action(promiseAction(catchAll));
 
-export async function catchAll(...args: any[]): Promise<number> {
+export async function catchAll(): Promise<number> {
   console.group(chalk.underline('Catch all'));
-  args.pop();
+  const args = process.argv.slice(2);
+  if (args.length <= 0) {
+    console.error(chalk.red('No arguments provided for kubectl.'));
+    return ExitCode.error;
+  }
+
   console.log(`Forwarding ${args.length} arguments to kubectl.`);
   const code = await spawn('kubectl', args, true);
   if (code !== 0) {
