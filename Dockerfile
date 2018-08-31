@@ -30,5 +30,3 @@ RUN set -x && \
   chmod +x ./kubectl && \
   mv ./kubectl /usr/local/bin/kubectl && \
   apk del build_deps
-
-ENTRYPOINT [ "k8s" ]
