@@ -17,6 +17,7 @@ FROM alpine:3.7
 
 ARG BUILD_DEPS="gettext"
 ARG RUNTIME_DEPS="libintl libstdc++"
+ARG KUBECTL_VERSION
 
 WORKDIR /root
 
@@ -26,7 +27,7 @@ RUN set -x && \
   apk add --update $RUNTIME_DEPS && \
   apk add --virtual build_deps $BUILD_DEPS && \
   apk add --no-cache curl ca-certificates && \
-  curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
+  curl -LO https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl && \
   chmod +x ./kubectl && \
   mv ./kubectl /usr/local/bin/kubectl && \
   apk del build_deps
