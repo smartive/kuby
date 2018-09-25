@@ -5,6 +5,7 @@ stages:
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://localhost:2375
+  IMAGE: smartive/kubernetes-deploy
 
 create release:
   stage: release
@@ -22,61 +23,48 @@ create release:
   services:
     - docker:dind
   script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
     - docker build --build-arg KUBECTL_VERSION=$KUBECTL_VERSION -t $IMAGE:$TAG .
+    - docker tag $IMAGE:$TAG $IMAGE:$LATEST_TAG
     - docker push $IMAGE:$TAG
+    - docker push $IMAGE:$LATEST_TAG
   only:
     - tags
-
-deploy local latest:
-  <<: *build-docker
-  variables:
-    IMAGE: $CI_REGISTRY_IMAGE
-    TAG: latest
-    KUBECTL_VERSION: 1.11.3
-
-deploy local tag:
-  <<: *build-docker
-  variables:
-    IMAGE: $CI_REGISTRY_IMAGE
-    TAG: $CI_COMMIT_TAG
-    KUBECTL_VERSION: 1.11.3
 
 deploy latest:
   <<: *build-docker
   variables:
-    IMAGE: smartive/kubernetes-deploy
     TAG: latest
+    LATEST_TAG: latest
     KUBECTL_VERSION: 1.11.3
 
 deploy 1.11:
   <<: *build-docker
   variables:
-    IMAGE: smartive/kubernetes-deploy
     KUBECTL_VERSION: 1.11.3
     TAG: kube-1.11-k8s-$CI_COMMIT_TAG
+    LATEST_TAG: kube-1.11-k8s-latest
 
 deploy 1.10:
   <<: *build-docker
   variables:
-    IMAGE: smartive/kubernetes-deploy
     KUBECTL_VERSION: 1.10.8
     TAG: kube-1.10-k8s-$CI_COMMIT_TAG
+    LATEST_TAG: kube-1.10-k8s-latest
 
 deploy 1.9:
   <<: *build-docker
   variables:
-    IMAGE: smartive/kubernetes-deploy
     KUBECTL_VERSION: 1.9.10
     TAG: kube-1.9-k8s-$CI_COMMIT_TAG
+    LATEST_TAG: kube-1.9-k8s-latest
 
 deploy 1.8:
   <<: *build-docker
   variables:
-    IMAGE: smartive/kubernetes-deploy
     KUBECTL_VERSION: 1.8.15
     TAG: kube-1.8-k8s-$CI_COMMIT_TAG
+    LATEST_TAG: kube-1.8-k8s-latest
 
 deploy binaries:
   stage: deploy
