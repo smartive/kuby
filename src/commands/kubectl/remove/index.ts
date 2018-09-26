@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { remove, symlink } from 'fs-extra';
+import { remove } from 'fs-extra';
 import { prompt } from 'inquirer';
 import { platform } from 'os';
 import { join } from 'path';
@@ -15,15 +15,15 @@ type PromptAnswers = {
   version: string;
 };
 
-export function registerUse(subCommand: Command): void {
+export function registerRemove(subCommand: Command): void {
   subCommand
-    .command('use [semver]')
-    .description('Use a specific version of kubectl (symlink it).')
-    .action(promiseAction(useVersion));
+    .command('remove [semver]')
+    .description('Delete (locally) a version of kubectl.')
+    .action(promiseAction(removeVersion));
 }
 
-export async function useVersion(version?: string): Promise<number> {
-  console.group(chalk.underline(`Use kubectl version`));
+export async function removeVersion(version?: string): Promise<number> {
+  console.group(chalk.underline(`Delete kubectl version`));
 
   let useVer = version;
   if (!useVer) {
@@ -31,7 +31,7 @@ export async function useVersion(version?: string): Promise<number> {
       {
         type: 'list',
         name: 'version',
-        message: 'Which version do you want to use?',
+        message: 'Which version do you want to delete?',
         choices: [
           ...(await getLocalVersions()).map(v => ({ value: v, name: `v${v}` })),
         ],
@@ -44,27 +44,21 @@ export async function useVersion(version?: string): Promise<number> {
   const installVersion = maxSatisfying(versions, useVer);
 
   if (!installVersion) {
-    console.error(
-      chalk.red(
-        'The given semver is not locally available. Use the install command.',
-      ),
-    );
+    console.log('The given semver is not locally installed.');
     console.groupEnd();
-    return ExitCode.error;
+    return ExitCode.success;
   }
 
-  console.log(`Redirect the symlink to v${installVersion}.`);
+  console.log('Delete folder.');
+  await remove(join(kubectlInstallDir, `v${installVersion}`));
+
+  console.log('Delete symlink.');
   if (platform() !== 'win32') {
     await remove('/usr/local/bin/kubectl');
-    await symlink(
-      join(kubectlInstallDir, `v${installVersion}`, 'kubectl'),
-      '/usr/local/bin/kubectl',
-      'file',
-    );
   }
   // TODO windows.
 
-  console.log(chalk.green(`Version changed to v${installVersion}.`));
+  console.log(chalk.green(`Version v${installVersion} removed.`));
   console.groupEnd();
   return ExitCode.success;
 }

@@ -17,6 +17,7 @@ export function registerList(subCommand: Command): void {
 }
 
 export async function getLocalVersions(): Promise<string[]> {
+  await ensureDir(kubectlInstallDir);
   return ((await readdir(kubectlInstallDir))
     .filter(path => lstatSync(join(kubectlInstallDir, path)).isDirectory())
     .map(v => clean(v))
@@ -25,7 +26,6 @@ export async function getLocalVersions(): Promise<string[]> {
 
 async function listLocalVersions(): Promise<number> {
   console.group(chalk.underline('List kubectl installations'));
-  await ensureDir(kubectlInstallDir);
 
   const versions = await getLocalVersions();
   if (versions.length === 0) {
