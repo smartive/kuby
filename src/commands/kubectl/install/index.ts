@@ -10,6 +10,7 @@ import { ExitCode } from '../../../utils/exit-code';
 import { promiseAction } from '../../../utils/promise-action';
 import { simpleConfirm } from '../../../utils/simple-confirm';
 import { getVersions } from '../refresh';
+import { useVersion } from '../use';
 
 const spinner = require('ora')();
 
@@ -97,8 +98,7 @@ async function installVersion(version: string): Promise<number> {
   }
 
   await download(installVersion);
-
-  // console.log(response);
+  await useVersion(installVersion);
 
   console.groupEnd();
   return ExitCode.success;
