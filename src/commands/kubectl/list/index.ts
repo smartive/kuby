@@ -1,11 +1,12 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { ensureDir, lstatSync, readdir } from 'fs-extra';
-import { homedir } from 'os';
 import { join } from 'path';
+import { clean, rcompare } from 'semver';
 
 import { ExitCode } from '../../../utils/exit-code';
 import { promiseAction } from '../../../utils/promise-action';
+import { kubectlInstallDir } from '../install';
 
 export function registerList(subCommand: Command): void {
   subCommand
@@ -15,15 +16,18 @@ export function registerList(subCommand: Command): void {
     .action(promiseAction(listLocalVersions));
 }
 
-const installDir = join(homedir(), '.kube', 'k8s-helpers', 'kubectl');
+export async function getLocalVersions(): Promise<string[]> {
+  return ((await readdir(kubectlInstallDir))
+    .filter(path => lstatSync(join(kubectlInstallDir, path)).isDirectory())
+    .map(v => clean(v))
+    .filter(Boolean) as string[]).sort(rcompare);
+}
 
 async function listLocalVersions(): Promise<number> {
   console.group(chalk.underline('List kubectl installations'));
-  await ensureDir(installDir);
+  await ensureDir(kubectlInstallDir);
 
-  const versions = (await readdir(installDir)).filter(path =>
-    lstatSync(join(installDir, path)).isDirectory(),
-  );
+  const versions = await getLocalVersions();
   if (versions.length === 0) {
     console.log('No local installations found.');
     console.groupEnd();
@@ -31,7 +35,9 @@ async function listLocalVersions(): Promise<number> {
   }
 
   console.log('Local available kubectl versions:');
-  versions.forEach(v => console.log(`${v} (~/.kube/k8s-helpers/kubectl/${v})`));
+  versions.forEach(v =>
+    console.log(`v${v} (~/.kube/k8s-helpers/kubectl/v${v})`),
+  );
 
   console.groupEnd();
   return ExitCode.success;

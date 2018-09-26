@@ -28,7 +28,12 @@ export function registerInstall(subCommand: Command): void {
     .action(promiseAction(installVersion));
 }
 
-const installDir = join(homedir(), '.kube', 'k8s-helpers', 'kubectl');
+export const kubectlInstallDir = join(
+  homedir(),
+  '.kube',
+  'k8s-helpers',
+  'kubectl',
+);
 const downloadUrl = (version: string, os: 'linux' | 'darwin' | 'windows') =>
   `https://storage.googleapis.com/kubernetes-release/release/v${version}/bin/${os}/amd64/kubectl${
     os === 'windows' ? '.exe' : ''
@@ -48,7 +53,7 @@ function getOs(): 'linux' | 'darwin' | 'windows' {
 async function download(version: string): Promise<void> {
   spinner.start(`Downloading v${version}.`);
   const url = downloadUrl(version, getOs());
-  const destination = join(installDir, `v${version}`);
+  const destination = join(kubectlInstallDir, `v${version}`);
   const destinationFile = join(
     destination,
     `kubectl${getOs() === 'windows' ? '.exe' : ''}`,
@@ -80,7 +85,7 @@ async function installVersion(
   options: KubectlInstallOptions,
 ): Promise<number> {
   console.group(chalk.underline(`Install kubectl version`));
-  await ensureDir(installDir);
+  await ensureDir(kubectlInstallDir);
 
   const versions = await getVersions();
   const installVersion = maxSatisfying(versions, version);
