@@ -2,20 +2,20 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import { chmod, createWriteStream, emptyDir, ensureDir } from 'fs-extra';
 import { stream } from 'got';
-import { homedir, platform } from 'os';
 import { join } from 'path';
 import { maxSatisfying } from 'semver';
 
 import { ExitCode } from '../../../utils/exit-code';
 import { promiseAction } from '../../../utils/promise-action';
 import { simpleConfirm } from '../../../utils/simple-confirm';
-import { getVersions } from '../refresh';
 import { useVersion } from '../use';
+import { getLocalVersions, getOs, getRemoteVersions, kubectlDownloadUrl, kubectlInstallDir } from '../utils/kubectl';
 
 const spinner = require('ora')();
 
 interface KubectlInstallOptions {
   interaction: boolean;
+  force: boolean;
 }
 
 export function registerInstall(subCommand: Command): void {
@@ -25,34 +25,13 @@ export function registerInstall(subCommand: Command): void {
       'Install and use a specific version of kubectl (i.e. download it).',
     )
     .option('-n, --no-interaction', 'No interaction mode, use default answers')
+    .option('-f, --force', 'Force re-install version, if already installed.')
     .action(promiseAction(installVersion));
-}
-
-export const kubectlInstallDir = join(
-  homedir(),
-  '.kube',
-  'k8s-helpers',
-  'kubectl',
-);
-const downloadUrl = (version: string, os: 'linux' | 'darwin' | 'windows') =>
-  `https://storage.googleapis.com/kubernetes-release/release/v${version}/bin/${os}/amd64/kubectl${
-    os === 'windows' ? '.exe' : ''
-  }`;
-
-function getOs(): 'linux' | 'darwin' | 'windows' {
-  switch (platform()) {
-    case 'darwin':
-      return 'darwin';
-    case 'win32':
-      return 'windows';
-    default:
-      return 'linux';
-  }
 }
 
 async function download(version: string): Promise<void> {
   spinner.start(`Downloading v${version}.`);
-  const url = downloadUrl(version, getOs());
+  const url = kubectlDownloadUrl(version, getOs());
   const destination = join(kubectlInstallDir, `v${version}`);
   const destinationFile = join(
     destination,
@@ -87,7 +66,7 @@ async function installVersion(
   console.group(chalk.underline(`Install kubectl version`));
   await ensureDir(kubectlInstallDir);
 
-  const versions = await getVersions();
+  const versions = await getRemoteVersions();
   const installVersion = maxSatisfying(versions, version);
 
   if (!installVersion) {
@@ -99,6 +78,10 @@ async function installVersion(
     console.groupEnd();
     return ExitCode.error;
   }
+
+  if (!options.force && (await getLocalVersions())) {
+  }
+
   if (
     options.interaction &&
     !(await simpleConfirm(

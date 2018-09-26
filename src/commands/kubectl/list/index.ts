@@ -1,12 +1,9 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { ensureDir, lstatSync, readdir } from 'fs-extra';
-import { join } from 'path';
-import { clean, rcompare } from 'semver';
 
 import { ExitCode } from '../../../utils/exit-code';
 import { promiseAction } from '../../../utils/promise-action';
-import { kubectlInstallDir } from '../install';
+import { getLocalVersions } from '../utils/kubectl';
 
 export function registerList(subCommand: Command): void {
   subCommand
@@ -14,14 +11,6 @@ export function registerList(subCommand: Command): void {
     .alias('ls')
     .description('List local available kubectl versions.')
     .action(promiseAction(listLocalVersions));
-}
-
-export async function getLocalVersions(): Promise<string[]> {
-  await ensureDir(kubectlInstallDir);
-  return ((await readdir(kubectlInstallDir))
-    .filter(path => lstatSync(join(kubectlInstallDir, path)).isDirectory())
-    .map(v => clean(v))
-    .filter(Boolean) as string[]).sort(rcompare);
 }
 
 async function listLocalVersions(): Promise<number> {

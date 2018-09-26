@@ -8,8 +8,7 @@ import { maxSatisfying } from 'semver';
 
 import { ExitCode } from '../../../utils/exit-code';
 import { promiseAction } from '../../../utils/promise-action';
-import { kubectlInstallDir } from '../install';
-import { getLocalVersions } from '../list';
+import { getLocalVersions, kubectlInstallDir } from '../utils/kubectl';
 
 type PromptAnswers = {
   version: string;
