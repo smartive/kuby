@@ -79,7 +79,10 @@ async function installVersion(
     return ExitCode.error;
   }
 
-  if (!options.force && (await getLocalVersions())) {
+  if (!options.force && (await getLocalVersions()).includes(installVersion)) {
+    console.log(`v${installVersion} already installed and no force flag set.`);
+    console.groupEnd();
+    return ExitCode.success;
   }
 
   if (
