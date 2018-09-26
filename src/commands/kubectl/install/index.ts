@@ -14,12 +14,17 @@ import { useVersion } from '../use';
 
 const spinner = require('ora')();
 
+interface KubectlInstallOptions {
+  interaction: boolean;
+}
+
 export function registerInstall(subCommand: Command): void {
   subCommand
     .command('install <semver>')
     .description(
       'Install and use a specific version of kubectl (i.e. download it).',
     )
+    .option('-n, --no-interaction', 'No interaction mode, use default answers')
     .action(promiseAction(installVersion));
 }
 
@@ -70,7 +75,10 @@ async function download(version: string): Promise<void> {
   }).then(() => chmod(destinationFile, '755'));
 }
 
-async function installVersion(version: string): Promise<number> {
+async function installVersion(
+  version: string,
+  options: KubectlInstallOptions,
+): Promise<number> {
   console.group(chalk.underline(`Install kubectl version`));
   await ensureDir(installDir);
 
@@ -87,6 +95,7 @@ async function installVersion(version: string): Promise<number> {
     return ExitCode.error;
   }
   if (
+    options.interaction &&
     !(await simpleConfirm(
       `Found version v${installVersion}. Process install?`,
       true,
