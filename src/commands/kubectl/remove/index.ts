@@ -17,6 +17,7 @@ type PromptAnswers = {
 export function registerRemove(subCommand: Command): void {
   subCommand
     .command('remove [semver]')
+    .alias('rm')
     .description('Delete (locally) a version of kubectl.')
     .action(promiseAction(removeVersion));
 }
