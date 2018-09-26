@@ -35,7 +35,7 @@ async function getRemoteVersions(): Promise<string[]> {
 
   let getUrl: string | null = initialUrl;
   while (getUrl) {
-    console.log(`Downloading from: ${getUrl}`);
+    spinner.text = `Downloading from: ${getUrl}`;
     const result = await get(getUrl);
 
     versions.push(
@@ -59,7 +59,7 @@ export async function refreshVersions(): Promise<number> {
   const versions = await getRemoteVersions();
   await writeJson(versionsFile, versions, { encoding: 'utf8' });
 
-  spinner.stop();
+  spinner.succeed();
 
   console.log(chalk.green('Versions refreshed.'));
   console.groupEnd();
