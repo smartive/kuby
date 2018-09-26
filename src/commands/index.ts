@@ -5,4 +5,5 @@ import './deploy';
 import './kube-config';
 import './namespace';
 import './prepare';
+import './version';
 
