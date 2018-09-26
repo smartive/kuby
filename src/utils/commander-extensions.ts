@@ -12,7 +12,11 @@ commander.Command.prototype.forwardSubcommands = function (): any {
     unknown = parsed.unknown;
 
     // Output help if necessary
-    if (unknown.includes('--help') || unknown.includes('-h')) {
+    if (
+      unknown.includes('--help') ||
+      unknown.includes('-h') ||
+      args.length === 0
+    ) {
       this.outputHelp();
       process.exit(0);
     }
@@ -22,7 +26,9 @@ commander.Command.prototype.forwardSubcommands = function (): any {
   };
 
   if (this._args.length > 0) {
-    console.error('forwardSubcommands cannot be applied to command with explicit args');
+    console.error(
+      'forwardSubcommands cannot be applied to command with explicit args',
+    );
   }
 
   const parent = this.parent || this;
