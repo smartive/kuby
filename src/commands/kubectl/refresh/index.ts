@@ -4,6 +4,7 @@ import { ensureFile, pathExists, readJson, writeJson } from 'fs-extra';
 import { get } from 'got';
 import { homedir } from 'os';
 import { join } from 'path';
+import { clean } from 'semver';
 
 import { ExitCode } from '../../../utils/exit-code';
 import { promiseAction } from '../../../utils/promise-action';
@@ -48,7 +49,7 @@ async function getRemoteVersions(): Promise<string[]> {
     getUrl = match ? match[1] : null;
   }
 
-  return versions.sort();
+  return versions.map(v => clean(v)).filter(Boolean) as string[];
 }
 
 export async function refreshVersions(): Promise<number> {

@@ -24,6 +24,12 @@ async function listLocalVersions(): Promise<number> {
   const versions = (await readdir(installDir)).filter(path =>
     lstatSync(join(installDir, path)).isDirectory(),
   );
+  if (versions.length === 0) {
+    console.log('No local installations found.');
+    console.groupEnd();
+    return ExitCode.success;
+  }
+
   console.log('Local available kubectl versions:');
   versions.forEach(v => console.log(`${v} (~/.kube/k8s-helpers/kubectl/${v})`));
 
