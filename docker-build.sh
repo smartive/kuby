@@ -7,8 +7,8 @@ kubectl_versions=("1" "1.11" "1.10" "1.9" "1.8")
 image="smartive/kubernetes-deploy"
 
 echo "Build latest docker image"
-echo "docker build --build-arg KUBECTL_VERSION=\"1\" -t $image:latest ."
-echo "docker push $image:latest"
+docker build --build-arg KUBECTL_VERSION="1" -t $image:latest .
+docker push $image:latest
 
 for version in ${kubectl_versions[@]}; do
   echo "Build docker image with kubectl version v$version"
@@ -19,9 +19,9 @@ for version in ${kubectl_versions[@]}; do
   echo "Use tag: $version_tag"
   echo "And latest tag: $latest_tag"
 
-  echo "docker build --build-arg KUBECTL_VERSION=$version -t $image:$version_tag ."
-  echo "docker tag $image:$version_tag $image:$latest_tag"
-  echo "docker push $image:$version_tag"
-  echo "docker push $image:$latest_tag"
+  docker build --build-arg KUBECTL_VERSION=$version -t $image:$version_tag .
+  docker tag $image:$version_tag $image:$latest_tag
+  docker push $image:$version_tag
+  docker push $image:$latest_tag
 
 done
