@@ -1,20 +1,20 @@
 stages:
-  - release
+  # - release
   - deploy
 
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://localhost:2375
 
-create release:
-  stage: release
-  image: node:10
-  script:
-    - npm ci
-    - npm run build
-    - npx semantic-release
-  only:
-    - master
+# create release:
+#   stage: release
+#   image: node:10
+#   script:
+#     - npm ci
+#     - npm run build
+#     - npx semantic-release
+#   only:
+#     - master
 
 deploy docker images:
   stage: deploy
@@ -24,9 +24,10 @@ deploy docker images:
   before_script:
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
   script:
-    - ./docker-build.sh
+    - ls -la
+    - cat docker-build.sh
   only:
-    - tags
+    - master
 
 deploy binaries:
   stage: deploy
