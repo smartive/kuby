@@ -5,6 +5,7 @@ stages:
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://localhost:2375
+  CI_COMMIT_TAG: foo
 
 # create release:
 #   stage: release
@@ -26,6 +27,7 @@ deploy docker images:
   script:
     - ls -la
     - cat docker-build.sh
+    - ./docker-build.sh
   only:
     - master
 
