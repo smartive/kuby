@@ -23,6 +23,7 @@ deploy docker images:
   services:
     - docker:dind
   before_script:
+    - RUN apk add --no-cache bash
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
   script:
     - ls -la
