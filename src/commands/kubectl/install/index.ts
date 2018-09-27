@@ -81,6 +81,7 @@ async function installVersion(
 
   if (!options.force && (await getLocalVersions()).includes(installVersion)) {
     console.log(`v${installVersion} already installed and no force flag set.`);
+    await useVersion(installVersion);
     console.groupEnd();
     return ExitCode.success;
   }
