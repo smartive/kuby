@@ -4,7 +4,7 @@ import './utils/commander-extensions';
 import './commands';
 
 import chalk from 'chalk';
-import { description, name, option, outputHelp, parse } from 'commander';
+import { command, description, name, option, outputHelp, parse } from 'commander';
 
 name('k8s');
 description(`${chalk.blue('smartive AG')} kubernetes (k8s) helper commands.`);
@@ -12,6 +12,10 @@ option(
   '--ci',
   'CI mode, perform a kube-config login with the content of $KUBE_CONFIG and no interaction flag.',
 );
+
+command('*')
+  .description('No matching command found. Print help.')
+  .action(() => outputHelp());
 
 parse(process.argv);
 

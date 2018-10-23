@@ -15,3 +15,8 @@ registerRefresh(kubectl);
 registerInstall(kubectl);
 registerUse(kubectl);
 registerRemove(kubectl);
+
+kubectl
+  .command('*')
+  .description('No matching command found. Print help.')
+  .action(() => kubectl.outputHelp());
