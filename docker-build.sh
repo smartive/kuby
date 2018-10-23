@@ -3,7 +3,7 @@ set -e
 
 echo "Create and deploy the various versions for k8s docker image"
 
-kubectl_versions=("1" "1.11" "1.10" "1.9" "1.8")
+kubectl_versions=("1" "1.12" "1.11" "1.10" "1.9" "1.8")
 image="smartive/kubernetes-deploy"
 
 echo "Build latest docker image"

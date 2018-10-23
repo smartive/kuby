@@ -7,4 +7,3 @@ import './kubectl';
 import './namespace';
 import './prepare';
 import './version';
-
