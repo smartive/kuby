@@ -1,4 +1,5 @@
 import './apply';
+import './context';
 import './delete';
 import './deploy';
 import './exec';

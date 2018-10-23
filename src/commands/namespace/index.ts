@@ -10,22 +10,7 @@ const kubens = command('namespace')
   )
   .forwardSubcommands(false);
 
-// registerList(kubens);
-// registerRefresh(kubens);
-// registerInstall(kubens);
-// registerUse(kubens);
-// registerRemove(kubens);
-
 registerUse(kubens);
-
-// kubens
-//   .command('create')
-//   .description('new')
-//   .action(() => console.log('new'));
-// kubens
-//   .command('')
-//   .description('list')
-//   .action(() => console.log('list / switch'));
 
 kubens
   .command('*')
