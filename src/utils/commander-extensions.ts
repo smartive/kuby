@@ -1,6 +1,8 @@
 import commander = require('commander');
 
-commander.Command.prototype.forwardSubcommands = function (): any {
+commander.Command.prototype.forwardSubcommands = function (
+  helpOnNoArgs: boolean = true,
+): any {
   const listener = (args: any[], unknown: any[]) => {
     // tslint:disable:no-parameter-reassignment
     // Parse any so-far unknown options
@@ -15,7 +17,7 @@ commander.Command.prototype.forwardSubcommands = function (): any {
     if (
       unknown.includes('--help') ||
       unknown.includes('-h') ||
-      args.length === 0
+      (helpOnNoArgs && args.length === 0)
     ) {
       this.outputHelp();
       process.exit(0);
