@@ -8,6 +8,7 @@ import { maxSatisfying } from 'semver';
 
 import { ExitCode } from '../../../utils/exit-code';
 import { promiseAction } from '../../../utils/promise-action';
+import { getVersionInfo } from '../../version';
 import { getLocalVersions, kubectlInstallDir } from '../utils/kubectl';
 
 type PromptAnswers = {
@@ -26,12 +27,14 @@ export async function removeVersion(version?: string): Promise<number> {
   console.group(chalk.underline(`Delete kubectl version`));
 
   let useVer = version;
+  const versions = await getLocalVersions();
+  const { kubectlVersion } = await getVersionInfo();
   if (!useVer) {
     const answers = (await prompt([
       {
         type: 'list',
         name: 'version',
-        message: 'Which version do you want to delete?',
+        message: `Which version do you want to delete? (current: v${kubectlVersion})`,
         choices: [
           ...(await getLocalVersions()).map(v => ({ value: v, name: `v${v}` })),
         ],
@@ -40,7 +43,6 @@ export async function removeVersion(version?: string): Promise<number> {
     useVer = answers.version;
   }
 
-  const versions = await getLocalVersions();
   const installVersion = maxSatisfying(versions, useVer);
 
   if (!installVersion) {

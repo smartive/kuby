@@ -8,6 +8,7 @@ import { maxSatisfying } from 'semver';
 
 import { ExitCode } from '../../../utils/exit-code';
 import { promiseAction } from '../../../utils/promise-action';
+import { getVersionInfo } from '../../version';
 import { getLocalVersions, kubectlInstallDir } from '../utils/kubectl';
 
 type PromptAnswers = {
@@ -25,21 +26,20 @@ export async function useVersion(version?: string): Promise<number> {
   console.group(chalk.underline(`Use kubectl version`));
 
   let useVer = version;
+  const versions = await getLocalVersions();
+  const { kubectlVersion } = await getVersionInfo();
   if (!useVer) {
     const answers = (await prompt([
       {
         type: 'list',
         name: 'version',
-        message: 'Which version do you want to use?',
-        choices: [
-          ...(await getLocalVersions()).map(v => ({ value: v, name: `v${v}` })),
-        ],
+        message: `Which version do you want to use? (current: v${kubectlVersion})`,
+        choices: [...versions.map(v => ({ value: v, name: `v${v}` }))],
       },
     ])) as PromptAnswers;
     useVer = answers.version;
   }
 
-  const versions = await getLocalVersions();
   const installVersion = maxSatisfying(versions, useVer);
 
   if (!installVersion) {
