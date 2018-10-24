@@ -14,14 +14,11 @@ commander.Command.prototype.forwardSubcommands = function (
     unknown = parsed.unknown;
 
     // Output help if necessary
-    if (
-      unknown.includes('--help') ||
-      unknown.includes('-h') ||
-      (helpOnNoArgs && args.length === 0)
-    ) {
+    if (helpOnNoArgs && args.length === 0) {
       this.outputHelp();
       process.exit(0);
     }
+    console.log(args, unknown);
 
     this.parseArgs(args, unknown);
     // tslint:enable:no-parameter-reassignment

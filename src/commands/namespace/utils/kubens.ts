@@ -14,3 +14,12 @@ export async function getNamespaces(): Promise<string[]> {
   );
   return value.split('\n').filter(ns => !!ns);
 }
+
+export async function getServiceAccountsForNamespace(
+  namespace: string,
+): Promise<string[]> {
+  const value = await exec(
+    `kubectl get serviceaccounts -n ${namespace} -o=jsonpath='{range .items[*].metadata.name}{@}{"\\n"}{end}'`,
+  );
+  return value.split('\n').filter(sa => !!sa);
+}

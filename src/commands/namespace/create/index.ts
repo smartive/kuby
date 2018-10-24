@@ -12,6 +12,7 @@ import { promiseAction } from '../../../utils/promise-action';
 import { simpleConfirm } from '../../../utils/simple-confirm';
 import { spawn } from '../../../utils/spawn';
 import { getCurrentContext } from '../../context/utils/kubectx';
+import { getKubeConfigForNamespace } from '../kube-config';
 import { getNamespaces } from '../utils/kubens';
 
 const serviceAccount = (namespace: string, saName: string) => `apiVersion: v1
@@ -75,14 +76,24 @@ interface PromptAnswers {
   saveRole: boolean;
 }
 
+interface Options {
+  base64?: boolean;
+}
+
 export function registerCreate(subCommand: Command): void {
   subCommand
     .command('create <name>')
-    .description('Create a new kubernetes namespace (with service account).')
+    .description(
+      'Create a new kubernetes namespace (with service account and output kubeconfig).',
+    )
+    .option('-b, --base64', 'Output the kube-config encoded in base64.')
     .action(promiseAction(createNamespace));
 }
 
-async function createNamespace(name: string): Promise<number> {
+async function createNamespace(
+  name: string,
+  options: Options,
+): Promise<number> {
   console.group(chalk.underline('Create kubernetes namespace.'));
 
   const context = await getCurrentContext();
@@ -208,7 +219,7 @@ async function createNamespace(name: string): Promise<number> {
   );
   console.log(chalk.green(`Role and RoleBinding "${roleName}" created.`));
 
-  // get kube-config
+  await getKubeConfigForNamespace(name, answers.serviceAccountName, options);
 
   console.groupEnd();
   return ExitCode.success;
