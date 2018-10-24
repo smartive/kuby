@@ -86,7 +86,7 @@ export function registerCreate(subCommand: Command): void {
     .description(
       'Create a new kubernetes namespace (with service account and output kubeconfig).',
     )
-    .option('-b, --base64', 'Output the kube-config encoded in base64.')
+    // .option('-b, --base64', 'Output the kube-config encoded in base64.')
     .action(promiseAction(createNamespace));
 }
 

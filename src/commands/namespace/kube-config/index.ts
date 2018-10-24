@@ -47,7 +47,7 @@ export function registerKubeConfig(subCommand: Command): void {
     .description(
       'Generate a specific kube-config for the namespace and the given service account. If omitted, the user is asked.',
     )
-    .option('-b, --base64', 'Output the kube-config encoded in base64.')
+    // .option('-b, --base64', 'Output the kube-config encoded in base64.')
     .action(promiseAction(getKubeConfigForNamespace));
 }
 
