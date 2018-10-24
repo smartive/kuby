@@ -18,7 +18,6 @@ commander.Command.prototype.forwardSubcommands = function (
       this.outputHelp();
       process.exit(0);
     }
-    console.log(args, unknown);
 
     this.parseArgs(args, unknown);
     // tslint:enable:no-parameter-reassignment
