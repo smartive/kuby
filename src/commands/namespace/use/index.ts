@@ -12,11 +12,11 @@ export function registerUse(subCommand: Command): void {
   subCommand.action(promiseAction(listOrSwitchNamespace));
 }
 
-export async function listOrSwitchNamespace(): Promise<number> {
+export async function listOrSwitchNamespace(): Promise<number | null> {
   const args = process.argv.slice(3);
 
   if (args.length > 0) {
-    return ExitCode.success;
+    return null;
   }
 
   console.group(chalk.underline(`List / Switch namespaces`));

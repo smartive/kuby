@@ -1,5 +1,6 @@
 import { command } from 'commander';
 
+import { registerCreate } from './create';
 import { registerUse } from './use';
 
 const kubens = command('namespace')
@@ -10,6 +11,7 @@ const kubens = command('namespace')
   )
   .forwardSubcommands(false);
 
+registerCreate(kubens);
 registerUse(kubens);
 
 kubens

@@ -7,31 +7,40 @@ const algorithm = 'aes-256-cbc';
 const hash = 'sha256';
 const ivLength = 16;
 
-export async function saveMachineEncryptedJson<T>(filepath: string, object: T): Promise<void> {
-  const iv = randomBytes(ivLength);
-  const cipher = createCipheriv(algorithm, await getKey(), iv);
-  const content = JSON.stringify(object);
+export class Crypto {
+  private constructor() {}
 
-  const encrypted = cipher.update(content);
-  const buffer = `${iv.toString('hex')}:${Buffer.concat([encrypted, cipher.final()]).toString('hex')}`;
+  public static async save<T>(filepath: string, object: T): Promise<void> {
+    const iv = randomBytes(ivLength);
+    const cipher = createCipheriv(algorithm, await Crypto.getKey(), iv);
+    const content = JSON.stringify(object);
 
-  await outputFile(filepath, buffer, { encoding: 'utf8' });
-}
+    const encrypted = cipher.update(content);
+    const buffer = `${iv.toString('hex')}:${Buffer.concat([
+      encrypted,
+      cipher.final(),
+    ]).toString('hex')}`;
 
-export async function loadMachineEncryptedJson<T>(filepath: string): Promise<T> {
-  const content = (await readFile(filepath, { encoding: 'utf8' })).split(':');
-  const iv = Buffer.from(content.shift()!, 'hex');
-  const encrypted = Buffer.from(content.join(':'), 'hex');
+    await outputFile(filepath, buffer, { encoding: 'utf8' });
+  }
 
-  const cipher = createDecipheriv(algorithm, await getKey(), iv);
+  public static async load<T>(filepath: string): Promise<T> {
+    const content = (await readFile(filepath, { encoding: 'utf8' })).split(':');
+    const iv = Buffer.from(content.shift()!, 'hex');
+    const encrypted = Buffer.from(content.join(':'), 'hex');
 
-  let decrypted = cipher.update(encrypted);
-  decrypted = Buffer.concat([decrypted, cipher.final()]);
+    const cipher = createDecipheriv(algorithm, await Crypto.getKey(), iv);
 
-  return JSON.parse(decrypted.toString());
-}
+    let decrypted = cipher.update(encrypted);
+    decrypted = Buffer.concat([decrypted, cipher.final()]);
 
-async function getKey(): Promise<Buffer> {
-  const machineKey = await machineId();
-  return createHmac(hash, machineKey).update(machineKey).digest();
+    return JSON.parse(decrypted.toString());
+  }
+
+  private static async getKey(): Promise<Buffer> {
+    const machineKey = await machineId();
+    return createHmac(hash, machineKey)
+      .update(machineKey)
+      .digest();
+  }
 }

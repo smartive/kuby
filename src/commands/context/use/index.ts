@@ -11,11 +11,11 @@ export function registerUse(subCommand: Command): void {
   subCommand.action(promiseAction(listOrSwitchContext));
 }
 
-export async function listOrSwitchContext(): Promise<number> {
+export async function listOrSwitchContext(): Promise<number | null> {
   const args = process.argv.slice(3);
 
   if (args.length > 0) {
-    return ExitCode.success;
+    return null;
   }
 
   console.group(chalk.underline(`List / Switch context`));
