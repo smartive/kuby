@@ -4,7 +4,7 @@ import { homedir, platform } from 'os';
 import { join } from 'path';
 import { clean, rcompare } from 'semver';
 
-const spinner = require('ora')();
+const ora = require('ora');
 
 const initialUrl =
   'https://api.github.com/repos/kubernetes/kubernetes/releases?per_page=100';
@@ -55,7 +55,7 @@ export async function downloadRemoteVersions(): Promise<string[]> {
   const versions: string[] = [];
 
   let getUrl: string | null = initialUrl;
-  spinner.start(`Downloading from: ${getUrl}`);
+  const spinner = ora(`Downloading from: ${getUrl}`).start();
   while (getUrl) {
     spinner.text = `Downloading from: ${getUrl}`;
     const result = await get(getUrl);

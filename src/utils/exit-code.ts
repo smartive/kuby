@@ -1,4 +1,3 @@
 export const enum ExitCode {
-  success,
-  error,
+  error = 1,
 }

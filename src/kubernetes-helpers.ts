@@ -1,24 +1,29 @@
 #!/usr/bin/env node
-import './utils/commander-extensions';
+import { alias, command, help, option, parse, recommendCommands, scriptName, showHelp, strict, version } from 'yargs';
 
-import './commands';
+import { commands } from './commands';
 
-import chalk from 'chalk';
-import { command, description, name, option, outputHelp, parse } from 'commander';
+scriptName('k8s');
+version(false);
 
-name('k8s');
-description(`${chalk.blue('smartive AG')} kubernetes (k8s) helper commands.`);
-option(
-  '--ci',
-  'CI mode, perform a kube-config login with the content of $KUBE_CONFIG and no interaction flag.',
-);
+strict();
+recommendCommands();
 
-command('*')
-  .description('No matching command found. Print help.')
-  .action(() => outputHelp());
+for (const cmd of commands) {
+  command(cmd);
+}
 
-parse(process.argv);
+option('ci', {
+  description: 'CI Mode (non-interactive and biased)',
+  boolean: true,
+  default: false,
+  global: true,
+});
 
-if (!process.argv.slice(2).length) {
-  outputHelp();
+alias('h', 'help');
+help('help');
+// wrap(terminalWidth());
+
+if (parse()._.length === 0) {
+  showHelp('log');
 }

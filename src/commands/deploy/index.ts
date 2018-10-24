@@ -1,43 +1,43 @@
 import chalk from 'chalk';
-import { command } from 'commander';
+import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { RootOptions } from '../../root-options';
-import { ExitCode } from '../../utils/exit-code';
-import { promiseAction } from '../../utils/promise-action';
-import { apply } from '../apply';
-import { prepare } from '../prepare';
+import { applyCommand } from '../apply';
+import { prepareCommand } from '../prepare';
 
-command('deploy [baseFolder=./k8s/] [deployFolder=./deployment/]')
-  .alias('dep')
-  .description('Prepare all yaml files and execute an apply command on them.')
-  .action(promiseAction(deploy));
-
-interface DeployOptions {
-  parent: RootOptions;
+interface DeployArguments extends Arguments, RootOptions {
+  sourceFolder: string;
+  destinationFolder: string;
 }
 
-async function deploy(
-  baseFolder: string = './k8s/',
-  deployFolder: string = './deployment/',
-  options: DeployOptions,
-): Promise<number> {
-  console.group(chalk.underline('Execute deployment'));
+export const deployCommand: CommandModule = {
+  command: 'deploy [sourceFolder] [destinationFolder]',
+  aliases: 'dep',
+  describe: 'Prepare and deploy all found yaml files.',
 
-  const prepareCode = await prepare(baseFolder, deployFolder);
-  if (prepareCode !== 0) {
-    console.error(chalk.red('An error happend during the preparation.'));
+  builder: (argv: Argv) =>
+    argv
+      .positional('sourceFolder', {
+        description: 'Folder to search for yaml files.',
+        type: 'string',
+        default: './k8s/',
+      })
+      .positional('destinationFolder', {
+        description: 'Folder to put prepared yaml files in.',
+        type: 'string',
+        default: './deployment/',
+      }),
+
+  async handler(args: DeployArguments): Promise<void> {
+    console.group(chalk.underline('Execute deployment'));
+
+    await prepareCommand.handler(args);
+    await applyCommand.handler({
+      ...args,
+      deployFolder: args.destinationFolder,
+    });
+
+    console.log(chalk.green('Deployments applied.'));
     console.groupEnd();
-    return ExitCode.error;
-  }
-
-  const applyCode = await apply(deployFolder, options);
-  if (applyCode !== 0) {
-    console.error(chalk.red('An error happend during the apply action.'));
-    console.groupEnd();
-    return ExitCode.error;
-  }
-
-  console.log(chalk.green('Deployments applied.'));
-  console.groupEnd();
-  return ExitCode.success;
-}
+  },
+};

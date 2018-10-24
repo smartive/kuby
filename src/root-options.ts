@@ -1,3 +1,3 @@
 export interface RootOptions {
-  ci?: boolean;
+  ci: boolean;
 }

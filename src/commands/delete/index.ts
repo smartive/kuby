@@ -1,53 +1,60 @@
 import chalk from 'chalk';
-import { command } from 'commander';
+import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { RootOptions } from '../../root-options';
 import { ExitCode } from '../../utils/exit-code';
-import { promiseAction } from '../../utils/promise-action';
 import { spawn } from '../../utils/spawn';
-import { kubeConfig } from '../kube-config';
-import { prepare } from '../prepare';
+import { kubeConfigCommand } from '../kube-config';
+import { prepareCommand } from '../prepare';
 
-command('delete [baseFolder=./k8s/] [deployFolder=./deployment/]')
-  .alias('del')
-  .description('Prepare all yaml files and execute a DELETE command on them.')
-  .action(promiseAction(deleteDeployment));
-
-interface DeleteOptions {
-  parent: RootOptions;
+interface DeleteArguments extends Arguments, RootOptions {
+  sourceFolder: string;
+  destinationFolder: string;
 }
 
-async function deleteDeployment(
-  baseFolder: string = './k8s/',
-  deployFolder: string = './deployment/',
-  options: DeleteOptions,
-): Promise<number> {
-  console.group(chalk.underline('Delete deployment'));
+export const deleteCommand: CommandModule = {
+  command: 'delete [sourceFolder] [destinationFolder]',
+  aliases: 'del',
+  describe: 'Prepare yaml files and execute DELETE on them.',
 
-  const prepareCode = await prepare(baseFolder, deployFolder);
-  if (prepareCode !== 0) {
-    console.error(chalk.red('An error happend during the preparation.'));
-    console.groupEnd();
-    return ExitCode.error;
-  }
+  builder: (argv: Argv) =>
+    argv
+      .positional('sourceFolder', {
+        description: 'Folder to search for yaml files.',
+        type: 'string',
+        default: './k8s/',
+      })
+      .positional('destinationFolder', {
+        description: 'Folder to put prepared yaml files in.',
+        type: 'string',
+        default: './deployment/',
+      }),
 
-  if (options.parent.ci) {
-    const loginCode = await kubeConfig(undefined, { interaction: false });
-    if (loginCode !== 0) {
-      console.error(chalk.red('An error happend during the kube config process.'));
-      console.groupEnd();
-      return ExitCode.error;
+  async handler(args: DeleteArguments): Promise<void> {
+    console.group(chalk.underline('Delete deployment'));
+
+    await prepareCommand.handler(args);
+
+    if (args.ci) {
+      await kubeConfigCommand.handler({
+        ...args,
+        noInteraction: true,
+      });
     }
-  }
 
-  const code = await spawn('kubectl', ['delete', '-f', deployFolder]);
-  if (code !== 0) {
-    console.error(chalk.red('An error happend during the kubectl command.'));
+    const code = await spawn('kubectl', [
+      'delete',
+      '-f',
+      args.destinationFolder,
+    ]);
+    if (code !== 0) {
+      console.error(chalk.red('An error happend during the kubectl command.'));
+      console.groupEnd();
+      process.exit(ExitCode.error);
+      return;
+    }
+
+    console.log(chalk.green('Deployments deleted.'));
     console.groupEnd();
-    return ExitCode.error;
-  }
-
-  console.log(chalk.green('Deployments deleted.'));
-  console.groupEnd();
-  return ExitCode.success;
-}
+  },
+};

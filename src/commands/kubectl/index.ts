@@ -1,22 +1,27 @@
-import { command } from 'commander';
+import { Argv, CommandModule, showHelp } from 'yargs';
 
-import { registerInstall } from './install';
-import { registerList } from './list';
-import { registerRefresh } from './refresh';
-import { registerRemove } from './remove';
-import { registerUse } from './use';
+import { kubectlInstallCommand } from './install';
+import { kubectlListCommand } from './list';
+import { kubectlRefreshCommand } from './refresh';
+import { kubectlRemoveCommand } from './remove';
+import { kubectlUseCommand } from './use';
 
-const kubectl = command('kubectl')
-  .description('Utilities for kubectl management.')
-  .forwardSubcommands();
+const kubectlCommands = [
+  kubectlInstallCommand,
+  kubectlListCommand,
+  kubectlRefreshCommand,
+  kubectlRemoveCommand,
+  kubectlUseCommand,
+];
 
-registerList(kubectl);
-registerRefresh(kubectl);
-registerInstall(kubectl);
-registerUse(kubectl);
-registerRemove(kubectl);
+export const kubectlCommand: CommandModule = {
+  command: 'kubectl',
+  describe: 'Utilities for kubectl management.',
 
-kubectl
-  .command('*')
-  .description('No matching command found. Print help.')
-  .action(() => kubectl.outputHelp());
+  builder: (argv: Argv) =>
+    kubectlCommands.reduce((_, cur) => argv.command(cur), argv),
+
+  handler(): void {
+    showHelp();
+  },
+};
