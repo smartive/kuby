@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { alias, command, help, option, parse, recommendCommands, scriptName, showHelp, strict, version } from 'yargs';
+import { alias, command, help, option, parse, scriptName, showHelp, strict, terminalWidth, version, wrap } from 'yargs';
 
 import { commands } from './commands';
 
@@ -7,7 +7,6 @@ scriptName('k8s');
 version(false);
 
 strict();
-recommendCommands();
 
 for (const cmd of commands) {
   command(cmd);
@@ -22,8 +21,9 @@ option('ci', {
 
 alias('h', 'help');
 help('help');
-// wrap(terminalWidth());
+wrap(terminalWidth());
 
-if (parse()._.length === 0) {
+const args = parse();
+if (args._.length === 0 && !args.getYargsCompletions) {
   showHelp('log');
 }
