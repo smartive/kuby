@@ -1,11 +1,11 @@
 import chalk from 'chalk';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
-import { RootOptions } from '../../root-options';
+import { RootArguments } from '../../root-arguments';
 import { applyCommand } from '../apply';
 import { prepareCommand } from '../prepare';
 
-interface DeployArguments extends Arguments, RootOptions {
+interface DeployArguments extends Arguments, RootArguments {
   sourceFolder: string;
   destinationFolder: string;
 }

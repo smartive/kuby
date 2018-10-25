@@ -1,13 +1,13 @@
 import chalk from 'chalk';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
-import { RootOptions } from '../../root-options';
+import { RootArguments } from '../../root-arguments';
 import { ExitCode } from '../../utils/exit-code';
 import { spawn } from '../../utils/spawn';
 import { kubeConfigCommand } from '../kube-config';
 import { prepareCommand } from '../prepare';
 
-interface DeleteArguments extends Arguments, RootOptions {
+interface DeleteArguments extends Arguments, RootArguments {
   sourceFolder: string;
   destinationFolder: string;
 }

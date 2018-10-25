@@ -2,12 +2,12 @@ import chalk from 'chalk';
 import { pathExists } from 'fs-extra';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
-import { RootOptions } from '../../root-options';
+import { RootArguments } from '../../root-arguments';
 import { ExitCode } from '../../utils/exit-code';
 import { spawn } from '../../utils/spawn';
 import { kubeConfigCommand } from '../kube-config';
 
-interface ApplyArguments extends Arguments, RootOptions {
+interface ApplyArguments extends Arguments, RootArguments {
   deployFolder: string;
 }
 
