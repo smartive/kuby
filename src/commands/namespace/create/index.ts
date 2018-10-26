@@ -17,6 +17,7 @@ import { getNamespaces } from '../utils/kubens';
 interface NamespaceCreateArguments extends Arguments {
   name: string;
   base64: boolean;
+  noInteraction: boolean;
 }
 
 interface PromptAnswers {
@@ -95,6 +96,12 @@ export const namespaceCreateCommand: CommandModule = {
         alias: 'base64',
         default: false,
         description: 'Output the kube-config encoded in base64.',
+      })
+      .option('n', {
+        alias: 'no-interaction',
+        boolean: true,
+        default: false,
+        description: 'No interaction mode, use default answers.',
       }),
 
   async handler(args: NamespaceCreateArguments): Promise<void> {
@@ -145,7 +152,14 @@ export const namespaceCreateCommand: CommandModule = {
       },
     ];
 
-    const answers = (await prompt(questions)) as PromptAnswers;
+    const answers = (args.noInteraction
+      ? {
+        createServiceAccount: true,
+        serviceAccountName: `${args.name}-deploy`,
+        role: defaultRole,
+        saveRole: false,
+      }
+      : await prompt(questions)) as PromptAnswers;
 
     if (answers.createServiceAccount && answers.role && answers.saveRole) {
       await ensureFile(Filepathes.namespaceDefaultRolePath);
@@ -157,6 +171,7 @@ export const namespaceCreateCommand: CommandModule = {
     }
 
     if (
+      !args.noInteraction &&
       !(await simpleConfirm(
         `Create namespace "${chalk.yellow(
           args.name,
