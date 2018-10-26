@@ -1,5 +1,18 @@
 #!/usr/bin/env node
-import { alias, command, help, option, parse, scriptName, showHelp, strict, terminalWidth, version, wrap } from 'yargs';
+import {
+  alias,
+  command,
+  completion,
+  help,
+  option,
+  parse,
+  scriptName,
+  showHelp,
+  strict,
+  terminalWidth,
+  version,
+  wrap,
+} from 'yargs';
 
 import { commands } from './commands';
 
@@ -11,6 +24,8 @@ strict();
 for (const cmd of commands) {
   command(cmd);
 }
+
+completion();
 
 option('ci', {
   description: 'CI Mode (non-interactive and biased)',

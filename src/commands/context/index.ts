@@ -18,12 +18,23 @@ export const contextCommand: CommandModule = {
     'prints a list of possible configured contexts.',
 
   builder: (argv: Argv) =>
-    argv.positional('name', {
-      description: 'Context to switch to. If omitted, user is asked.',
-      type: 'string',
-    }),
+    argv
+      .positional('name', {
+        description: 'Context to switch to. If omitted, user is asked.',
+        type: 'string',
+      })
+      .completion(
+        'completion',
+        false as any,
+        async (_, argv: Arguments) =>
+          argv._.length >= 3 ? [] : await getContexts(),
+      ),
 
   async handler(args: ContextArguments): Promise<void> {
+    if (args.getYargsCompletions) {
+      return;
+    }
+
     console.group(chalk.underline(`List / Switch context`));
 
     const current = await getCurrentContext();

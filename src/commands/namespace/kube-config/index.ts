@@ -65,9 +65,27 @@ export const namespaceKubeConfigCommand: NamespaceKubeConfigCommandModule = {
         alias: 'base64',
         default: false,
         description: 'Output the kube-config encoded in base64.',
-      }),
+      })
+      .completion(
+        'completion',
+        false as any,
+        async (current: string, argv: Arguments) => {
+          switch (argv._.length) {
+            case 3:
+              return await getNamespaces();
+            case 4:
+              return await getServiceAccountsForNamespace(current);
+            default:
+              return [];
+          }
+        },
+      ),
 
   async handler(args: NamespaceKubeConfigArguments): Promise<void> {
+    if (args.getYargsCompletions) {
+      return;
+    }
+
     console.group(chalk.underline('Create kube-config.'));
 
     const currentNamespace = await getCurrentNamespace();

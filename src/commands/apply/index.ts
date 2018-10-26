@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { pathExists } from 'fs-extra';
+import { pathExists, readdir, stat } from 'fs-extra';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { RootArguments } from '../../root-arguments';
@@ -20,14 +20,33 @@ export const applyCommand: ApplyCommandModule = {
   describe: 'Apply all prepared yaml files with kubectl.',
 
   builder: (argv: Argv) =>
-    argv.positional('deployFolder', {
-      default: './deployment/',
-      description: 'Folder with prepared yaml (k8s) files.',
-      type: 'string',
-      normalize: true,
-    }),
+    argv
+      .positional('deployFolder', {
+        default: './deployment/',
+        description: 'Folder with prepared yaml (k8s) files.',
+        type: 'string',
+        normalize: true,
+      })
+      .completion('completion', false as any, async (_, argv: Arguments) => {
+        if (argv._.length >= 3) {
+          return [];
+        }
+        const dirs = [];
+        const directory = await readdir(process.cwd());
+        for (const path of directory) {
+          const stats = await stat(path);
+          if (stats.isDirectory()) {
+            dirs.push(path);
+          }
+        }
+        return dirs;
+      }),
 
   async handler(args: ApplyArguments): Promise<void> {
+    if (args.getYargsCompletions) {
+      return;
+    }
+
     console.group(chalk.underline('Apply yaml files'));
 
     if (!(await pathExists(args.deployFolder))) {

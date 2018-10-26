@@ -3,7 +3,7 @@ import { chmod, createWriteStream, emptyDir, ensureDir } from 'fs-extra';
 import { stream } from 'got';
 import { join } from 'path';
 import { maxSatisfying } from 'semver';
-import { Arguments, Argv, CommandModule } from 'yargs';
+import { Arguments, Argv, argv, CommandModule } from 'yargs';
 
 import { ExitCode } from '../../../utils/exit-code';
 import { simpleConfirm } from '../../../utils/simple-confirm';
@@ -57,6 +57,7 @@ export const kubectlInstallCommand: CommandModule = {
       .positional('semver', {
         description: 'Semver version of the kubectl version to install.',
         type: 'string',
+        default: undefined,
       })
       .option('n', {
         alias: 'no-interaction',
@@ -70,8 +71,29 @@ export const kubectlInstallCommand: CommandModule = {
         default: false,
         description: 'Force re-install of a version if already installed.',
       }),
+  // .fail((msg, err) => {
+  //   if ('getYargsCompletions' in argv.argv) {
+  //     console.log(argv.argv);
+  //   }
+  //   // console.log({
+  //   //   foo: ,
+  //   // });
+  //   // if (err) throw err;
+  //   // console.error('You broke it!');
+  //   // console.error(msg);
+  //   // console.error('You should be doing');
+  //   process.exit(1);
+  // })
+  // .completion('completion', false as any, async (_, argv: Arguments) => {
+  //   console.log('lol');
+  //   return ['compl'];
+  // }),
 
   async handler(args: KubectlInstallArguments): Promise<void> {
+    if (args.getYargsCompletions) {
+      return;
+    }
+
     console.group(chalk.underline(`Install kubectl version`));
     await ensureDir(kubectlInstallDir);
 

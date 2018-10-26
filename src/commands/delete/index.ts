@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { readdir, stat } from 'fs-extra';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { RootArguments } from '../../root-arguments';
@@ -28,9 +29,27 @@ export const deleteCommand: CommandModule = {
         description: 'Folder to put prepared yaml files in.',
         type: 'string',
         default: './deployment/',
+      })
+      .completion('completion', false as any, async (_, argv: Arguments) => {
+        if (argv._.length >= 4) {
+          return [];
+        }
+        const dirs = [];
+        const directory = await readdir(process.cwd());
+        for (const path of directory) {
+          const stats = await stat(path);
+          if (stats.isDirectory()) {
+            dirs.push(path);
+          }
+        }
+        return dirs;
       }),
 
   async handler(args: DeleteArguments): Promise<void> {
+    if (args.getYargsCompletions) {
+      return;
+    }
+
     console.group(chalk.underline('Delete deployment'));
 
     await prepareCommand.handler(args);

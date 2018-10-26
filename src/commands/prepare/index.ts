@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { async } from 'fast-glob';
-import { emptyDir, outputFile, pathExists, readFile } from 'fs-extra';
+import { emptyDir, outputFile, pathExists, readdir, readFile, stat } from 'fs-extra';
 import { join, sep } from 'path';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
@@ -31,9 +31,27 @@ export const prepareCommand: PrepareCommandModule = {
         description: 'Folder to put prepared yaml files in.',
         type: 'string',
         default: './deployment/',
+      })
+      .completion('completion', false as any, async (_, argv: Arguments) => {
+        if (argv._.length >= 4) {
+          return [];
+        }
+        const dirs = [];
+        const directory = await readdir(process.cwd());
+        for (const path of directory) {
+          const stats = await stat(path);
+          if (stats.isDirectory()) {
+            dirs.push(path);
+          }
+        }
+        return dirs;
       }),
 
   async handler(args: PrepareArguments): Promise<void> {
+    if (args.getYargsCompletions) {
+      return;
+    }
+
     console.group(chalk.underline('Prepare yaml files'));
 
     args.sourceFolder = join(process.cwd(), args.sourceFolder);

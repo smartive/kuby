@@ -24,14 +24,25 @@ export const namespaceCommand: CommandModule = {
     'with a name, the command switches directly to that namespace.',
 
   builder: (argv: Argv) => {
-    argv.positional('name', {
-      description: 'Namespace to switch to. If omitted, user is asked.',
-      type: 'string',
-    });
+    argv
+      .positional('name', {
+        description: 'Namespace to switch to. If omitted, user is asked.',
+        type: 'string',
+      })
+      .completion(
+        'completion',
+        false as any,
+        async (_, argv: Arguments) =>
+          argv._.length >= 3 ? [] : await getNamespaces(),
+      );
     return namespaceCommands.reduce((_, cur) => argv.command(cur), argv);
   },
 
   async handler(args: NamespaceArguments): Promise<void> {
+    if (args.getYargsCompletions) {
+      return;
+    }
+
     console.group(chalk.underline(`List / Switch namespaces`));
 
     const current = await getCurrentNamespace();
