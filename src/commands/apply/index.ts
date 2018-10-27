@@ -4,6 +4,7 @@ import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { RootArguments } from '../../root-arguments';
 import { ExitCode } from '../../utils/exit-code';
+import { RcFile } from '../../utils/rc-file';
 import { spawn } from '../../utils/spawn';
 import { kubeConfigCommand } from '../kube-config';
 
@@ -63,7 +64,11 @@ export const applyCommand: ApplyCommandModule = {
       });
     }
 
-    const code = await spawn('kubectl', ['apply', '-f', args.deployFolder]);
+    const code = await spawn(
+      'kubectl',
+      RcFile.getKubectlArguments(args, ['apply', '-f', args.deployFolder]),
+    );
+
     if (code !== 0) {
       console.error(chalk.red('An error happend during the kubectl command.'));
       console.groupEnd();

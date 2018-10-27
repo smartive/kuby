@@ -4,6 +4,7 @@ import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { RootArguments } from '../../root-arguments';
 import { ExitCode } from '../../utils/exit-code';
+import { RcFile } from '../../utils/rc-file';
 import { spawn } from '../../utils/spawn';
 import { kubeConfigCommand } from '../kube-config';
 import { prepareCommand } from '../prepare';
@@ -61,11 +62,10 @@ export const deleteCommand: CommandModule = {
       });
     }
 
-    const code = await spawn('kubectl', [
-      'delete',
-      '-f',
-      args.destinationFolder,
-    ]);
+    const code = await spawn(
+      'kubectl',
+      RcFile.getKubectlArguments(args, ['delete', '-f', args.destinationFolder]),
+    );
     if (code !== 0) {
       console.error(chalk.red('An error happend during the kubectl command.'));
       console.groupEnd();
