@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 import chalk from 'chalk';
 import { readFileSync } from 'fs-extra';
+import { EOL } from 'os';
+import yargonaut = require('yargonaut');
 import {
   alias,
   command,
   completion,
   config as yargsConfig,
+  epilog,
   help,
   option,
   parse,
@@ -18,6 +21,8 @@ import {
 } from 'yargs';
 
 import { commands } from './commands';
+
+yargonaut.style('blue').errorsStyle('red.bold');
 
 const findUp = require('find-up');
 
@@ -65,6 +70,13 @@ try {
 alias('h', 'help');
 help('help');
 wrap(terminalWidth());
+
+epilog(
+  chalk.dim(
+    `This tool intends to help with everyday kubernetes administration.${EOL}` +
+      'Made with the cool cli tool "yargs".',
+  ),
+);
 
 const args = parse();
 if (args._.length === 0 && !args.getYargsCompletions) {
