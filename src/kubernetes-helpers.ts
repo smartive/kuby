@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import chalk from 'chalk';
 import { readFileSync } from 'fs-extra';
-import { EOL } from 'os';
 import yargonaut = require('yargonaut');
 import {
   alias,
@@ -73,8 +72,7 @@ wrap(terminalWidth());
 
 epilog(
   chalk.dim(
-    `This tool intends to help with everyday kubernetes administration.${EOL}` +
-      'Made with the cool cli tool "yargs".',
+    `This tool intends to help with everyday kubernetes administration.`,
   ),
 );
 
