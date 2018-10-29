@@ -44,13 +44,13 @@ option('ci', {
 });
 option('context', {
   description: 'The context to run the given subcommand in',
-  alias: 'c',
+  alias: 'ctx',
   string: true,
   global: true,
 });
 option('namespace', {
   description: 'The namespace to run the given subcommand in',
-  alias: 'n',
+  alias: 'ns',
   string: true,
   global: true,
 });
