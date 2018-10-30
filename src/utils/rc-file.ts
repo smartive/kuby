@@ -9,15 +9,31 @@ export class RcFile {
     rootArgs: RootArguments,
     args: string[],
   ): string[] {
-    if (rootArgs.namespace) {
-      console.log(`Namespace set to ${chalk.yellow(rootArgs.namespace)}.`);
-      args.unshift(rootArgs.namespace);
-      args.unshift('--namespace');
-    }
-    if (rootArgs.context) {
-      console.log(`Context set to ${chalk.yellow(rootArgs.context)}.`);
-      args.unshift(rootArgs.context);
+    let kubectlArgs = RcFile.getKubectlCtxArguments(rootArgs, args);
+    kubectlArgs = RcFile.getKubectlNsArguments(rootArgs, kubectlArgs);
+    return kubectlArgs;
+  }
+
+  public static getKubectlCtxArguments(
+    { context }: RootArguments,
+    args: string[],
+  ): string[] {
+    if (context) {
+      console.log(`Context set to ${chalk.yellow(context)}.`);
+      args.unshift(context);
       args.unshift('--context');
+    }
+    return args;
+  }
+
+  public static getKubectlNsArguments(
+    { namespace }: RootArguments,
+    args: string[],
+  ): string[] {
+    if (namespace) {
+      console.log(`Namespace set to ${chalk.yellow(namespace)}.`);
+      args.unshift(namespace);
+      args.unshift('--namespace');
     }
     return args;
   }
