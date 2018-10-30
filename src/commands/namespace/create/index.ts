@@ -4,17 +4,19 @@ import { prompt } from 'inquirer';
 import { EOL } from 'os';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
+import { RootArguments } from '../../../root-arguments';
 import { datasubst } from '../../../utils/envsubst';
 import { exec } from '../../../utils/exec';
 import { ExitCode } from '../../../utils/exit-code';
 import { Filepathes } from '../../../utils/filepathes';
+import { RcFile } from '../../../utils/rc-file';
 import { simpleConfirm } from '../../../utils/simple-confirm';
 import { spawn } from '../../../utils/spawn';
 import { getCurrentContext } from '../../context/utils/kubectx';
 import { namespaceKubeConfigCommand } from '../kube-config';
 import { getNamespaces } from '../utils/kubens';
 
-interface NamespaceCreateArguments extends Arguments {
+interface NamespaceCreateArguments extends Arguments, RootArguments {
   name: string;
   base64: boolean;
   noInteraction: boolean;
@@ -190,7 +192,10 @@ export const namespaceCreateCommand: CommandModule = {
       return;
     }
 
-    const code = await spawn('kubectl', ['create', 'ns', args.name]);
+    const code = await spawn(
+      'kubectl',
+      RcFile.getKubectlCtxArguments(args, ['create', 'ns', args.name]),
+    );
     if (code !== 0) {
       console.error(
         chalk.red(

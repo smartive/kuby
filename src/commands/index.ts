@@ -6,6 +6,7 @@ import { kubeConfigCommand } from './kube-config';
 import { kubectlCommand } from './kubectl';
 import { namespaceCommand } from './namespace';
 import { prepareCommand } from './prepare';
+import { secretCommand } from './secret';
 import { versionCommand } from './version';
 
 export const commands = [
@@ -17,5 +18,6 @@ export const commands = [
   kubectlCommand,
   namespaceCommand,
   prepareCommand,
+  secretCommand,
   versionCommand,
 ];
