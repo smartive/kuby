@@ -26,12 +26,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@git.smartive.ch:smartive/kubernetes-deploy.git"
+    "url": "git@gitlab.com:smartive/open-source/kubernetes-helpers.git"
   },
   "bugs": {
-    "url": "https://git.smartive.ch/smartive/kubernetes-deploy/issues"
+    "url": "https://gitlab.com/smartive/open-source/kubernetes-helpers/issues"
   },
-  "homepage": "https://git.smartive.ch/smartive/kubernetes-deploy",
+  "homepage": "https://gitlab.com/smartive/open-source/kubernetes-helpers",
   "author": "Christoph Bühler <christoph@smartive.ch>",
   "license": "MIT",
   "publishConfig": {
@@ -39,20 +39,14 @@
   },
   "release": {
     "verifyConditions": [
-      {
-        "path": "@semantic-release/gitlab",
-        "gitlabUrl": "https://git.smartive.ch"
-      },
+      "@semantic-release/gitlab",
       "@semantic-release/npm"
     ],
     "prepare": [
       "@semantic-release/npm"
     ],
     "publish": [
-      {
-        "path": "@semantic-release/gitlab",
-        "gitlabUrl": "https://git.smartive.ch"
-      },
+      "@semantic-release/gitlab",
       "@semantic-release/npm"
     ],
     "success": false,
