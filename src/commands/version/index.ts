@@ -58,6 +58,7 @@ export const versionCommand: CommandModule = {
     }),
 
   async handler({ remote }: { remote: boolean }): Promise<void> {
+    // const l = new Logger('ff');
     console.group(chalk.underline('Print app version'));
     const versionInfo = await getVersionInfo(remote);
 

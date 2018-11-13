@@ -7,11 +7,13 @@ import chalk from 'chalk';
 import { readFileSync } from 'fs-extra';
 import {
   alias,
+  Arguments,
   command,
   completion,
   config as yargsConfig,
   epilog,
   help,
+  middleware,
   option,
   parse,
   scriptName,
@@ -23,6 +25,7 @@ import {
 } from 'yargs';
 
 import { commands } from './commands';
+import { Logger, LogLevel } from './utils/logger';
 
 yargonaut.style('blue').errorsStyle('red.bold');
 
@@ -32,6 +35,11 @@ scriptName('k8s');
 version(false);
 
 strict();
+
+middleware((argv: Arguments) => {
+  argv['logLevel'] = LogLevel[argv['logLevel']];
+  Logger.level = argv['logLevel'];
+});
 
 for (const cmd of commands) {
   command(cmd);
@@ -56,6 +64,12 @@ option('namespace', {
   alias: 'ns',
   string: true,
   global: true,
+});
+option('log-level', {
+  alias: 'll',
+  description: 'Loglevel of the tool.',
+  choices: ['debug', 'info', 'warn', 'error'],
+  default: 'info',
 });
 
 try {
