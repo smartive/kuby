@@ -1,9 +1,14 @@
 import { Argv, CommandModule, showHelp } from 'yargs';
 
+import { secretDecodeCommand } from './decode';
 import { secretDockerRegistryCommand } from './docker-registry';
 import { secretEncodeCommand } from './encode';
 
-const secretCommands = [secretDockerRegistryCommand, secretEncodeCommand];
+const secretCommands = [
+  secretDecodeCommand,
+  secretDockerRegistryCommand,
+  secretEncodeCommand,
+];
 
 export const secretCommand: CommandModule = {
   command: 'secret',

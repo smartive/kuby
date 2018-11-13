@@ -2,15 +2,15 @@ import chalk from 'chalk';
 import { write } from 'clipboardy';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
-interface SecretEncodeArguments extends Arguments {
+interface SecretDecodeArguments extends Arguments {
   content: string;
   noClip: boolean;
 }
 
-export const secretEncodeCommand: CommandModule = {
-  command: 'encode <content>',
-  aliases: 'enc',
-  describe: 'Encode a defined content into the Base64 format for k8s secrets.',
+export const secretDecodeCommand: CommandModule = {
+  command: 'decode <content>',
+  aliases: 'dec',
+  describe: 'Decode a defined content from the Base64 format.',
 
   builder: (argv: Argv) =>
     argv
@@ -24,11 +24,11 @@ export const secretEncodeCommand: CommandModule = {
         description: `Don't copy the resulting value into the clipboard.`,
       }),
 
-  async handler(args: SecretEncodeArguments): Promise<void> {
-    console.group(chalk.underline('Encode secret'));
+  async handler(args: SecretDecodeArguments): Promise<void> {
+    console.group(chalk.underline('Decode secret'));
 
-    if (args.content.isBase64()) {
-      console.log('Content is already base64 encoded.');
+    if (!args.content.isBase64()) {
+      console.log('Content is not base64 encoded.');
       if (!args.noClip) {
         await write(args.content);
       }
@@ -36,11 +36,11 @@ export const secretEncodeCommand: CommandModule = {
       return;
     }
 
-    const base64 = args.content.base64Encode();
+    const decoded = args.content.base64Decode();
 
-    console.log(base64);
+    console.log(decoded);
     if (!args.noClip) {
-      await write(base64);
+      await write(decoded);
     }
 
     console.groupEnd();
