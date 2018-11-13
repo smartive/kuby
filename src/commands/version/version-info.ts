@@ -9,4 +9,6 @@ export interface VersionInfo {
   toolVersion: string;
   kubectlVersion: string;
   kubectlPlatform: string;
+  remoteVersion?: string;
+  remotePlatform?: string;
 }
