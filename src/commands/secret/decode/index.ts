@@ -1,6 +1,7 @@
-import chalk from 'chalk';
 import { write } from 'clipboardy';
 import { Arguments, Argv, CommandModule } from 'yargs';
+
+import { Logger } from '../../../utils/logger';
 
 interface SecretDecodeArguments extends Arguments {
   content: string;
@@ -25,24 +26,22 @@ export const secretDecodeCommand: CommandModule = {
       }),
 
   async handler(args: SecretDecodeArguments): Promise<void> {
-    console.group(chalk.underline('Decode secret'));
+    const logger = new Logger('base64');
+    logger.debug('Decode base64 content.');
 
     if (!args.content.isBase64()) {
-      console.log('Content is not base64 encoded.');
+      logger.debug('Content is not base64 encoded.');
+      logger.output(args.content);
       if (!args.noClip) {
         await write(args.content);
       }
-      console.groupEnd();
       return;
     }
 
     const decoded = args.content.base64Decode();
-
-    console.log(decoded);
+    logger.output(decoded);
     if (!args.noClip) {
       await write(decoded);
     }
-
-    console.groupEnd();
   },
 };

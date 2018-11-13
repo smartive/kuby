@@ -1,9 +1,9 @@
-import chalk from 'chalk';
 import { readdir, stat } from 'fs-extra';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { RootArguments } from '../../root-arguments';
 import { ExitCode } from '../../utils/exit-code';
+import { Logger } from '../../utils/logger';
 import { RcFile } from '../../utils/rc-file';
 import { spawn } from '../../utils/spawn';
 import { kubeConfigCommand } from '../kube-config';
@@ -51,7 +51,8 @@ export const deleteCommand: CommandModule = {
       return;
     }
 
-    console.group(chalk.underline('Delete deployment'));
+    const logger = new Logger('deployment');
+    logger.debug('Delete deployment');
 
     await prepareCommand.handler(args);
 
@@ -67,13 +68,11 @@ export const deleteCommand: CommandModule = {
       RcFile.getKubectlArguments(args, ['delete', '-f', args.destinationFolder]),
     );
     if (code !== 0) {
-      console.error(chalk.red('An error happend during the kubectl command.'));
-      console.groupEnd();
+      logger.error('An error happend during the kubectl command.');
       process.exit(ExitCode.error);
       return;
     }
 
-    console.log(chalk.green('Deployments deleted.'));
-    console.groupEnd();
+    logger.success('Deployments deleted.');
   },
 };

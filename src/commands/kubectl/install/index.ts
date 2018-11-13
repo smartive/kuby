@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import { chmod, createWriteStream, emptyDir, ensureDir } from 'fs-extra';
 import { stream } from 'got';
 import { join } from 'path';
@@ -6,6 +5,7 @@ import { maxSatisfying } from 'semver';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { ExitCode } from '../../../utils/exit-code';
+import { Logger } from '../../../utils/logger';
 import { simpleConfirm } from '../../../utils/simple-confirm';
 import { kubectlUseCommand } from '../use';
 import { getLocalVersions, getOs, getRemoteVersions, kubectlDownloadUrl, kubectlInstallDir } from '../utils/kubectl';
@@ -77,29 +77,27 @@ export const kubectlInstallCommand: CommandModule = {
       return;
     }
 
-    console.group(chalk.underline(`Install kubectl version`));
+    const logger = new Logger('kubectl');
+    logger.debug('Install kubectl version');
+
     await ensureDir(kubectlInstallDir);
 
     const versions = await getRemoteVersions();
     const installVersion = maxSatisfying(versions, args.semver);
 
     if (!installVersion) {
-      console.error(
-        chalk.red(
-          'The given semver is not available. Use other version or use the refresh command.',
-        ),
+      logger.error(
+        'The given semver is not available. Use other version or use the refresh command.',
       );
-      console.groupEnd();
       process.exit(ExitCode.error);
       return;
     }
 
     if (!args.force && (await getLocalVersions()).includes(installVersion)) {
-      console.log(
+      logger.info(
         `v${installVersion} already installed and no force flag set.`,
       );
       await kubectlUseCommand.handler(args);
-      console.groupEnd();
       return;
     }
 
@@ -110,14 +108,11 @@ export const kubectlInstallCommand: CommandModule = {
         true,
       ))
     ) {
-      console.log('Aborting');
-      console.groupEnd();
+      logger.info('Aborting');
       return;
     }
 
     await download(installVersion);
     await kubectlUseCommand.handler(args);
-
-    console.groupEnd();
   },
 };

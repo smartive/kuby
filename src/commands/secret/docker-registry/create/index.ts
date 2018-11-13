@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import { async } from 'fast-glob';
 import { pathExists } from 'fs-extra';
 import { prompt, Separator } from 'inquirer';
@@ -11,6 +10,7 @@ import { Crypto } from '../../../../utils/crypto';
 import { exec } from '../../../../utils/exec';
 import { ExitCode } from '../../../../utils/exit-code';
 import { Filepathes } from '../../../../utils/filepathes';
+import { Logger } from '../../../../utils/logger';
 import { RcFile } from '../../../../utils/rc-file';
 import { simpleConfirm } from '../../../../utils/simple-confirm';
 import { spawn } from '../../../../utils/spawn';
@@ -92,7 +92,8 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
       }),
 
   async handler(args: SecretDockerRegistryCreateArguments): Promise<void> {
-    console.group(chalk.underline('Create docker secret.'));
+    const logger = new Logger('secrets');
+    logger.debug('Create docker secret.');
 
     const secrets = (await exec(
       `kubectl ${RcFile.getKubectlArguments(args, [
@@ -104,15 +105,11 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
     )).split('\n');
 
     if (secrets.includes(args.name)) {
-      console.error(chalk.red(`The secret "${args.name}" already exists.`));
+      logger.error(`The secret "${args.name}" already exists.`);
       if (args.ci) {
-        console.log(
-          chalk.yellow('CI Mode: existing secret does not fail command.'),
-        );
-        console.groupEnd();
+        logger.warn('CI Mode: existing secret does not fail command.');
         return;
       }
-      console.groupEnd();
       process.exit(ExitCode.error);
       return;
     }
@@ -122,9 +119,7 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
       if (await pathExists(path)) {
         await loadDockerSecret(args, path);
       } else {
-        console.error(
-          chalk.red(`The file ${path} does not exist. Cannot use template.`),
-        );
+        logger.error(`The file ${path} does not exist. Cannot use template.`);
       }
     } else if (!!!args.from && !args.noInteraction) {
       const secretFiles = await async<string>(['./*'], {
@@ -157,12 +152,9 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
       args.noInteraction &&
       (!args.server || !args.user || !args.email || !args.password)
     ) {
-      console.error(
-        chalk.red(
-          'No interaction mode used but not all information present (server, user, mail, password).',
-        ),
+      logger.error(
+        'No interaction mode used but not all information present (server, user, mail, password).',
       );
-      console.groupEnd();
       process.exit(ExitCode.error);
       return;
     }
@@ -234,15 +226,14 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
       ]),
     );
     if (code !== 0) {
-      console.error(
-        chalk.red('An error happend during the kubectl create secret command.'),
+      logger.error(
+        'An error happend during the kubectl create secret command.',
       );
-      console.groupEnd();
       process.exit(ExitCode.error);
       return;
     }
 
-    console.log(chalk.green(`Docker-Registry secret "${args.name}" created.`));
+    logger.success(`Docker-Registry secret "${args.name}" created.`);
 
     if (createArgs.saveSecret) {
       const name = createArgs.saveSecretName || createArgs.name;
@@ -254,7 +245,6 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
           false,
         ))
       ) {
-        console.groupEnd();
         return;
       }
       await Crypto.save(path, {
@@ -263,9 +253,7 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
         email: createArgs.email,
         password: createArgs.password,
       });
-      console.log(chalk.green(`Secret saved under ${path}.`));
+      logger.success(`Secret saved under ${path}.`);
     }
-
-    console.groupEnd();
   },
 };

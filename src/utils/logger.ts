@@ -5,6 +5,7 @@ export enum LogLevel {
   info,
   warn,
   error,
+  output,
 }
 
 export class Logger {
@@ -27,16 +28,20 @@ export class Logger {
     this.log(LogLevel.info, message);
   }
 
+  public output(message: string): void {
+    this.log(LogLevel.output, message);
+  }
+
   public success(message: string): void {
     this.log(LogLevel.info, chalk.green(message));
   }
 
   public warn(message: string): void {
-    this.log(LogLevel.warn, message);
+    this.log(LogLevel.warn, chalk.yellow(message));
   }
 
   public error(message: string): void {
-    this.log(LogLevel.error, message);
+    this.log(LogLevel.error, chalk.red(message));
   }
 
   private getLevelPrefix(level: LogLevel): string {

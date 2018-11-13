@@ -4,6 +4,7 @@ import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { exec } from '../../utils/exec';
 import { ExitCode } from '../../utils/exit-code';
+import { Logger } from '../../utils/logger';
 import { getCurrentContext } from '../context/utils/kubectx';
 import { namespaceCreateCommand } from './create';
 import { namespaceKubeConfigCommand } from './kube-config';
@@ -29,11 +30,8 @@ export const namespaceCommand: CommandModule = {
         description: 'Namespace to switch to. If omitted, user is asked.',
         type: 'string',
       })
-      .completion(
-        'completion',
-        false as any,
-        async (_, argv: Arguments) =>
-          argv._.length >= 3 ? [] : await getNamespaces(),
+      .completion('completion', false as any, async (_, argv: Arguments) =>
+        argv._.length >= 3 ? [] : await getNamespaces(),
       );
     return namespaceCommands.reduce((_, cur) => argv.command(cur), argv);
   },
@@ -43,7 +41,8 @@ export const namespaceCommand: CommandModule = {
       return;
     }
 
-    console.group(chalk.underline(`List / Switch namespaces`));
+    const logger = new Logger('namespaces');
+    logger.debug(`list / switch namespaces`);
 
     const current = await getCurrentNamespace();
     const namespaces = await getNamespaces();
@@ -61,14 +60,12 @@ export const namespaceCommand: CommandModule = {
     }
 
     if (current === args.name) {
-      console.log('No different namespace selected, exiting.');
-      console.groupEnd();
+      logger.info('No different namespace selected, exiting.');
       return;
     }
 
     if (!namespaces.includes(args.name)) {
-      console.error(chalk.red(`The namespace "${args.name}" does not exist.`));
-      console.groupEnd();
+      logger.error(`The namespace "${args.name}" does not exist.`);
       process.exit(ExitCode.error);
       return;
     }
@@ -77,7 +74,6 @@ export const namespaceCommand: CommandModule = {
     await exec(
       `kubectl config set-context "${context}" --namespace="${args.name}"`,
     );
-    console.log(`Active namespace is now "${chalk.yellow(args.name)}".`);
-    console.groupEnd();
+    logger.info(`Active namespace is now "${chalk.yellow(args.name)}".`);
   },
 };

@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import { remove, symlink } from 'fs-extra';
 import { prompt } from 'inquirer';
 import { platform } from 'os';
@@ -7,6 +6,7 @@ import { maxSatisfying } from 'semver';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { ExitCode } from '../../../utils/exit-code';
+import { Logger } from '../../../utils/logger';
 import { getVersionInfo } from '../../version';
 import { getLocalVersions, kubectlInstallDir } from '../utils/kubectl';
 
@@ -29,7 +29,8 @@ export const kubectlUseCommand: KubectlUseCommandModule = {
     }),
 
   async handler(args: KubectlUseArguments): Promise<void> {
-    console.group(chalk.underline(`Use kubectl version`));
+    const logger = new Logger('kubectl');
+    logger.debug('Use kubectl version');
 
     const versions = await getLocalVersions();
     const { kubectlVersion } = await getVersionInfo();
@@ -48,17 +49,14 @@ export const kubectlUseCommand: KubectlUseCommandModule = {
     const installVersion = maxSatisfying(versions, args.semver);
 
     if (!installVersion) {
-      console.error(
-        chalk.red(
-          'The given semver is not locally available. Use the install command.',
-        ),
+      logger.error(
+        'The given semver is not locally available. Use the install command.',
       );
-      console.groupEnd();
       process.exit(ExitCode.error);
       return;
     }
 
-    console.log(`Redirect the symlink to v${installVersion}.`);
+    logger.debug(`Redirect the symlink to v${installVersion}.`);
     if (platform() !== 'win32') {
       await remove('/usr/local/bin/kubectl');
       await symlink(
@@ -69,7 +67,6 @@ export const kubectlUseCommand: KubectlUseCommandModule = {
     }
     // TODO windows.
 
-    console.log(chalk.green(`Version changed to v${installVersion}.`));
-    console.groupEnd();
+    logger.success(`Version changed to v${installVersion}.`);
   },
 };

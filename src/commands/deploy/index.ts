@@ -1,8 +1,8 @@
-import chalk from 'chalk';
 import { readdir, stat } from 'fs-extra';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { RootArguments } from '../../root-arguments';
+import { Logger } from '../../utils/logger';
 import { applyCommand } from '../apply';
 import { prepareCommand } from '../prepare';
 
@@ -48,7 +48,8 @@ export const deployCommand: CommandModule = {
       return;
     }
 
-    console.group(chalk.underline('Execute deployment'));
+    const logger = new Logger('deployment');
+    logger.debug('Execute deployment');
 
     await prepareCommand.handler(args);
     await applyCommand.handler({
@@ -56,7 +57,6 @@ export const deployCommand: CommandModule = {
       deployFolder: args.destinationFolder,
     });
 
-    console.log(chalk.green('Deployments applied.'));
-    console.groupEnd();
+    logger.success('Deployments applied.');
   },
 };

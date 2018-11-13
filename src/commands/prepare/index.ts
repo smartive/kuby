@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import { async } from 'fast-glob';
 import { emptyDir, outputFile, pathExists, readdir, readFile, stat } from 'fs-extra';
 import { join, sep } from 'path';
@@ -6,6 +5,7 @@ import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { envsubst } from '../../utils/envsubst';
 import { ExitCode } from '../../utils/exit-code';
+import { Logger } from '../../utils/logger';
 
 interface PrepareArguments extends Arguments {
   sourceFolder: string;
@@ -52,24 +52,20 @@ export const prepareCommand: PrepareCommandModule = {
       return;
     }
 
-    console.group(chalk.underline('Prepare yaml files'));
+    const logger = new Logger('deployment');
+    logger.debug('Prepare yaml files');
 
     args.sourceFolder = join(process.cwd(), args.sourceFolder);
     args.destinationFolder = join(process.cwd(), args.destinationFolder);
 
     if (!(await pathExists(args.sourceFolder))) {
-      console.error(chalk.red('Source directory does not exist. Aborting.'));
-      console.groupEnd();
+      logger.error('Source directory does not exist. Aborting.');
       process.exit(ExitCode.error);
       return;
     }
 
     if (await pathExists(args.destinationFolder)) {
-      console.warn(
-        chalk.yellow(
-          'Destination directory already exists, cleaning directory.',
-        ),
-      );
+      logger.warn('Destination directory already exists, cleaning directory.');
     }
 
     await emptyDir(args.destinationFolder);
@@ -77,11 +73,11 @@ export const prepareCommand: PrepareCommandModule = {
     const files = await async<string>(['**/*.{yml,yaml}'], {
       cwd: args.sourceFolder,
     });
-    console.log(`Found ${files.length} files for processing.`);
+    logger.debug(`Found ${files.length} files for processing.`);
 
     for (const file of files) {
       const destination = file.replace(new RegExp(sep, 'g'), '-');
-      console.log(`Copy ${file} to ${destination} and replace env vars.`);
+      logger.debug(`Copy ${file} to ${destination} and replace env vars.`);
 
       const content = await readFile(join(args.sourceFolder, file), 'utf8');
       await outputFile(
@@ -90,7 +86,6 @@ export const prepareCommand: PrepareCommandModule = {
       );
     }
 
-    console.log(chalk.green('Files prepared.'));
-    console.groupEnd();
+    logger.success('Files prepared.');
   },
 };

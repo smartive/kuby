@@ -9,6 +9,7 @@ import { datasubst } from '../../../utils/envsubst';
 import { exec } from '../../../utils/exec';
 import { ExitCode } from '../../../utils/exit-code';
 import { Filepathes } from '../../../utils/filepathes';
+import { Logger } from '../../../utils/logger';
 import { RcFile } from '../../../utils/rc-file';
 import { simpleConfirm } from '../../../utils/simple-confirm';
 import { spawn } from '../../../utils/spawn';
@@ -107,14 +108,14 @@ export const namespaceCreateCommand: CommandModule = {
       }),
 
   async handler(args: NamespaceCreateArguments): Promise<void> {
-    console.group(chalk.underline('Create kubernetes namespace.'));
+    const logger = new Logger('namespaces');
+    logger.debug('Create kubernetes namespace.');
 
     const context = await getCurrentContext();
     const namespaces = await getNamespaces();
 
     if (namespaces.includes(args.name)) {
-      console.error(chalk.red(`The namespace "${args.name}" already exists.`));
-      console.groupEnd();
+      logger.error(`The namespace "${args.name}" already exists.`);
       process.exit(ExitCode.error);
       return;
     }
@@ -166,10 +167,10 @@ export const namespaceCreateCommand: CommandModule = {
     if (answers.createServiceAccount && answers.role && answers.saveRole) {
       await ensureFile(Filepathes.namespaceDefaultRolePath);
       await writeFile(Filepathes.namespaceDefaultRolePath, answers.role);
-      console.log(
+      logger.info(
         'The default role was saved under: ~/.kube/k8s-helpers/namespace/default-role.yml',
       );
-      console.log('If you want to reset it, just delete the file.');
+      logger.info('If you want to reset it, just delete the file.');
     }
 
     if (
@@ -187,8 +188,7 @@ export const namespaceCreateCommand: CommandModule = {
         true,
       ))
     ) {
-      console.log('Aborting');
-      console.groupEnd();
+      logger.info('Aborting');
       return;
     }
 
@@ -197,27 +197,22 @@ export const namespaceCreateCommand: CommandModule = {
       RcFile.getKubectlCtxArguments(args, ['create', 'ns', args.name]),
     );
     if (code !== 0) {
-      console.error(
-        chalk.red(
-          'An error happend during the kubectl create namespace command.',
-        ),
+      logger.error(
+        'An error happend during the kubectl create namespace command.',
       );
-      console.groupEnd();
       process.exit(ExitCode.error);
       return;
     }
 
-    console.log(chalk.green(`Namespace "${args.name}" created.`));
+    logger.success(`Namespace "${args.name}" created.`);
     if (!answers.createServiceAccount) {
-      console.groupEnd();
       return;
     }
 
     const role = datasubst(answers.role, { NAME: args.name });
     const roleNameRegex = /^\s*name:\s*(.*)$/gm.exec(role);
     if (!roleNameRegex || !roleNameRegex[1]) {
-      console.error(chalk.red('No valid role name provided. aborting.'));
-      console.groupEnd();
+      logger.error('No valid role name provided. aborting.');
       process.exit(ExitCode.error);
       return;
     }
@@ -229,31 +224,23 @@ export const namespaceCreateCommand: CommandModule = {
       rolebinding(args.name, answers.serviceAccountName, roleName),
     ];
 
-    console.group(
-      chalk.blue(`Executing <echo "templates" | kubectl create -f ->`),
-    );
-
+    logger.debug(`Executing <echo "templates" | kubectl create -f ->`);
     try {
       const result = await exec(
         `echo "${templates.join(`${EOL}---${EOL}`)}" | kubectl create -f -`,
       );
-      console.log(result);
+      logger.info(result);
     } catch (e) {
-      console.error(chalk.red(`Error: ${e}`));
+      logger.error(`Error: ${e}`);
     }
-    console.groupEnd();
 
-    console.log(
-      chalk.green(`ServiceAccount "${answers.serviceAccountName}" created.`),
-    );
-    console.log(chalk.green(`Role and RoleBinding "${roleName}" created.`));
+    logger.success(`ServiceAccount "${answers.serviceAccountName}" created.`);
+    logger.success(`Role and RoleBinding "${roleName}" created.`);
 
     await namespaceKubeConfigCommand.handler({
       ...args,
       namespace: args.name,
       serviceAccount: answers.serviceAccountName,
     });
-
-    console.groupEnd();
   },
 };

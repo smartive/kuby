@@ -1,9 +1,9 @@
-import chalk from 'chalk';
 import { pathExists, readdir, stat } from 'fs-extra';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { RootArguments } from '../../root-arguments';
 import { ExitCode } from '../../utils/exit-code';
+import { Logger } from '../../utils/logger';
 import { RcFile } from '../../utils/rc-file';
 import { spawn } from '../../utils/spawn';
 import { kubeConfigCommand } from '../kube-config';
@@ -48,11 +48,11 @@ export const applyCommand: ApplyCommandModule = {
       return;
     }
 
-    console.group(chalk.underline('Apply yaml files'));
+    const logger = new Logger('deployment');
+    logger.debug('Apply yaml files');
 
     if (!(await pathExists(args.deployFolder))) {
-      console.error(chalk.red('Deploy directory does not exist. Aborting.'));
-      console.groupEnd();
+      logger.error('Deploy directory does not exist. Aborting.');
       process.exit(ExitCode.error);
       return;
     }
@@ -70,13 +70,11 @@ export const applyCommand: ApplyCommandModule = {
     );
 
     if (code !== 0) {
-      console.error(chalk.red('An error happend during the kubectl command.'));
-      console.groupEnd();
+      logger.error('An error happend during the kubectl command.');
       process.exit(ExitCode.error);
       return;
     }
 
-    console.log(chalk.green('Files applied.'));
-    console.groupEnd();
+    logger.success('Files applied.');
   },
 };

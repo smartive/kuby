@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import { Argv, CommandModule } from 'yargs';
 
 import { exec } from '../../utils/exec';
+import { Logger } from '../../utils/logger';
 import { VersionInfo } from './version-info';
 
 const { version } = require('../../../package.json');
@@ -58,26 +59,25 @@ export const versionCommand: CommandModule = {
     }),
 
   async handler({ remote }: { remote: boolean }): Promise<void> {
-    // const l = new Logger('ff');
-    console.group(chalk.underline('Print app version'));
+    const logger = new Logger('version');
+    logger.debug('Print app version');
+
     const versionInfo = await getVersionInfo(remote);
 
-    console.log(`k8s version: ${chalk.green(versionInfo.toolVersion)}`);
+    logger.info(`k8s version: ${chalk.green(versionInfo.toolVersion)}`);
 
-    console.log(
+    logger.info(
       `kubectl version: ${chalk.green(
         `v${versionInfo.kubectlVersion}`,
       )} for platform: ${chalk.green(versionInfo.kubectlPlatform)}`,
     );
 
     if (remote) {
-      console.log(
+      logger.info(
         `kubernetes remote version: ${chalk.green(
           `v${versionInfo.remoteVersion}`,
         )} for platform: ${chalk.green(versionInfo.remotePlatform || '')}`,
       );
     }
-
-    console.groupEnd();
   },
 };

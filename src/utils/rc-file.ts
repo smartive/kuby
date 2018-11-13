@@ -1,8 +1,11 @@
 import chalk from 'chalk';
 
 import { RootArguments } from '../root-arguments';
+import { Logger } from './logger';
 
 export class RcFile {
+  private static logger: Logger = new Logger('.rc file');
+
   private constructor() {}
 
   public static getKubectlArguments(
@@ -19,7 +22,7 @@ export class RcFile {
     args: string[],
   ): string[] {
     if (context) {
-      console.log(`Context set to ${chalk.yellow(context)}.`);
+      RcFile.logger.info(`Context set to ${chalk.yellow(context)}.`);
       args.unshift(context);
       args.unshift('--context');
     }
@@ -31,7 +34,7 @@ export class RcFile {
     args: string[],
   ): string[] {
     if (namespace) {
-      console.log(`Namespace set to ${chalk.yellow(namespace)}.`);
+      RcFile.logger.info(`Namespace set to ${chalk.yellow(namespace)}.`);
       args.unshift(namespace);
       args.unshift('--namespace');
     }

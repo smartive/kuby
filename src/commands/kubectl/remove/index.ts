@@ -6,6 +6,7 @@ import { join } from 'path';
 import { maxSatisfying } from 'semver';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
+import { Logger } from '../../../utils/logger';
 import { getVersionInfo } from '../../version';
 import { getLocalVersions, kubectlInstallDir } from '../utils/kubectl';
 
@@ -25,7 +26,8 @@ export const kubectlRemoveCommand: CommandModule = {
     }),
 
   async handler(args: KubectlRemoveArguments): Promise<void> {
-    console.group(chalk.underline(`Delete kubectl version`));
+    const logger = new Logger('kubectl');
+    logger.debug('Delete kubectl version');
 
     const versions = await getLocalVersions();
     const { kubectlVersion } = await getVersionInfo();
@@ -51,21 +53,19 @@ export const kubectlRemoveCommand: CommandModule = {
     const installVersion = maxSatisfying(versions, args.semver);
 
     if (!installVersion) {
-      console.log('The given semver is not locally installed.');
-      console.groupEnd();
+      logger.warn('The given semver is not locally installed.');
       return;
     }
 
-    console.log('Delete folder.');
+    logger.debug('Delete folder.');
     await remove(join(kubectlInstallDir, `v${installVersion}`));
 
-    console.log('Delete symlink.');
+    logger.debug('Delete symlink.');
     if (platform() !== 'win32') {
       await remove('/usr/local/bin/kubectl');
     }
     // TODO windows.
 
-    console.log(chalk.green(`Version v${installVersion} removed.`));
-    console.groupEnd();
+    logger.success(`Version v${installVersion} removed.`);
   },
 };

@@ -5,6 +5,7 @@ import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { exec } from '../../../utils/exec';
 import { ExitCode } from '../../../utils/exit-code';
+import { Logger } from '../../../utils/logger';
 import { getCurrentContext } from '../../context/utils/kubectx';
 import { getCurrentNamespace, getNamespaces, getServiceAccountsForNamespace } from '../utils/kubens';
 
@@ -86,7 +87,8 @@ export const namespaceKubeConfigCommand: NamespaceKubeConfigCommandModule = {
       return;
     }
 
-    console.group(chalk.underline('Create kube-config.'));
+    const logger = new Logger('namespaces');
+    logger.debug('Generate kube-config.');
 
     const currentNamespace = await getCurrentNamespace();
     const namespaces = await getNamespaces();
@@ -104,10 +106,7 @@ export const namespaceKubeConfigCommand: NamespaceKubeConfigCommandModule = {
     }
 
     if (!namespaces.includes(args.namespace)) {
-      console.error(
-        chalk.red(`The namespace "${args.namespace}" does not exist.`),
-      );
-      console.groupEnd();
+      logger.error(`The namespace "${args.namespace}" does not exist.`);
       process.exit(ExitCode.error);
       return;
     }
@@ -130,19 +129,16 @@ export const namespaceKubeConfigCommand: NamespaceKubeConfigCommandModule = {
     }
 
     if (!serviceAccounts.includes(args.serviceAccount)) {
-      console.error(
-        chalk.red(
-          `The service account "${
-            args.serviceAccount
-          }" does not exist in namespace "${args.namespace}".`,
-        ),
+      logger.error(
+        `The service account "${
+          args.serviceAccount
+        }" does not exist in namespace "${args.namespace}".`,
       );
-      console.groupEnd();
       process.exit(ExitCode.error);
       return;
     }
 
-    console.log(
+    logger.info(
       `Generate kube-config for account "${chalk.yellow(
         args.serviceAccount,
       )}" in namespace "${chalk.yellow(args.namespace)}".`,
@@ -172,7 +168,7 @@ export const namespaceKubeConfigCommand: NamespaceKubeConfigCommandModule = {
         } ${tokenSecret} -o=jsonpath='{@.data.token}'`,
       );
 
-      const token = Buffer.from(base64Token, 'base64').toString('utf8');
+      const token = base64Token.base64Decode();
       const currentContext = await getCurrentContext();
       const clusterName = await exec(
         `kubectl config view -o=jsonpath='{.contexts[?(@.name=="${currentContext}")].context.cluster}'`,
@@ -190,7 +186,7 @@ export const namespaceKubeConfigCommand: NamespaceKubeConfigCommandModule = {
         token,
       );
 
-      console.log(
+      logger.info(
         `Kube-Config for user "${chalk.yellow(
           args.serviceAccount,
         )}" on server "${chalk.yellow(address)}" in namespace "${chalk.yellow(
@@ -198,19 +194,18 @@ export const namespaceKubeConfigCommand: NamespaceKubeConfigCommandModule = {
         )}":`,
       );
       if (args.base64) {
-        console.log('(Config is Base64 encoded)');
+        logger.info('(Config is Base64 encoded)');
       }
-      process.stdout.write(
+
+      logger.output(
         `${EOL}${EOL}${
-          args.base64 ? Buffer.from(config).toString('base64') : config
+          args.base64 ? config.base64Encode() : config
         }${EOL}${EOL}`,
       );
 
-      console.log(chalk.green(`Kube-Config created.`));
-      console.groupEnd();
+      logger.success(`Kube-Config created.`);
     } catch (e) {
-      console.error(chalk.red(`Error while fetching the config: ${e}`));
-      console.groupEnd();
+      logger.error(`Error while fetching the config: ${e}`);
       process.exit(ExitCode.error);
     }
   },

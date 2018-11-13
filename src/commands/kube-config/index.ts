@@ -5,6 +5,7 @@ import { join } from 'path';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { ExitCode } from '../../utils/exit-code';
+import { Logger } from '../../utils/logger';
 import { simpleConfirm } from '../../utils/simple-confirm';
 
 const defaultEnv = 'KUBE_CONFIG';
@@ -40,12 +41,11 @@ export const kubeConfigCommand: KubeConfigCommandModule = {
       }),
 
   async handler(args: KubeConfigArguments): Promise<void> {
-    console.group(chalk.underline('Set Kubernetes configuration'));
+    const logger = new Logger('login config');
+    logger.debug('Set Kubernetes configuration');
+
     if (!args.configContent && !process.env[defaultEnv]) {
-      console.error(
-        chalk.red('Neither env variable nor content provided. Aborting.'),
-      );
-      console.groupEnd();
+      logger.error('Neither env variable nor content provided. Aborting.');
       process.exit(ExitCode.error);
       return;
     }
@@ -53,15 +53,13 @@ export const kubeConfigCommand: KubeConfigCommandModule = {
     const content = args.configContent || process.env[defaultEnv];
 
     if (!content) {
-      console.error(chalk.red('Config content is empty. Aborting.'));
-      console.groupEnd();
+      logger.error('Config content is empty. Aborting.');
       process.exit(ExitCode.error);
       return;
     }
 
     if (!content.isBase64()) {
-      console.error(chalk.red('The content is not base64 encoded. Aborting.'));
-      console.groupEnd();
+      logger.error('The content is not base64 encoded. Aborting.');
       process.exit(ExitCode.error);
       return;
     }
@@ -70,8 +68,7 @@ export const kubeConfigCommand: KubeConfigCommandModule = {
 
     if (await pathExists(configPath)) {
       if (args.noInteraction) {
-        console.log('Config already exists, exitting.');
-        console.groupEnd();
+        logger.info('Config already exists, exitting.');
         return;
       }
 
@@ -82,15 +79,13 @@ export const kubeConfigCommand: KubeConfigCommandModule = {
           false,
         ))
       ) {
-        console.groupEnd();
         return;
       }
     }
 
-    console.log('Writing ~/.kube/config file.');
+    logger.info('Writing ~/.kube/config file.');
     await outputFile(configPath, content.base64Decode());
 
-    console.log(chalk.green('Login done.'));
-    console.groupEnd();
+    logger.success('Login done.');
   },
 };
