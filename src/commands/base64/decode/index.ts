@@ -3,12 +3,12 @@ import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { Logger } from '../../../utils/logger';
 
-interface SecretDecodeArguments extends Arguments {
+interface Base64DecodeArguments extends Arguments {
   content: string;
   noClip: boolean;
 }
 
-export const secretDecodeCommand: CommandModule = {
+export const base64DecodeCommand: CommandModule = {
   command: 'decode <content>',
   aliases: 'dec',
   describe: 'Decode a defined content from the Base64 format.',
@@ -25,18 +25,9 @@ export const secretDecodeCommand: CommandModule = {
         description: `Don't copy the resulting value into the clipboard.`,
       }),
 
-  async handler(args: SecretDecodeArguments): Promise<void> {
+  async handler(args: Base64DecodeArguments): Promise<void> {
     const logger = new Logger('base64');
     logger.debug('Decode base64 content.');
-
-    if (!args.content.isBase64()) {
-      logger.debug('Content is not base64 encoded.');
-      logger.output(args.content);
-      if (!args.noClip) {
-        await write(args.content);
-      }
-      return;
-    }
 
     const decoded = args.content.base64Decode();
     logger.output(decoded);

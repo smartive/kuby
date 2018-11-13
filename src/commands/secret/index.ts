@@ -1,18 +1,11 @@
 import { Argv, CommandModule, showHelp } from 'yargs';
 
-import { secretDecodeCommand } from './decode';
 import { secretDockerRegistryCommand } from './docker-registry';
-import { secretEncodeCommand } from './encode';
 
-const secretCommands = [
-  secretDecodeCommand,
-  secretDockerRegistryCommand,
-  secretEncodeCommand,
-];
+const secretCommands = [secretDockerRegistryCommand];
 
 export const secretCommand: CommandModule = {
   command: 'secret',
-  aliases: 'sec',
   describe: 'Utilities for kubernetes secrets.',
 
   builder: (argv: Argv) =>
