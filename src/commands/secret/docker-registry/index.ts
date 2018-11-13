@@ -1,4 +1,4 @@
-import { Argv, CommandModule } from 'yargs';
+import { Argv, CommandModule, showHelp } from 'yargs';
 
 import { secretDockerRegistryCreateCommand } from './create';
 
@@ -11,5 +11,7 @@ export const secretDockerRegistryCommand: CommandModule = {
   builder: (argv: Argv) =>
     secretDockerRegistryCommands.reduce((_, cur) => argv.command(cur), argv),
 
-  handler(): void {},
+  handler(): void {
+    showHelp('log');
+  },
 };

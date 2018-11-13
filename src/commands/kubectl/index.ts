@@ -22,6 +22,6 @@ export const kubectlCommand: CommandModule = {
     kubectlCommands.reduce((_, cur) => argv.command(cur), argv),
 
   handler(): void {
-    showHelp();
+    showHelp('log');
   },
 };

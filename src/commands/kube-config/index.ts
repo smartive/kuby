@@ -18,10 +18,6 @@ interface KubeConfigCommandModule extends CommandModule {
   handler(args: KubeConfigArguments): Promise<void>;
 }
 
-function isBase64(content: string): boolean {
-  return Buffer.from(content, 'base64').toString('base64') === content;
-}
-
 export const kubeConfigCommand: KubeConfigCommandModule = {
   command: 'kube-config [configContent]',
   aliases: 'kc',
@@ -63,7 +59,7 @@ export const kubeConfigCommand: KubeConfigCommandModule = {
       return;
     }
 
-    if (!isBase64(content)) {
+    if (!content.isBase64()) {
       console.error(chalk.red('The content is not base64 encoded. Aborting.'));
       console.groupEnd();
       process.exit(ExitCode.error);
@@ -92,7 +88,7 @@ export const kubeConfigCommand: KubeConfigCommandModule = {
     }
 
     console.log('Writing ~/.kube/config file.');
-    await outputFile(configPath, Buffer.from(content, 'base64'));
+    await outputFile(configPath, content.base64Decode());
 
     console.log(chalk.green('Login done.'));
     console.groupEnd();
