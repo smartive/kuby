@@ -14,10 +14,6 @@ describe('commands / apply', () => {
     clearGlobalMocks();
   });
 
-  afterAll(() => {
-    jest.unmock('../../src/commands/kube-config');
-  });
-
   it('should return when used with completion args', async () => {
     expect(
       await applyCommand.handler({ getYargsCompletions: true } as any),
