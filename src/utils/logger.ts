@@ -9,7 +9,7 @@ export enum LogLevel {
 }
 
 export class Logger {
-  public static level: LogLevel;
+  public static level: LogLevel = LogLevel.info;
 
   constructor(private prefix: string = '') {}
 
