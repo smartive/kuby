@@ -1,4 +1,5 @@
 stages:
+  - test
   - release
   - deploy
 
@@ -9,6 +10,15 @@ stages:
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://localhost:2375
+
+test:
+  extends: .base
+  image: node:10
+  script:
+    - npm ci
+    - npm run test:ci
+  except:
+    - tags
 
 create release:
   extends: .base

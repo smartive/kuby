@@ -1,9 +1,6 @@
 {
-  "transform": {
-    "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
-  },
+  "preset": "ts-jest",
   "setupFiles": ["<rootDir>/test/setup.ts"],
   "testMatch": ["**/test/**/*.spec.ts"],
-  "testPathIgnorePatterns": ["/node_modules/"],
-  "moduleFileExtensions": ["ts", "tsx", "js", "json"]
+  "roots": ["<rootDir>", "<rootDir>/test"]
 }

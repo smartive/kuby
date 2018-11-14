@@ -81,6 +81,8 @@
     "@types/yargs": "^12.0.1",
     "del-cli": "^1.1.0",
     "jest": "^23.6.0",
+    "memfs": "^2.14.0",
+    "mock-fs": "^4.7.0",
     "pkg": "^4.3.4",
     "semantic-release": "^15.11.0",
     "ts-jest": "^23.10.4",
