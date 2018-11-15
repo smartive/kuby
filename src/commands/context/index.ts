@@ -7,6 +7,8 @@ import { ExitCode } from '../../utils/exit-code';
 import { Logger } from '../../utils/logger';
 import { getContexts, getCurrentContext } from './utils/kubectx';
 
+const fuzzy = require('fuzzy');
+
 interface ContextArguments extends Arguments {
   name?: string;
 }
@@ -42,12 +44,26 @@ export const contextCommand: CommandModule = {
     if (!args.name) {
       args.name = ((await prompt([
         {
-          type: 'list',
+          type: 'autocomplete',
           name: 'context',
-          message: `Which context do you want to use?`,
-          choices: contexts,
-          default: current,
-        },
+          message: `Which context do you want to use? ${chalk.dim(
+            `(current: ${current})`,
+          )}`,
+          source: async (_: any, input: string) => {
+            if (!input) {
+              return contexts;
+            }
+            return fuzzy
+              .filter(input.replace(/\s/g, ''), contexts, {
+                pre: '{',
+                post: '}',
+              })
+              .map((e: any) => ({
+                name: e.string.replace(/{(.)}/g, chalk.underline('$1')),
+                value: e.original,
+              }));
+          },
+        } as any,
       ])) as { context: string }).context;
     }
 

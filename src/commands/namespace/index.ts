@@ -10,6 +10,8 @@ import { namespaceCreateCommand } from './create';
 import { namespaceKubeConfigCommand } from './kube-config';
 import { getCurrentNamespace, getNamespaces } from './utils/kubens';
 
+const fuzzy = require('fuzzy');
+
 interface NamespaceArguments extends Arguments {
   name?: string;
 }
@@ -50,12 +52,26 @@ export const namespaceCommand: CommandModule = {
     if (!args.name) {
       args.name = ((await prompt([
         {
-          type: 'list',
+          type: 'autocomplete',
           name: 'namespace',
-          message: `Which namespace do you want to use?`,
-          choices: namespaces,
-          default: current,
-        },
+          message: `Which namespace do you want to use? ${chalk.dim(
+            `(current: ${current})`,
+          )}`,
+          source: async (_: any, input: string) => {
+            if (!input) {
+              return namespaces;
+            }
+            return fuzzy
+              .filter(input.replace(/\s/g, ''), namespaces, {
+                pre: '{',
+                post: '}',
+              })
+              .map((e: any) => ({
+                name: e.string.replace(/{(.)}/g, chalk.underline('$1')),
+                value: e.original,
+              }));
+          },
+        } as any,
       ])) as { namespace: string }).namespace;
     }
 
