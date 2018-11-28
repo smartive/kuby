@@ -1,8 +1,9 @@
 import { ensureFile, writeJson } from 'fs-extra';
 import { CommandModule } from 'yargs';
 
+import { Filepathes } from '../../../utils/filepathes';
 import { Logger } from '../../../utils/logger';
-import { downloadRemoteVersions, kubectlVersionsFile } from '../utils/kubectl';
+import { downloadRemoteVersions } from '../utils/kubectl';
 
 export const kubectlRefreshCommand: CommandModule = {
   command: 'refresh',
@@ -13,10 +14,12 @@ export const kubectlRefreshCommand: CommandModule = {
     const logger = new Logger('kubectl');
     logger.debug('Refresh online kubernetes release versions');
 
-    await ensureFile(kubectlVersionsFile);
+    await ensureFile(Filepathes.kubectlVersionsPath);
 
-    const versions = await downloadRemoteVersions();
-    await writeJson(kubectlVersionsFile, versions, { encoding: 'utf8' });
+    const versions = await downloadRemoteVersions(logger);
+    await writeJson(Filepathes.kubectlVersionsPath, versions, {
+      encoding: 'utf8',
+    });
 
     logger.success('Versions refreshed.');
   },

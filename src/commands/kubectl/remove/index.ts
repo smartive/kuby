@@ -6,9 +6,10 @@ import { join } from 'path';
 import { maxSatisfying } from 'semver';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
+import { Filepathes } from '../../../utils/filepathes';
 import { Logger } from '../../../utils/logger';
 import { getVersionInfo } from '../../version';
-import { getLocalVersions, kubectlInstallDir } from '../utils/kubectl';
+import { getLocalVersions } from '../utils/kubectl';
 
 interface KubectlRemoveArguments extends Arguments {
   semver?: string;
@@ -58,7 +59,7 @@ export const kubectlRemoveCommand: CommandModule = {
     }
 
     logger.debug('Delete folder.');
-    await remove(join(kubectlInstallDir, `v${installVersion}`));
+    await remove(join(Filepathes.kubectlInstallPath, `v${installVersion}`));
 
     logger.debug('Delete symlink.');
     if (platform() !== 'win32') {

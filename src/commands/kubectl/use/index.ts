@@ -6,9 +6,10 @@ import { maxSatisfying } from 'semver';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { ExitCode } from '../../../utils/exit-code';
+import { Filepathes } from '../../../utils/filepathes';
 import { Logger } from '../../../utils/logger';
 import { getVersionInfo } from '../../version';
-import { getLocalVersions, kubectlInstallDir } from '../utils/kubectl';
+import { getLocalVersions } from '../utils/kubectl';
 
 interface KubectlUseArguments extends Arguments {
   semver?: string;
@@ -60,7 +61,7 @@ export const kubectlUseCommand: KubectlUseCommandModule = {
     if (platform() !== 'win32') {
       await remove('/usr/local/bin/kubectl');
       await symlink(
-        join(kubectlInstallDir, `v${installVersion}`, 'kubectl'),
+        join(Filepathes.kubectlInstallPath, `v${installVersion}`, 'kubectl'),
         '/usr/local/bin/kubectl',
         'file',
       );

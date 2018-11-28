@@ -1,51 +1,22 @@
-import { chmod, createWriteStream, emptyDir, ensureDir } from 'fs-extra';
-import { stream } from 'got';
-import { join } from 'path';
+import { ensureDir } from 'fs-extra';
 import { maxSatisfying } from 'semver';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { ExitCode } from '../../../utils/exit-code';
+import { Filepathes } from '../../../utils/filepathes';
 import { Logger } from '../../../utils/logger';
 import { simpleConfirm } from '../../../utils/simple-confirm';
 import { kubectlUseCommand } from '../use';
-import { getLocalVersions, getOs, getRemoteVersions, kubectlDownloadUrl, kubectlInstallDir } from '../utils/kubectl';
+import {
+  downloadKubectl,
+  getLocalVersions,
+  getRemoteVersions,
+} from '../utils/kubectl';
 
 interface KubectlInstallArguments extends Arguments {
   semver: string;
   noInteraction: boolean;
   force: boolean;
-}
-
-const ora = require('ora');
-
-async function download(version: string): Promise<void> {
-  const spinner = ora(`Downloading v${version}.`).start();
-  const url = kubectlDownloadUrl(version, getOs());
-  const destination = join(kubectlInstallDir, `v${version}`);
-  const destinationFile = join(
-    destination,
-    `kubectl${getOs() === 'windows' ? '.exe' : ''}`,
-  );
-  await emptyDir(destination);
-  return new Promise<void>((resolve, reject) => {
-    stream(url)
-      .on('error', () => {
-        spinner.fail('Error during download.');
-        reject();
-      })
-      .on(
-        'downloadProgress',
-        progress =>
-          (spinner.text = `Downloading v${version}. Progress: ${Math.round(
-            progress.percent * 100,
-          )}%`),
-      )
-      .on('end', () => {
-        spinner.succeed(`Downloaded v${version}`);
-        resolve();
-      })
-      .pipe(createWriteStream(destinationFile));
-  }).then(() => chmod(destinationFile, '755'));
 }
 
 export const kubectlInstallCommand: CommandModule = {
@@ -80,7 +51,7 @@ export const kubectlInstallCommand: CommandModule = {
     const logger = new Logger('kubectl');
     logger.debug('Install kubectl version');
 
-    await ensureDir(kubectlInstallDir);
+    await ensureDir(Filepathes.kubectlInstallPath);
 
     const versions = await getRemoteVersions();
     const installVersion = maxSatisfying(versions, args.semver);
@@ -112,7 +83,7 @@ export const kubectlInstallCommand: CommandModule = {
       return;
     }
 
-    await download(installVersion);
+    await downloadKubectl(installVersion, logger);
     await kubectlUseCommand.handler(args);
   },
 };

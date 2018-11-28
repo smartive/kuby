@@ -1,28 +1,57 @@
-import { ensureDir, lstatSync, pathExists, readdir, readJson, writeJson } from 'fs-extra';
-import { get } from 'got';
-import { homedir, platform } from 'os';
+import {
+  chmod,
+  createWriteStream,
+  emptyDir,
+  ensureDir,
+  lstatSync,
+  pathExists,
+  readdir,
+  readJson,
+  writeJson,
+} from 'fs-extra';
+import { get, stream } from 'got';
+import { platform } from 'os';
 import { join } from 'path';
 import { clean, rcompare } from 'semver';
 
-const ora = require('ora');
+import { Filepathes } from '../../../utils/filepathes';
+import { Logger, LogLevel } from '../../../utils/logger';
 
 const initialUrl =
   'https://api.github.com/repos/kubernetes/kubernetes/releases?per_page=100';
 
-export const kubectlInstallDir = join(
-  homedir(),
-  '.kube',
-  'k8s-helpers',
-  'kubectl',
-);
-
-export const kubectlVersionsFile = join(
-  homedir(),
-  '.kube',
-  'k8s-helpers',
-  'kubectl',
-  'versions',
-);
+export async function downloadKubectl(
+  version: string,
+  logger: Logger = new Logger('download kubectl'),
+): Promise<void> {
+  logger.startSpinner(`Downloading v${version}.`, LogLevel.info);
+  const url = kubectlDownloadUrl(version, getOs());
+  const destination = join(Filepathes.kubectlInstallPath, `v${version}`);
+  const destinationFile = join(
+    destination,
+    `kubectl${getOs() === 'windows' ? '.exe' : ''}`,
+  );
+  await emptyDir(destination);
+  return new Promise<void>((resolve, reject) => {
+    stream(url)
+      .on('error', () => {
+        logger.spinnerFail('Error during download.');
+        reject();
+      })
+      .on('downloadProgress', progress =>
+        logger.setSpinnerText(
+          `Downloading v${version}. Progress: ${Math.round(
+            progress.percent * 100,
+          )}%`,
+        ),
+      )
+      .on('end', () => {
+        logger.spinnerSuccess(`Downloaded v${version}`);
+        resolve();
+      })
+      .pipe(createWriteStream(destinationFile));
+  }).then(() => chmod(destinationFile, '755'));
+}
 
 export const kubectlDownloadUrl = (
   version: string,
@@ -44,20 +73,24 @@ export function getOs(): 'linux' | 'darwin' | 'windows' {
 }
 
 export async function getLocalVersions(): Promise<string[]> {
-  await ensureDir(kubectlInstallDir);
-  return ((await readdir(kubectlInstallDir))
-    .filter(path => lstatSync(join(kubectlInstallDir, path)).isDirectory())
+  await ensureDir(Filepathes.kubectlInstallPath);
+  return ((await readdir(Filepathes.kubectlInstallPath))
+    .filter(path =>
+      lstatSync(join(Filepathes.kubectlInstallPath, path)).isDirectory(),
+    )
     .map(v => clean(v))
     .filter(Boolean) as string[]).sort(rcompare);
 }
 
-export async function downloadRemoteVersions(): Promise<string[]> {
+export async function downloadRemoteVersions(
+  logger: Logger = new Logger('download remote kubetl versions'),
+): Promise<string[]> {
   const versions: string[] = [];
 
   let getUrl: string | null = initialUrl;
-  const spinner = ora(`Downloading from: ${getUrl}`).start();
+  logger.startSpinner(`Downloading from: ${getUrl}`, LogLevel.info);
   while (getUrl) {
-    spinner.text = `Downloading from: ${getUrl}`;
+    logger.setSpinnerText(`Downloading from: ${getUrl}`);
     const result = await get(getUrl);
 
     versions.push(
@@ -69,18 +102,22 @@ export async function downloadRemoteVersions(): Promise<string[]> {
 
     getUrl = match ? match[1] : null;
   }
-  spinner.succeed();
+  logger.spinnerSuccess('Versions downloaded');
 
   return versions.map(v => clean(v)).filter(Boolean) as string[];
 }
 
-export async function getRemoteVersions(): Promise<string[]> {
-  if (await pathExists(kubectlVersionsFile)) {
-    return await readJson(kubectlVersionsFile, { encoding: 'utf8' });
+export async function getRemoteVersions(
+  logger: Logger = new Logger('get remote kubetl versions'),
+): Promise<string[]> {
+  if (await pathExists(Filepathes.kubectlVersionsPath)) {
+    return await readJson(Filepathes.kubectlVersionsPath, { encoding: 'utf8' });
   }
 
-  const versions = await downloadRemoteVersions();
-  await writeJson(kubectlVersionsFile, versions, { encoding: 'utf8' });
+  const versions = await downloadRemoteVersions(logger);
+  await writeJson(Filepathes.kubectlVersionsPath, versions, {
+    encoding: 'utf8',
+  });
 
-  return await readJson(kubectlVersionsFile, { encoding: 'utf8' });
+  return await readJson(Filepathes.kubectlVersionsPath, { encoding: 'utf8' });
 }

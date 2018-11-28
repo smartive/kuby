@@ -1,10 +1,9 @@
 import chalk from 'chalk';
 import { outputFile, pathExists } from 'fs-extra';
-import { homedir } from 'os';
-import { join } from 'path';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { ExitCode } from '../../utils/exit-code';
+import { Filepathes } from '../../utils/filepathes';
 import { Logger } from '../../utils/logger';
 import { simpleConfirm } from '../../utils/simple-confirm';
 
@@ -68,9 +67,7 @@ export const kubeConfigCommand: KubeConfigCommandModule = {
       return;
     }
 
-    const configPath = join(homedir(), '.kube', 'config');
-
-    if (await pathExists(configPath)) {
+    if (await pathExists(Filepathes.configPath)) {
       if (args.noInteraction) {
         logger.info('Config already exists, exitting.');
         return;
@@ -88,7 +85,7 @@ export const kubeConfigCommand: KubeConfigCommandModule = {
     }
 
     logger.info('Writing ~/.kube/config file.');
-    await outputFile(configPath, content.base64Decode());
+    await outputFile(Filepathes.configPath, content.base64Decode());
 
     logger.success('Login done.');
   },
