@@ -50,7 +50,11 @@ export const kubeConfigCommand: KubeConfigCommandModule = {
       return;
     }
 
-    const content = args.configContent || process.env[defaultEnv];
+    const content = (
+      args.configContent ||
+      process.env[defaultEnv] ||
+      ''
+    ).trim();
 
     if (!content) {
       logger.error('Config content is empty. Aborting.');
