@@ -8,13 +8,58 @@ export enum LogLevel {
   output,
 }
 
+const ora = require('ora');
+
 export class Logger {
   public static level: LogLevel = LogLevel.info;
+  private spinner: typeof ora | undefined;
 
   constructor(private prefix: string = '') {}
 
-  public log(level: LogLevel, message: string): void {
+  public startSpinner(initialText: string, level: LogLevel): void {
     if (level < Logger.level) {
+      return;
+    }
+    this.spinner = ora(initialText).start();
+  }
+
+  public stopSpinner(): void {
+    if (!this.spinner) {
+      return;
+    }
+    this.spinner.stop();
+    delete this.spinner;
+  }
+
+  public setSpinnerText(text: string): void {
+    if (!this.spinner) {
+      return;
+    }
+    setTimeout(() => {
+      if (this.spinner) {
+        this.spinner.text = text;
+      }
+    },         0);
+  }
+
+  public spinnerSuccess(text?: string): void {
+    if (!this.spinner) {
+      return;
+    }
+    this.spinner.succeed(text);
+    delete this.spinner;
+  }
+
+  public spinnerFail(text?: string): void {
+    if (!this.spinner) {
+      return;
+    }
+    this.spinner.fail(text);
+    delete this.spinner;
+  }
+
+  public log(level: LogLevel, message: string): void {
+    if (level < Logger.level || this.spinner) {
       return;
     }
     this.getLogFunction(level)(`${this.getLevelPrefix(level)}${message}`);
