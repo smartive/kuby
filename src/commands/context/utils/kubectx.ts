@@ -7,6 +7,9 @@ export function getCurrentContext(): Promise<string> {
 }
 
 export async function getContexts(): Promise<string[]> {
-  const value = await exec('kubectl config get-contexts -o=name | sort -n');
-  return value.split(EOL).filter(ctx => !!ctx);
+  const value = await exec('kubectl config get-contexts -o=name');
+  return value
+    .split(EOL)
+    .filter(ctx => !!ctx)
+    .sort();
 }

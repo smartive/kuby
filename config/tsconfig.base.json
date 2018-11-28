@@ -12,12 +12,8 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "lib": [
-      "es2018"
-    ]
+    "lib": ["es2018"]
   },
-  "include": [
-    "../src/**/*"
-  ],
+  "include": ["../src/**/*.ts", "../test/**/*.ts"],
   "exclude": []
 }

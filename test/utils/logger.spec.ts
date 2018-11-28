@@ -1,11 +1,13 @@
-import { Logger, LogLevel } from '../../src/utils/logger';
+jest.unmock('../../src/utils/logger');
+
+const { Logger, LogLevel } = require('../../src/utils/logger');
 
 describe('util / logger', () => {
   const original: {
     [key: string]: (message?: any, ...optionalParams: any[]) => void;
   } = {};
   const mocks: { [key: string]: jest.Mock } = {};
-  let logger: Logger;
+  let logger: any;
 
   beforeAll(() => {
     original['debug'] = console.debug;
