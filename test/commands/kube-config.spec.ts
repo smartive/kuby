@@ -1,6 +1,6 @@
 import { vol } from 'memfs';
 import { homedir } from 'os';
-import { join } from 'path';
+import { posix } from 'path';
 
 import { kubeConfigCommand } from '../../src/commands/kube-config';
 import { Logger } from '../../src/utils/logger';
@@ -8,7 +8,7 @@ import * as Helper from '../../src/utils/simple-confirm';
 import { clearGlobalMocks } from '../helpers';
 
 describe('commands / kube-config', () => {
-  const configPath = join(homedir(), '.kube', 'config');
+  const configPath = posix.join(homedir(), '.kube', 'config');
   let confirm: jest.Mock;
 
   beforeAll(() => {

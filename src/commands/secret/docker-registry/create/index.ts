@@ -2,7 +2,7 @@ import { async } from 'fast-glob';
 import { pathExists } from 'fs-extra';
 import { prompt, Separator } from 'inquirer';
 import { EOL } from 'os';
-import { join, parse } from 'path';
+import { parse, posix } from 'path';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { RootArguments } from '../../../../root-arguments';
@@ -115,7 +115,7 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
     }
 
     if (args.from) {
-      const path = join(Filepathes.dockerSecretPath, args.from);
+      const path = posix.join(Filepathes.dockerSecretPath, args.from);
       if (await pathExists(path)) {
         await loadDockerSecret(args, path);
       } else {
@@ -142,7 +142,7 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
         },
       ])) as { file: string };
       if (selected.file !== 'new') {
-        const path = join(Filepathes.dockerSecretPath, selected.file);
+        const path = posix.join(Filepathes.dockerSecretPath, selected.file);
         args.from = selected.file;
         await loadDockerSecret(args, path);
       }
@@ -237,7 +237,7 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
 
     if (createArgs.saveSecret) {
       const name = createArgs.saveSecretName || createArgs.name;
-      const path = join(Filepathes.dockerSecretPath, name);
+      const path = posix.join(Filepathes.dockerSecretPath, name);
       if (
         (await pathExists(path)) &&
         !(await simpleConfirm(

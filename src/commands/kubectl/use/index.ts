@@ -1,7 +1,7 @@
 import { remove, symlink } from 'fs-extra';
 import { prompt } from 'inquirer';
 import { platform } from 'os';
-import { join } from 'path';
+import { posix } from 'path';
 import { maxSatisfying } from 'semver';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
@@ -61,7 +61,11 @@ export const kubectlUseCommand: KubectlUseCommandModule = {
     if (platform() !== 'win32') {
       await remove('/usr/local/bin/kubectl');
       await symlink(
-        join(Filepathes.kubectlInstallPath, `v${installVersion}`, 'kubectl'),
+        posix.join(
+          Filepathes.kubectlInstallPath,
+          `v${installVersion}`,
+          'kubectl',
+        ),
         '/usr/local/bin/kubectl',
         'file',
       );

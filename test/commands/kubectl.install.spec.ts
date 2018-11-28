@@ -1,6 +1,6 @@
 import { vol } from 'memfs';
 import { homedir } from 'os';
-import { join } from 'path';
+import { posix } from 'path';
 
 import { kubectlInstallCommand } from '../../src/commands/kubectl/install';
 import { kubectlUseCommand } from '../../src/commands/kubectl/use';
@@ -58,7 +58,7 @@ describe('commands / kubectl / install', () => {
 
   it('should create the kubectl install dir when it does not exist', async () => {
     await kubectlInstallCommand.handler({} as any);
-    const installDir = join(homedir(), '.kube', 'k8s-helpers', 'kubectl');
+    const installDir = posix.join(homedir(), '.kube', 'k8s-helpers', 'kubectl');
     expect(Object.keys(vol.toJSON())).toContain(installDir);
   });
 

@@ -11,7 +11,7 @@ import {
 } from 'fs-extra';
 import { get, stream } from 'got';
 import { platform } from 'os';
-import { join } from 'path';
+import { posix } from 'path';
 import { clean, rcompare } from 'semver';
 
 import { Filepathes } from '../../../utils/filepathes';
@@ -26,8 +26,8 @@ export async function downloadKubectl(
 ): Promise<void> {
   logger.startSpinner(`Downloading v${version}.`, LogLevel.info);
   const url = kubectlDownloadUrl(version, getOs());
-  const destination = join(Filepathes.kubectlInstallPath, `v${version}`);
-  const destinationFile = join(
+  const destination = posix.join(Filepathes.kubectlInstallPath, `v${version}`);
+  const destinationFile = posix.join(
     destination,
     `kubectl${getOs() === 'windows' ? '.exe' : ''}`,
   );
@@ -76,7 +76,7 @@ export async function getLocalVersions(): Promise<string[]> {
   await ensureDir(Filepathes.kubectlInstallPath);
   return ((await readdir(Filepathes.kubectlInstallPath))
     .filter(path =>
-      lstatSync(join(Filepathes.kubectlInstallPath, path)).isDirectory(),
+      lstatSync(posix.join(Filepathes.kubectlInstallPath, path)).isDirectory(),
     )
     .map(v => clean(v))
     .filter(Boolean) as string[]).sort(rcompare);

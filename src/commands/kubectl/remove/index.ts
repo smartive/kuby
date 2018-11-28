@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import { remove } from 'fs-extra';
 import { prompt } from 'inquirer';
 import { platform } from 'os';
-import { join } from 'path';
+import { posix } from 'path';
 import { maxSatisfying } from 'semver';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
@@ -59,7 +59,9 @@ export const kubectlRemoveCommand: CommandModule = {
     }
 
     logger.debug('Delete folder.');
-    await remove(join(Filepathes.kubectlInstallPath, `v${installVersion}`));
+    await remove(
+      posix.join(Filepathes.kubectlInstallPath, `v${installVersion}`),
+    );
 
     logger.debug('Delete symlink.');
     if (platform() !== 'win32') {
