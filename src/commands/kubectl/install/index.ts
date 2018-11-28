@@ -53,7 +53,7 @@ export const kubectlInstallCommand: CommandModule = {
 
     await ensureDir(Filepathes.kubectlInstallPath);
 
-    const versions = await getRemoteVersions();
+    const versions = await getRemoteVersions(logger);
     const installVersion = maxSatisfying(versions, args.semver);
 
     if (!installVersion) {

@@ -23,18 +23,14 @@ jest.mock('../src/utils/logger', () => ({
     public success: jest.Mock = jest.fn();
     public warn: jest.Mock = jest.fn();
     public error: jest.Mock = jest.fn();
+    public startSpinner: jest.Mock = jest.fn();
+    public stopSpinner: jest.Mock = jest.fn();
+    public setSpinnerText: jest.Mock = jest.fn();
+    public spinnerSuccess: jest.Mock = jest.fn();
+    public spinnerFail: jest.Mock = jest.fn();
 
     constructor() {
       FakeLogger.instance = this;
-    }
-
-    public reset(): void {
-      this.debug.mockClear();
-      this.info.mockClear();
-      this.output.mockClear();
-      this.success.mockClear();
-      this.warn.mockClear();
-      this.error.mockClear();
     }
   },
 }));
