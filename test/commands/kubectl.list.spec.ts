@@ -1,3 +1,5 @@
+import chalk from 'chalk';
+
 import { kubectlListCommand } from '../../src/commands/kubectl/list';
 import * as Helpers from '../../src/commands/kubectl/utils/kubectl';
 import * as Version from '../../src/commands/version';
@@ -51,6 +53,8 @@ describe('commands / kubectl / list', () => {
       kubectlVersion: '1.10.0',
     });
     await kubectlListCommand.handler({});
-    expect((Logger as any).instance.info.mock.calls[1][0]).toMatchSnapshot();
+    expect((Logger as any).instance.info.mock.calls[1][0]).toBe(
+      `v1.10.0 (~/.kube/k8s-helpers/kubectl/v1.10.0)${chalk.green(' selected')}`,
+    );
   });
 });

@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`commands / kubectl / list should highlight the selected version 1`] = `"v1.10.0 (~/.kube/k8s-helpers/kubectl/v1.10.0)[32m selected[39m"`;
