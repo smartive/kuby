@@ -1,7 +1,7 @@
 stages:
   - test
-  - release
-  - deploy
+  # - release
+  # - deploy
 
 .base:
   tags:
@@ -13,49 +13,48 @@ variables:
 
 test:
   extends: .base
+  stage: test
   image: node:10
   script:
     - npm ci
     - npm run test:ci
   except:
     - tags
+# create release:
+#   extends: .base
+#   stage: release
+#   image: node:10
+#   script:
+#     - npm ci
+#     - npm run build
+#     - npx semantic-release
+#   only:
+#     - master
 
-create release:
-  extends: .base
-  stage: release
-  image: node:10
-  script:
-    - npm ci
-    - npm run build
-    - npx semantic-release
-  only:
-    - master
+# deploy docker images:
+#   extends: .base
+#   stage: deploy
+#   image: docker:latest
+#   services:
+#     - docker:dind
+#   before_script:
+#     - apk add --no-cache bash
+#     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
+#   script:
+#     - ./docker-build.sh
+#   only:
+#     - tags
 
-deploy docker images:
-  extends: .base
-  stage: deploy
-  image: docker:latest
-  services:
-    - docker:dind
-  before_script:
-    - apk add --no-cache bash
-    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
-  script:
-    - ./docker-build.sh
-  only:
-    - tags
-
-deploy binaries:
-  extends: .base
-  stage: deploy
-  image: node:10
-  before_script:
-    - npm ci
-  script:
-    - npm run package
-  artifacts:
-    paths:
-      - out/*
-    expire_in: 1 year
-  only:
-    - tags
+# deploy binaries:
+#   extends: .base
+#   stage: deploy
+#   image: node:10
+#   before_script:
+#     - npm ci
+#   script:
+#     - npm run package
+#   artifacts:
+#     paths:
+#       - out/*
+#   only:
+#     - tags
