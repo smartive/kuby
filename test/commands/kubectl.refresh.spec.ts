@@ -1,4 +1,5 @@
 import { vol } from 'memfs';
+import { EOL } from 'os';
 
 import { kubectlRefreshCommand } from '../../src/commands/kubectl/refresh';
 import * as Helpers from '../../src/commands/kubectl/utils/kubectl';
@@ -33,7 +34,10 @@ describe('commands / kubectl / refresh', () => {
     download.mockResolvedValue(['1.10.0', '1.12.0']);
     await kubectlRefreshCommand.handler({});
     expect(vol.toJSON()).toEqual({
-      [Filepathes.kubectlVersionsPath]: JSON.stringify(['1.10.0', '1.12.0']),
+      [Filepathes.kubectlVersionsPath]: `${JSON.stringify([
+        '1.10.0',
+        '1.12.0',
+      ])}${EOL}`,
     });
   });
 });
