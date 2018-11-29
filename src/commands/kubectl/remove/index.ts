@@ -41,7 +41,7 @@ export const kubectlRemoveCommand: CommandModule = {
             `(current: v${kubectlVersion})`,
           )}`,
           choices: [
-            ...(await getLocalVersions()).map(v => ({
+            ...versions.map(v => ({
               value: v,
               name: `v${v}`,
             })),
@@ -51,16 +51,16 @@ export const kubectlRemoveCommand: CommandModule = {
       args.semver = answers.version;
     }
 
-    const installVersion = maxSatisfying(versions, args.semver);
+    const removeVersion = maxSatisfying(versions, args.semver);
 
-    if (!installVersion) {
+    if (!removeVersion) {
       logger.warn('The given semver is not locally installed.');
       return;
     }
 
     logger.debug('Delete folder.');
     await remove(
-      posix.join(Filepathes.kubectlInstallPath, `v${installVersion}`),
+      posix.join(Filepathes.kubectlInstallPath, `v${removeVersion}`),
     );
 
     logger.debug('Delete symlink.');
@@ -69,6 +69,6 @@ export const kubectlRemoveCommand: CommandModule = {
     }
     // TODO windows.
 
-    logger.success(`Version v${installVersion} removed.`);
+    logger.success(`Version v${removeVersion} removed.`);
   },
 };
