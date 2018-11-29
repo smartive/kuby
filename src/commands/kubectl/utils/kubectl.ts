@@ -4,10 +4,10 @@ import {
   emptyDir,
   ensureDir,
   lstatSync,
+  outputJSON,
   pathExists,
   readdir,
   readJson,
-  writeJson,
 } from 'fs-extra';
 import { get, stream } from 'got';
 import { platform } from 'os';
@@ -53,7 +53,7 @@ export async function downloadKubectl(
   }).then(() => chmod(destinationFile, '755'));
 }
 
-export const kubectlDownloadUrl = (
+const kubectlDownloadUrl = (
   version: string,
   os: 'linux' | 'darwin' | 'windows',
 ) =>
@@ -61,7 +61,7 @@ export const kubectlDownloadUrl = (
     os === 'windows' ? '.exe' : ''
   }`;
 
-export function getOs(): 'linux' | 'darwin' | 'windows' {
+function getOs(): 'linux' | 'darwin' | 'windows' {
   switch (platform()) {
     case 'darwin':
       return 'darwin';
@@ -98,9 +98,16 @@ export async function downloadRemoteVersions(
     );
 
     const { link } = result.headers;
-    const match = /<(.*?)>; rel="next"/g.exec((link as any) || '');
+    const links = (link as string).split(',');
 
-    getUrl = match ? match[1] : null;
+    getUrl = null;
+    for (const parsedLink of links) {
+      const match = /<(.*?)>; rel="next"/g.exec(parsedLink || '');
+      if (match) {
+        getUrl = match ? match[1] : null;
+        break;
+      }
+    }
   }
   logger.spinnerSuccess('Versions downloaded');
 
@@ -115,9 +122,9 @@ export async function getRemoteVersions(
   }
 
   const versions = await downloadRemoteVersions(logger);
-  await writeJson(Filepathes.kubectlVersionsPath, versions, {
+  await outputJSON(Filepathes.kubectlVersionsPath, versions, {
     encoding: 'utf8',
   });
 
-  return await readJson(Filepathes.kubectlVersionsPath, { encoding: 'utf8' });
+  return versions;
 }

@@ -14,6 +14,7 @@ jest.mock('../src/utils/exec', () => ({
   exec: jest.fn(),
 }));
 jest.mock('../src/utils/logger', () => ({
+  LogLevel: {},
   Logger: class FakeLogger {
     public static instance: FakeLogger;
 
