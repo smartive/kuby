@@ -1,11 +1,5 @@
 import chalk from 'chalk';
-import {
-  ensureFile,
-  outputFile,
-  pathExists,
-  readFile,
-  writeFile,
-} from 'fs-extra';
+import { outputFile, pathExists, readFile } from 'fs-extra';
 import { prompt } from 'inquirer';
 import { EOL } from 'os';
 import { Arguments, Argv, CommandModule } from 'yargs';
