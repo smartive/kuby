@@ -40,5 +40,9 @@ jest.mock('clipboardy', () => ({
 }));
 jest.mock('inquirer', () => ({
   registerPrompt: jest.fn(),
-  prompt: jest.fn(),
+  prompt: jest
+    .fn()
+    .mockImplementation(async (questions: any[]) =>
+      questions.map(q => (q.default !== undefined ? q.default : q.name)),
+    ),
 }));

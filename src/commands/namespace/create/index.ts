@@ -111,7 +111,6 @@ export const namespaceCreateCommand: CommandModule = {
     const logger = new Logger('namespaces');
     logger.debug('Create kubernetes namespace.');
 
-    const context = await getCurrentContext();
     const namespaces = await getNamespaces();
 
     if (namespaces.includes(args.name)) {
@@ -177,7 +176,7 @@ export const namespaceCreateCommand: CommandModule = {
       !(await simpleConfirm(
         `Create namespace "${chalk.yellow(
           args.name,
-        )}" on context "${chalk.yellow(context)}"${
+        )}" on context "${chalk.yellow(await getCurrentContext())}"${
           answers.createServiceAccount
             ? `, with service account "${chalk.yellow(
                 answers.serviceAccountName,
@@ -231,6 +230,8 @@ export const namespaceCreateCommand: CommandModule = {
       logger.info(result);
     } catch (e) {
       logger.error(`Error: ${e}`);
+      process.exit(ExitCode.error);
+      return;
     }
 
     logger.success(`ServiceAccount "${answers.serviceAccountName}" created.`);
