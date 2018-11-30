@@ -12,7 +12,10 @@ export async function getNamespaces(): Promise<string[]> {
   const value = await exec(
     `kubectl get namespaces -o=jsonpath='{range .items[*].metadata.name}{@}{"\\n"}{end}'`,
   );
-  return value.split('\n').filter(ns => !!ns);
+  return value
+    .split('\n')
+    .filter(ns => !!ns)
+    .sort();
 }
 
 export async function getServiceAccountsForNamespace(
@@ -21,5 +24,8 @@ export async function getServiceAccountsForNamespace(
   const value = await exec(
     `kubectl get serviceaccounts -n ${namespace} -o=jsonpath='{range .items[*].metadata.name}{@}{"\\n"}{end}'`,
   );
-  return value.split('\n').filter(sa => !!sa);
+  return value
+    .split('\n')
+    .filter(sa => !!sa)
+    .sort();
 }
