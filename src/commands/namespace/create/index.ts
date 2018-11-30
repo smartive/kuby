@@ -1,5 +1,11 @@
 import chalk from 'chalk';
-import { ensureFile, pathExists, readFile, writeFile } from 'fs-extra';
+import {
+  ensureFile,
+  outputFile,
+  pathExists,
+  readFile,
+  writeFile,
+} from 'fs-extra';
 import { prompt } from 'inquirer';
 import { EOL } from 'os';
 import { Arguments, Argv, CommandModule } from 'yargs';
@@ -165,8 +171,7 @@ export const namespaceCreateCommand: CommandModule = {
       : await prompt(questions)) as PromptAnswers;
 
     if (answers.createServiceAccount && answers.role && answers.saveRole) {
-      await ensureFile(Filepathes.namespaceDefaultRolePath);
-      await writeFile(Filepathes.namespaceDefaultRolePath, answers.role);
+      await outputFile(Filepathes.namespaceDefaultRolePath, answers.role);
       logger.info(
         'The default role was saved under: ~/.kube/k8s-helpers/namespace/default-role.yml',
       );
