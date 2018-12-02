@@ -64,7 +64,7 @@ export const versionCommand: CommandModule = {
 
     const versionInfo = await getVersionInfo(remote);
 
-    logger.info(`k8s version: ${chalk.green(versionInfo.toolVersion)}`);
+    logger.info(`kuby version: ${chalk.green(versionInfo.toolVersion)}`);
 
     logger.info(
       `kubectl version: ${chalk.green(

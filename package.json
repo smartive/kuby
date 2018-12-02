@@ -1,5 +1,5 @@
 {
-  "name": "@smartive/kubernetes-helpers",
+  "name": "@smartive/kuby",
   "version": "0.0.0-development",
   "description": "commandline tool that helps with kubernetes deployments",
   "main": "./build/kubernetes-helpers.js",
@@ -15,7 +15,7 @@
     "link": "npm run build && npm link"
   },
   "bin": {
-    "k8s": "./build/kubernetes-helpers.js"
+    "kuby": "./build/kubernetes-helpers.js"
   },
   "keywords": [
     "kubernetes",
@@ -26,12 +26,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@gitlab.com:smartive/open-source/kubernetes-helpers.git"
+    "url": "git@gitlab.com:smartive/open-source/kuby.git"
   },
   "bugs": {
-    "url": "https://gitlab.com/smartive/open-source/kubernetes-helpers/issues"
+    "url": "https://gitlab.com/smartive/open-source/kuby/issues"
   },
-  "homepage": "https://gitlab.com/smartive/open-source/kubernetes-helpers",
+  "homepage": "https://gitlab.com/smartive/open-source/kuby",
   "author": "Christoph Bühler <christoph@smartive.ch>",
   "license": "MIT",
   "publishConfig": {

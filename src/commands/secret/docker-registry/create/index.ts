@@ -54,11 +54,12 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
   builder: (argv: Argv) =>
     argv
       .example(
-        'k8s secret docker-registry create test --server hub.docker.com --user myaccount --email foo@bar.ch --password asdf',
+        'kuby secret docker-registry create test --server hub.docker.com ' +
+          '--user myaccount --email foo@bar.ch --password asdf',
         'This command creates a dockerconfigjson secret for the server hub.docker.com with the given credentials.',
       )
       .example(
-        'k8s secret docker-registry create test',
+        'kuby secret docker-registry create test',
         'This command creates a dockerconfigjson secret named test, and the user will be asked for the other information.',
       )
       .positional('name', {

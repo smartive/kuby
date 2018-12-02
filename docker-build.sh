@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-echo "Create and deploy the various versions for k8s docker image"
+echo "Create and deploy the various versions for kuby docker image"
 
 kubectl_versions=("1" "1.12" "1.11" "1.10" "1.9" "1.8")
-image="smartive/kubernetes-deploy"
+image="smartive/kuby"
 
 echo "Build latest docker image"
 docker build --build-arg KUBECTL_VERSION="1" -t $image:latest .
@@ -13,8 +13,8 @@ docker push $image:latest
 for version in ${kubectl_versions[@]}; do
   echo "Build docker image with kubectl version v$version"
 
-  version_tag="kubectl-v$version-k8s-$CI_COMMIT_TAG"
-  latest_tag="kubectl-v$version-k8s-latest"
+  version_tag="kubectl-v$version-kuby-$CI_COMMIT_TAG"
+  latest_tag="kubectl-v$version-kuby-latest"
 
   echo "Use tag: $version_tag"
   echo "And latest tag: $latest_tag"

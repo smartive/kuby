@@ -1,4 +1,4 @@
-# kubernetes-helpers [k8s]
+# kubernetes-helpers [kuby]
 
 This is a command line helper for kubernetes (`kubectl`).
 It does provide some helping commands and eases up deployments.
@@ -9,14 +9,14 @@ It does provide some helping commands and eases up deployments.
 npm install -g @smartive/kubernetes-helpers
 ```
 
-This adds the `k8s` executable to your global bin.
+This adds the `kuby` executable to your global bin.
 
 If you don't have node installed, you can build executables for your system
 with the `package` npm script.
 
 ### Usage
 
-`k8s` -> Prints the help.
+`kuby` -> Prints the help.
 
 Please read the usage help to get along with the tool :)
 
@@ -25,7 +25,7 @@ Each command can be inspected by adding `--help` to the command.
 ### Configuration
 
 All global settings and flags (like `context` and `namespace`) can
-be configured via a `.k8src` or `.k8src.json` file. Please ensure, it is a valid
+be configured via a `.kubyrc` or `.kubyrc.json` file. Please ensure, it is a valid
 json.
 
 Example:

@@ -1,7 +1,7 @@
 import { homedir } from 'os';
 import { posix } from 'path';
 
-const basepath = posix.join(homedir(), '.kube', 'k8s-helpers');
+const basepath = posix.join(homedir(), '.kube', 'kuby');
 
 export class Filepathes {
   public static get configPath(): string {

@@ -24,7 +24,7 @@ export const kubectlListCommand: CommandModule = {
     logger.info('Local available kubectl versions:');
     versions.forEach(v =>
       logger.info(
-        `v${v} (~/.kube/k8s-helpers/kubectl/v${v})${
+        `v${v} (~/.kube/kuby/kubectl/v${v})${
           v === kubectlVersion ? chalk.green(' selected') : ''
         }`,
       ),

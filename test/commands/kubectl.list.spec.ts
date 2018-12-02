@@ -43,7 +43,7 @@ describe('commands / kubectl / list', () => {
     localVersions.mockResolvedValue(['1.10.0']);
     await kubectlListCommand.handler({});
     expect((Logger as any).instance.info.mock.calls[1][0]).toBe(
-      'v1.10.0 (~/.kube/k8s-helpers/kubectl/v1.10.0)',
+      'v1.10.0 (~/.kube/kuby/kubectl/v1.10.0)',
     );
   });
 
@@ -54,7 +54,7 @@ describe('commands / kubectl / list', () => {
     });
     await kubectlListCommand.handler({});
     expect((Logger as any).instance.info.mock.calls[1][0]).toBe(
-      `v1.10.0 (~/.kube/k8s-helpers/kubectl/v1.10.0)${chalk.green(' selected')}`,
+      `v1.10.0 (~/.kube/kuby/kubectl/v1.10.0)${chalk.green(' selected')}`,
     );
   });
 });

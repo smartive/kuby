@@ -166,7 +166,7 @@ export const namespaceCreateCommand: CommandModule = {
     if (answers.createServiceAccount && answers.role && answers.saveRole) {
       await outputFile(Filepathes.namespaceDefaultRolePath, answers.role);
       logger.info(
-        'The default role was saved under: ~/.kube/k8s-helpers/namespace/default-role.yml',
+        'The default role was saved under: ~/.kube/kuby/namespace/default-role.yml',
       );
       logger.info('If you want to reset it, just delete the file.');
     }

@@ -58,7 +58,7 @@ describe('commands / kubectl / install', () => {
 
   it('should create the kubectl install dir when it does not exist', async () => {
     await kubectlInstallCommand.handler({} as any);
-    const installDir = posix.join(homedir(), '.kube', 'k8s-helpers', 'kubectl');
+    const installDir = posix.join(homedir(), '.kube', 'kuby', 'kubectl');
     expect(Object.keys(vol.toJSON())).toContain(installDir);
   });
 

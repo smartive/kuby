@@ -1,7 +1,7 @@
 stages:
   - test
-  # - release
-  # - deploy
+  - release
+  - deploy
 
 .base:
   tags:
@@ -18,43 +18,45 @@ test:
   script:
     - npm ci
     - npm run test:ci
+  coverage: /All files\s*\|\s*([\d\.]+)/
   except:
     - tags
-# create release:
-#   extends: .base
-#   stage: release
-#   image: node:10
-#   script:
-#     - npm ci
-#     - npm run build
-#     - npx semantic-release
-#   only:
-#     - master
 
-# deploy docker images:
-#   extends: .base
-#   stage: deploy
-#   image: docker:latest
-#   services:
-#     - docker:dind
-#   before_script:
-#     - apk add --no-cache bash
-#     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
-#   script:
-#     - ./docker-build.sh
-#   only:
-#     - tags
+create release:
+  extends: .base
+  stage: release
+  image: node:10
+  script:
+    - npm ci
+    - npm run build
+    - npx semantic-release
+  only:
+    - master
 
-# deploy binaries:
-#   extends: .base
-#   stage: deploy
-#   image: node:10
-#   before_script:
-#     - npm ci
-#   script:
-#     - npm run package
-#   artifacts:
-#     paths:
-#       - out/*
-#   only:
-#     - tags
+deploy docker images:
+  extends: .base
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - apk add --no-cache bash
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
+  script:
+    - ./docker-build.sh
+  only:
+    - tags
+
+deploy binaries:
+  extends: .base
+  stage: deploy
+  image: node:10
+  before_script:
+    - npm ci
+  script:
+    - npm run package
+  artifacts:
+    paths:
+      - out/*
+  only:
+    - tags
