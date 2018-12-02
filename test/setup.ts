@@ -40,6 +40,7 @@ jest.mock('clipboardy', () => ({
 }));
 jest.mock('inquirer', () => ({
   registerPrompt: jest.fn(),
+  Separator: jest.fn(() => ({})),
   prompt: jest
     .fn()
     .mockImplementation(async (questions: any[]) =>
