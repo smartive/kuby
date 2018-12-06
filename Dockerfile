@@ -25,7 +25,7 @@ COPY --from=build /app/out/kuby /usr/local/bin/
 RUN set -x && \
   apk add --update $RUNTIME_DEPS && \
   apk add --virtual build_deps $BUILD_DEPS && \
-  apk add --no-cache curl ca-certificates
+  apk add --no-cache curl ca-certificates git
 
 RUN kuby kubectl refresh
 

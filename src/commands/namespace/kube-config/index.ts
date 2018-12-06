@@ -7,7 +7,11 @@ import { exec } from '../../../utils/exec';
 import { ExitCode } from '../../../utils/exit-code';
 import { Logger } from '../../../utils/logger';
 import { getCurrentContext } from '../../context/utils/kubectx';
-import { getCurrentNamespace, getNamespaces, getServiceAccountsForNamespace } from '../utils/kubens';
+import {
+  getCurrentNamespace,
+  getNamespaces,
+  getServiceAccountsForNamespace,
+} from '../utils/kubens';
 
 interface NamespaceKubeConfigArguments extends Arguments {
   namespace?: string;
@@ -45,6 +49,40 @@ contexts:
   name: cluster-context
 current-context: cluster-context
 `;
+
+export async function generateKubeConfig(
+  namespace: string,
+  serviceAccount: string,
+): Promise<string> {
+  const [tokenSecret] = (await exec(
+    `kubectl get secrets -n ${namespace} -o=jsonpath='{range .items[*]}{@.metadata.name};{@.type}{"\\n"}{end}'`,
+  ))
+    .split('\n')
+    .filter(Boolean)
+    .map(line => line.split(';'))
+    .filter(secret => secret[1].includes('service-account-token'))
+    .find(secret => secret[0].startsWith(serviceAccount || '')) || [''];
+
+  if (!tokenSecret) {
+    throw new Error('No token secret found');
+  }
+
+  const base64Token = await exec(
+    `kubectl get secret -n ${namespace} ${tokenSecret} -o=jsonpath='{@.data.token}'`,
+  );
+
+  const token = base64Token.base64Decode();
+  const currentContext = await getCurrentContext();
+  const clusterName = await exec(
+    `kubectl config view -o=jsonpath='{.contexts[?(@.name=="${currentContext}")].context.cluster}'`,
+  );
+  const [address, certificate] = (await exec(
+    `kubectl config view --raw -o=jsonpath='{range .clusters[?(@.name=="${clusterName}")].cluster}` +
+      `{@.server}||{@.certificate-authority-data}{end}'`,
+  )).split('||');
+
+  return kubeConfig(address, certificate, namespace, serviceAccount, token);
+}
 
 export const namespaceKubeConfigCommand: NamespaceKubeConfigCommandModule = {
   command: 'kube-config [namespace] [serviceAccount]',
@@ -145,53 +183,15 @@ export const namespaceKubeConfigCommand: NamespaceKubeConfigCommandModule = {
     );
 
     try {
-      const [tokenSecret] = (await exec(
-        `kubectl get secrets -n ${
-          args.namespace
-        } -o=jsonpath='{range .items[*]}{@.metadata.name};{@.type}{"\\n"}{end}'`,
-      ))
-        .split('\n')
-        .filter(Boolean)
-        .map(line => line.split(';'))
-        .filter(secret => secret[1].includes('service-account-token'))
-        .find(secret => secret[0].startsWith(args.serviceAccount || '')) || [
-          '',
-        ];
-
-      if (!tokenSecret) {
-        throw new Error('No token secret found');
-      }
-
-      const base64Token = await exec(
-        `kubectl get secret -n ${
-          args.namespace
-        } ${tokenSecret} -o=jsonpath='{@.data.token}'`,
-      );
-
-      const token = base64Token.base64Decode();
-      const currentContext = await getCurrentContext();
-      const clusterName = await exec(
-        `kubectl config view -o=jsonpath='{.contexts[?(@.name=="${currentContext}")].context.cluster}'`,
-      );
-      const [address, certificate] = (await exec(
-        `kubectl config view --raw -o=jsonpath='{range .clusters[?(@.name=="${clusterName}")].cluster}` +
-          `{@.server}||{@.certificate-authority-data}{end}'`,
-      )).split('||');
-
-      const config = kubeConfig(
-        address,
-        certificate,
+      const config = await generateKubeConfig(
         args.namespace,
         args.serviceAccount,
-        token,
       );
 
       logger.info(
         `Kube-Config for user "${chalk.yellow(
           args.serviceAccount,
-        )}" on server "${chalk.yellow(address)}" in namespace "${chalk.yellow(
-          args.namespace,
-        )}":`,
+        )}" in namespace "${chalk.yellow(args.namespace)}":`,
       );
       if (args.base64) {
         logger.info('(Config is Base64 encoded)');

@@ -46,8 +46,10 @@ export const namespaceCommand: CommandModule = {
     const logger = new Logger('namespaces');
     logger.debug(`list / switch namespaces`);
 
+    logger.startSpinner('Download namespaces');
     const current = await getCurrentNamespace();
     const namespaces = await getNamespaces();
+    logger.stopSpinner();
 
     if (!args.name) {
       args.name = ((await prompt([

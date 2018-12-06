@@ -16,7 +16,10 @@ export class Logger {
 
   constructor(private prefix: string = '') {}
 
-  public startSpinner(initialText: string, level: LogLevel): void {
+  public startSpinner(
+    initialText: string,
+    level: LogLevel = LogLevel.info,
+  ): void {
     if (level < Logger.level) {
       return;
     }

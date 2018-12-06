@@ -7,10 +7,6 @@ stages:
   tags:
     - smartive
 
-variables:
-  DOCKER_DRIVER: overlay2
-  DOCKER_HOST: tcp://localhost:2375
-
 test:
   extends: .base
   stage: test
@@ -37,6 +33,10 @@ deploy docker images:
   extends: .base
   stage: deploy
   image: docker:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_BUILDKIT: '1'
   services:
     - docker:dind
   before_script:
