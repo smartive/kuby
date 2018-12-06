@@ -152,8 +152,4 @@ current-context: cluster-context
     } as any);
     expect((Logger as any).instance.output).toHaveBeenLastCalledWith(result);
   });
-
-  it.skip('TODO: should not output the kube config in CI mode', async () => {});
-
-  it.skip('TODO: should call the login command in CI mode', async () => {});
 });
