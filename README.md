@@ -6,7 +6,7 @@ It does provide some helping commands and eases up deployments.
 ### Install
 
 ```bash
-npm install -g @smartive/kubernetes-helpers
+npm install -g @smartive/kuby
 ```
 
 This adds the `kuby` executable to your global bin.
