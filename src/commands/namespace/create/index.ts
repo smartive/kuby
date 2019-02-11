@@ -17,11 +17,11 @@ import { getCurrentContext } from '../../context/utils/kubectx';
 import { namespaceKubeConfigCommand } from '../kube-config';
 import { getNamespaces } from '../utils/kubens';
 
-interface NamespaceCreateArguments extends Arguments, RootArguments {
+type NamespaceCreateArguments = RootArguments & {
   name: string;
   base64: boolean;
   noInteraction: boolean;
-}
+};
 
 interface PromptAnswers {
   createServiceAccount: boolean;
@@ -37,11 +37,7 @@ metadata:
   namespace: ${namespace}
 `;
 
-const rolebinding = (
-  namespace: string,
-  saName: string,
-  roleName: string,
-) => `apiVersion: rbac.authorization.k8s.io/v1
+const rolebinding = (namespace: string, saName: string, roleName: string) => `apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: ${saName}
@@ -84,13 +80,12 @@ rules:
       - '*'
 `;
 
-export const namespaceCreateCommand: CommandModule = {
+export const namespaceCreateCommand: CommandModule<RootArguments, NamespaceCreateArguments> = {
   command: 'create <name>',
-  describe:
-    'Create a new kubernetes namespace (with optional service account and kubeconfig).',
+  describe: 'Create a new kubernetes namespace (with optional service account and kubeconfig).',
 
-  builder: (argv: Argv) =>
-    argv
+  builder: (argv: Argv<RootArguments>) =>
+    (argv
       .positional('name', {
         description: 'Kubernetes namespace name.',
         type: 'string',
@@ -105,9 +100,9 @@ export const namespaceCreateCommand: CommandModule = {
         boolean: true,
         default: false,
         description: 'No interaction mode, use default answers.',
-      }),
+      }) as unknown) as Argv<NamespaceCreateArguments>,
 
-  async handler(args: NamespaceCreateArguments): Promise<void> {
+  async handler(args: Arguments<NamespaceCreateArguments>): Promise<void> {
     const logger = new Logger('namespaces');
     logger.debug('Create kubernetes namespace.');
 
@@ -165,23 +160,15 @@ export const namespaceCreateCommand: CommandModule = {
 
     if (answers.createServiceAccount && answers.role && answers.saveRole) {
       await outputFile(Filepathes.namespaceDefaultRolePath, answers.role);
-      logger.info(
-        'The default role was saved under: ~/.kube/kuby/namespace/default-role.yml',
-      );
+      logger.info('The default role was saved under: ~/.kube/kuby/namespace/default-role.yml');
       logger.info('If you want to reset it, just delete the file.');
     }
 
     if (
       !args.noInteraction &&
       !(await simpleConfirm(
-        `Create namespace "${chalk.yellow(
-          args.name,
-        )}" on context "${chalk.yellow(await getCurrentContext())}"${
-          answers.createServiceAccount
-            ? `, with service account "${chalk.yellow(
-                answers.serviceAccountName,
-              )}"`
-            : ''
+        `Create namespace "${chalk.yellow(args.name)}" on context "${chalk.yellow(await getCurrentContext())}"${
+          answers.createServiceAccount ? `, with service account "${chalk.yellow(answers.serviceAccountName)}"` : ''
         }. Proceed?`,
         true,
       ))
@@ -190,14 +177,9 @@ export const namespaceCreateCommand: CommandModule = {
       return;
     }
 
-    const code = await spawn(
-      'kubectl',
-      RcFile.getKubectlCtxArguments(args, ['create', 'ns', args.name]),
-    );
+    const code = await spawn('kubectl', RcFile.getKubectlCtxArguments(args, ['create', 'ns', args.name]));
     if (code !== 0) {
-      logger.error(
-        'An error happend during the kubectl create namespace command.',
-      );
+      logger.error('An error happend during the kubectl create namespace command.');
       process.exit(ExitCode.error);
       return;
     }
@@ -224,9 +206,7 @@ export const namespaceCreateCommand: CommandModule = {
 
     logger.debug(`Executing <echo "templates" | kubectl create -f ->`);
     try {
-      const result = await exec(
-        `echo "${templates.join(`${EOL}---${EOL}`)}" | kubectl create -f -`,
-      );
+      const result = await exec(`echo "${templates.join(`${EOL}---${EOL}`)}" | kubectl create -f -`);
       logger.info(result);
     } catch (e) {
       logger.error(`Error: ${e}`);

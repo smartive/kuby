@@ -3,11 +3,11 @@ import { prompt } from 'inquirer';
 import { vol } from 'memfs';
 import { posix } from 'path';
 
-import { kubectlUseCommand } from '../../src/commands/kubectl/use';
-import * as Version from '../../src/commands/version';
-import { Filepathes } from '../../src/utils/filepathes';
-import { Logger } from '../../src/utils/logger';
-import { clearGlobalMocks } from '../helpers';
+import { kubectlUseCommand } from '../../../src/commands/kubectl/use';
+import * as Version from '../../../src/commands/version';
+import { Filepathes } from '../../../src/utils/filepathes';
+import { Logger } from '../../../src/utils/logger';
+import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / kubectl / use', () => {
   let versionInfo: jest.Mock;
@@ -21,28 +21,13 @@ describe('commands / kubectl / use', () => {
 
   beforeEach(() => {
     vol.fromJSON({
-      [posix.join(
-        Filepathes.kubectlInstallPath,
-        'v1.12.1',
-        'kubectl',
-      )]: 'v1.12.1',
-      [posix.join(
-        Filepathes.kubectlInstallPath,
-        'v1.12.2',
-        'kubectl',
-      )]: 'v1.12.2',
-      [posix.join(
-        Filepathes.kubectlInstallPath,
-        'v1.10.0',
-        'kubectl',
-      )]: 'v1.10.0',
+      [posix.join(Filepathes.kubectlInstallPath, 'v1.12.1', 'kubectl')]: 'v1.12.1',
+      [posix.join(Filepathes.kubectlInstallPath, 'v1.12.2', 'kubectl')]: 'v1.12.2',
+      [posix.join(Filepathes.kubectlInstallPath, 'v1.10.0', 'kubectl')]: 'v1.10.0',
       [posix.join(Filepathes.kubectlInstallPath, 'v1.8.4', 'kubectl')]: 'v1.8.4',
     });
     vol.mkdirpSync('/usr/local/bin/');
-    vol.symlinkSync(
-      posix.join(Filepathes.kubectlInstallPath, 'v1.10.0', 'kubectl'),
-      '/usr/local/bin/kubectl',
-    );
+    vol.symlinkSync(posix.join(Filepathes.kubectlInstallPath, 'v1.10.0', 'kubectl'), '/usr/local/bin/kubectl');
   });
 
   afterEach(() => {

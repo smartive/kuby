@@ -4,9 +4,9 @@ import { vol } from 'memfs';
 import { EOL } from 'os';
 import { posix } from 'path';
 
-import * as Helpers from '../../src/commands/kubectl/utils/kubectl';
-import { Filepathes } from '../../src/utils/filepathes';
-import { clearGlobalMocks } from '../helpers';
+import * as Helpers from '../../../src/commands/kubectl/utils/kubectl';
+import { Filepathes } from '../../../src/utils/filepathes';
+import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / kubectl / utils / kubectl', () => {
   beforeAll(() => {
@@ -20,9 +20,7 @@ describe('commands / kubectl / utils / kubectl', () => {
   describe('getLocalVersions()', () => {
     it('should create the installation dir if it does not exist', async () => {
       await Helpers.getLocalVersions();
-      expect(Object.keys(vol.toJSON())).toContain(
-        Filepathes.kubectlInstallPath,
-      );
+      expect(Object.keys(vol.toJSON())).toContain(Filepathes.kubectlInstallPath);
     });
 
     it('should return the possible versions', async () => {
@@ -131,18 +129,9 @@ describe('commands / kubectl / utils / kubectl', () => {
       expect(versions).toEqual(['1.1.1', '2.2.2', '3.3.3']);
       expect(get).toHaveBeenCalledTimes(3);
 
-      expect(get).nthCalledWith(
-        1,
-        'https://api.github.com/repos/kubernetes/kubernetes/releases?per_page=100',
-      );
-      expect(get).nthCalledWith(
-        2,
-        'https://api.github.com/repositories/20580498/releases?per_page=100&page=2',
-      );
-      expect(get).nthCalledWith(
-        3,
-        'https://api.github.com/repositories/20580498/releases?per_page=100&page=3',
-      );
+      expect(get).nthCalledWith(1, 'https://api.github.com/repos/kubernetes/kubernetes/releases?per_page=100');
+      expect(get).nthCalledWith(2, 'https://api.github.com/repositories/20580498/releases?per_page=100&page=2');
+      expect(get).nthCalledWith(3, 'https://api.github.com/repositories/20580498/releases?per_page=100&page=3');
     });
 
     it('should filter invalid versions', async () => {
@@ -206,9 +195,7 @@ describe('commands / kubectl / utils / kubectl', () => {
       const result = await Helpers.getRemoteVersions();
       expect(get).toHaveBeenCalled();
       expect(result).toEqual(['1.1.1', '2.2.2', '3.3.3']);
-      expect((vol.toJSON() as any)[Filepathes.kubectlVersionsPath]).toEqual(
-        `["1.1.1","2.2.2","3.3.3"]${EOL}`,
-      );
+      expect((vol.toJSON() as any)[Filepathes.kubectlVersionsPath]).toEqual(`["1.1.1","2.2.2","3.3.3"]${EOL}`);
     });
   });
 });

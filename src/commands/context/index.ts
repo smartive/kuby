@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import { prompt } from 'inquirer';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
+import { RootArguments } from '../../root-arguments';
 import { exec } from '../../utils/exec';
 import { ExitCode } from '../../utils/exit-code';
 import { Logger } from '../../utils/logger';
@@ -9,16 +10,16 @@ import { getContexts, getCurrentContext } from './utils/kubectx';
 
 const fuzzy = require('fuzzy');
 
-interface ContextArguments extends Arguments {
-  name?: string;
-}
-
-export const contextCommand: CommandModule = {
+export const contextCommand: CommandModule<
+  RootArguments,
+  {
+    name?: string;
+  }
+> = {
   command: 'context [name]',
   aliases: 'ctx',
   describe:
-    'Utilities for kubernetes contexts. Without any subcommands, ' +
-    'prints a list of possible configured contexts.',
+    'Utilities for kubernetes contexts. Without any subcommands, ' + 'prints a list of possible configured contexts.',
 
   builder: (argv: Argv) =>
     argv
@@ -26,11 +27,13 @@ export const contextCommand: CommandModule = {
         description: 'Context to switch to. If omitted, user is asked.',
         type: 'string',
       })
-      .completion('completion', false as any, async (_, argv: Arguments) =>
-        argv._.length >= 3 ? [] : await getContexts(),
-      ),
+      .completion('completion', false as any, async (_, argv: Arguments) => (argv._.length >= 3 ? [] : await getContexts())),
 
-  async handler(args: ContextArguments): Promise<void> {
+  async handler(
+    args: Arguments<{
+      name?: string;
+    }>,
+  ): Promise<void> {
     if (args.getYargsCompletions) {
       return;
     }
@@ -46,9 +49,7 @@ export const contextCommand: CommandModule = {
         {
           type: 'autocomplete',
           name: 'context',
-          message: `Which context do you want to use? ${chalk.dim(
-            `(current: ${current})`,
-          )}`,
+          message: `Which context do you want to use? ${chalk.dim(`(current: ${current})`)}`,
           source: async (_: any, input: string) => {
             if (!input) {
               return contexts;

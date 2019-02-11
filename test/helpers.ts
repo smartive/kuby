@@ -3,6 +3,7 @@ import { prompt, registerPrompt } from 'inquirer';
 import { vol } from 'memfs';
 
 import { exec } from '../src/utils/exec';
+import { KubernetesApi } from '../src/utils/kubernetes-api';
 import { Logger } from '../src/utils/logger';
 import { spawn } from '../src/utils/spawn';
 
@@ -14,5 +15,6 @@ export function clearGlobalMocks(): void {
   (prompt as jest.Mock).mockClear();
   (registerPrompt as jest.Mock).mockClear();
   (Logger as any).instance = undefined;
+  (KubernetesApi as any).instance = undefined;
   vol.reset();
 }

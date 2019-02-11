@@ -1,12 +1,12 @@
 import { prompt } from 'inquirer';
 import { EOL } from 'os';
 
-import * as Kubectx from '../../src/commands/context/utils/kubectx';
-import { namespaceKubeConfigCommand } from '../../src/commands/namespace/kube-config';
-import * as Kubens from '../../src/commands/namespace/utils/kubens';
-import { exec } from '../../src/utils/exec';
-import { Logger } from '../../src/utils/logger';
-import { clearGlobalMocks } from '../helpers';
+import * as Kubectx from '../../../src/commands/context/utils/kubectx';
+import { namespaceKubeConfigCommand } from '../../../src/commands/namespace/kube-config';
+import * as Kubens from '../../../src/commands/namespace/utils/kubens';
+import { exec } from '../../../src/utils/exec';
+import { Logger } from '../../../src/utils/logger';
+import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / namespace / kube-config', () => {
   let currentNamespace: jest.Mock;

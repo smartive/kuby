@@ -24,7 +24,7 @@ interface PromptAnswers {
   saveSecretName?: string;
 }
 
-interface SecretDockerRegistryCreateArguments extends Arguments, RootArguments {
+type SecretDockerRegistryCreateArguments = RootArguments & {
   name: string;
   noInteraction: boolean;
   from?: string;
@@ -32,12 +32,9 @@ interface SecretDockerRegistryCreateArguments extends Arguments, RootArguments {
   user?: string;
   email?: string;
   password?: string;
-}
+};
 
-async function loadDockerSecret(
-  args: SecretDockerRegistryCreateArguments,
-  path: string,
-): Promise<void> {
+async function loadDockerSecret(args: SecretDockerRegistryCreateArguments, path: string): Promise<void> {
   const secret = await Crypto.load<PromptAnswers>(path);
   args.server = secret.server;
   args.user = secret.user;
@@ -45,14 +42,14 @@ async function loadDockerSecret(
   args.password = secret.password;
 }
 
-export const secretDockerRegistryCreateCommand: CommandModule = {
+export const secretDockerRegistryCreateCommand: CommandModule<RootArguments, SecretDockerRegistryCreateArguments> = {
   command: 'create <name>',
   describe:
     `Create a docker registry secret with the name "<name>".${EOL}` +
     'For each option that is omitted, the user will be asked to enter the information.',
 
-  builder: (argv: Argv) =>
-    argv
+  builder: (argv: Argv<RootArguments>) =>
+    (argv
       .example(
         'kuby secret docker-registry create test --server hub.docker.com ' +
           '--user myaccount --email foo@bar.ch --password asdf',
@@ -90,9 +87,9 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
       .option('password', {
         string: true,
         description: 'Password for the given user.',
-      }),
+      }) as unknown) as Argv<SecretDockerRegistryCreateArguments>,
 
-  async handler(args: SecretDockerRegistryCreateArguments): Promise<void> {
+  async handler(args: Arguments<SecretDockerRegistryCreateArguments>): Promise<void> {
     const logger = new Logger('secrets');
     logger.debug('Create docker secret.');
 
@@ -130,8 +127,7 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
         {
           type: 'list',
           name: 'file',
-          message:
-            'Use an existing secret as value template, or create a new one?',
+          message: 'Use an existing secret as value template, or create a new one?',
           choices: [
             { value: 'new', name: 'create new' },
             new Separator(),
@@ -149,13 +145,8 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
       }
     }
 
-    if (
-      args.noInteraction &&
-      (!args.server || !args.user || !args.email || !args.password)
-    ) {
-      logger.error(
-        'No interaction mode used but not all information present (server, user, mail, password).',
-      );
+    if (args.noInteraction && (!args.server || !args.user || !args.email || !args.password)) {
+      logger.error('No interaction mode used but not all information present (server, user, mail, password).');
       process.exit(ExitCode.error);
       return;
     }
@@ -192,8 +183,7 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
       {
         type: 'confirm',
         name: 'saveSecret',
-        message:
-          'Save the given secret as template (encrypted, to be used with --from in the future)?',
+        message: 'Save the given secret as template (encrypted, to be used with --from in the future)?',
         default: false,
         when: () => !args.noInteraction && !!!args.from,
       },
@@ -202,8 +192,7 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
         name: 'saveSecretName',
         message: 'Name of the file?',
         default: args.name,
-        when: (answers: PromptAnswers) =>
-          !args.noInteraction && !!!args.from && !!answers.saveSecret,
+        when: (answers: PromptAnswers) => !args.noInteraction && !!!args.from && !!answers.saveSecret,
         validate: (input: string) => !!input || 'Please enter a filename.',
       },
     ];
@@ -227,9 +216,7 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
       ]),
     );
     if (code !== 0) {
-      logger.error(
-        'An error happend during the kubectl create secret command.',
-      );
+      logger.error('An error happend during the kubectl create secret command.');
       process.exit(ExitCode.error);
       return;
     }
@@ -241,10 +228,7 @@ export const secretDockerRegistryCreateCommand: CommandModule = {
       const path = posix.join(Filepathes.dockerSecretPath, name);
       if (
         (await pathExists(path)) &&
-        !(await simpleConfirm(
-          `Secret with name "${name}" already exists, overwrite?`,
-          false,
-        ))
+        !(await simpleConfirm(`Secret with name "${name}" already exists, overwrite?`, false))
       ) {
         return;
       }

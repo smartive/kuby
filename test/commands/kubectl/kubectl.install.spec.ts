@@ -2,12 +2,12 @@ import { vol } from 'memfs';
 import { homedir } from 'os';
 import { posix } from 'path';
 
-import { kubectlInstallCommand } from '../../src/commands/kubectl/install';
-import { kubectlUseCommand } from '../../src/commands/kubectl/use';
-import * as Helpers from '../../src/commands/kubectl/utils/kubectl';
-import { Logger } from '../../src/utils/logger';
-import * as Confirm from '../../src/utils/simple-confirm';
-import { clearGlobalMocks } from '../helpers';
+import { kubectlInstallCommand } from '../../../src/commands/kubectl/install';
+import { kubectlUseCommand } from '../../../src/commands/kubectl/use';
+import * as Helpers from '../../../src/commands/kubectl/utils/kubectl';
+import { Logger } from '../../../src/utils/logger';
+import * as Confirm from '../../../src/utils/simple-confirm';
+import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / kubectl / install', () => {
   let use: jest.Mock;
@@ -21,15 +21,9 @@ describe('commands / kubectl / install', () => {
     process.exit = jest.fn() as any;
     use = jest.spyOn(kubectlUseCommand, 'handler').mockResolvedValue(undefined);
     confirm = jest.spyOn(Confirm, 'simpleConfirm').mockResolvedValue(true);
-    remoteVersions = jest
-      .spyOn(Helpers, 'getRemoteVersions')
-      .mockResolvedValue([]);
-    localVersions = jest
-      .spyOn(Helpers, 'getLocalVersions')
-      .mockResolvedValue([]);
-    download = jest
-      .spyOn(Helpers, 'downloadKubectl')
-      .mockResolvedValue(undefined);
+    remoteVersions = jest.spyOn(Helpers, 'getRemoteVersions').mockResolvedValue([]);
+    localVersions = jest.spyOn(Helpers, 'getLocalVersions').mockResolvedValue([]);
+    download = jest.spyOn(Helpers, 'downloadKubectl').mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -50,9 +44,7 @@ describe('commands / kubectl / install', () => {
   });
 
   it('should return when used with completion args', async () => {
-    expect(
-      await kubectlInstallCommand.handler({ getYargsCompletions: true } as any),
-    ).toBeUndefined();
+    expect(await kubectlInstallCommand.handler({ getYargsCompletions: true } as any)).toBeUndefined();
     expect((Logger as any).instance).toBeUndefined();
   });
 
@@ -76,9 +68,7 @@ describe('commands / kubectl / install', () => {
     localVersions.mockResolvedValue(['1.10.0']);
     await kubectlInstallCommand.handler({ semver: '1' } as any);
     expect(use).toHaveBeenCalled();
-    expect((Logger as any).instance.info.mock.calls[0][0]).toBe(
-      'v1.10.0 already installed and no force flag set.',
-    );
+    expect((Logger as any).instance.info.mock.calls[0][0]).toBe('v1.10.0 already installed and no force flag set.');
   });
 
   it('should ask the user if it should overwrite the version', async () => {

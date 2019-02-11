@@ -1,9 +1,9 @@
 import { vol } from 'memfs';
 import { posix } from 'path';
 
-import { prepareCommand } from '../../src/commands/prepare';
-import { Logger } from '../../src/utils/logger';
-import { clearGlobalMocks } from '../helpers';
+import { prepareCommand } from '../../../src/commands/prepare';
+import { Logger } from '../../../src/utils/logger';
+import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / prepare', () => {
   beforeAll(() => {
@@ -26,9 +26,7 @@ describe('commands / prepare', () => {
       sourceFolder: '/source',
       destinationFolder: '/destination',
     } as any);
-    expect((Logger as any).instance.error).toHaveBeenLastCalledWith(
-      'Source directory does not exist. Aborting.',
-    );
+    expect((Logger as any).instance.error).toHaveBeenLastCalledWith('Source directory does not exist. Aborting.');
     expect(process.exit).toHaveBeenCalledWith(1);
   });
 
@@ -63,17 +61,9 @@ describe('commands / prepare', () => {
       sourceFolder: './source',
       destinationFolder: './destination',
     } as any);
-    expect(Object.keys(vol.toJSON())).toContain(
-      posix.join(process.cwd(), 'destination', 'bar.yaml'),
-    );
-    expect(Object.keys(vol.toJSON())).toContain(
-      posix.join(process.cwd(), 'destination', 'foo.yml'),
-    );
-    expect(Object.keys(vol.toJSON())).toContain(
-      posix.join(process.cwd(), 'destination', 'blub-whatever.yml'),
-    );
-    expect(Object.keys(vol.toJSON())).toContain(
-      posix.join(process.cwd(), 'destination', 'blub-iaml.yaml'),
-    );
+    expect(Object.keys(vol.toJSON())).toContain(posix.join(process.cwd(), 'destination', 'bar.yaml'));
+    expect(Object.keys(vol.toJSON())).toContain(posix.join(process.cwd(), 'destination', 'foo.yml'));
+    expect(Object.keys(vol.toJSON())).toContain(posix.join(process.cwd(), 'destination', 'blub-whatever.yml'));
+    expect(Object.keys(vol.toJSON())).toContain(posix.join(process.cwd(), 'destination', 'blub-iaml.yaml'));
   });
 });

@@ -1,9 +1,9 @@
 import { vol } from 'memfs';
 
-import { applyCommand } from '../../src/commands/apply';
-import { kubeConfigCommand } from '../../src/commands/kube-config';
-import { spawn } from '../../src/utils/spawn';
-import { clearGlobalMocks } from '../helpers';
+import { applyCommand } from '../../../src/commands/apply';
+import { kubeConfigCommand } from '../../../src/commands/kube-config';
+import { spawn } from '../../../src/utils/spawn';
+import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / apply', () => {
   beforeAll(() => {
@@ -15,9 +15,7 @@ describe('commands / apply', () => {
   });
 
   it('should return when used with completion args', async () => {
-    expect(
-      await applyCommand.handler({ getYargsCompletions: true } as any),
-    ).toBeUndefined();
+    expect(await applyCommand.handler({ getYargsCompletions: true } as any)).toBeUndefined();
     expect(process.exit).not.toHaveBeenCalled();
   });
 
