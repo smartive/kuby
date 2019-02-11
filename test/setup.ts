@@ -1,8 +1,10 @@
 import 'clipboardy';
 import 'inquirer';
 
+import { Core_v1Api, V1Secret } from '@kubernetes/client-node';
 import '../src/utils/exec';
 import '../src/utils/extensions';
+import '../src/utils/kubernetes-api';
 import '../src/utils/logger';
 import '../src/utils/spawn';
 
@@ -43,7 +45,27 @@ jest.mock('inquirer', () => ({
   Separator: jest.fn(() => ({})),
   prompt: jest
     .fn()
-    .mockImplementation(async (questions: any[]) =>
-      questions.map(q => (q.default !== undefined ? q.default : q.name)),
-    ),
+    .mockImplementation(async (questions: any[]) => questions.map(q => (q.default !== undefined ? q.default : q.name))),
+}));
+
+jest.mock('../src/utils/kubernetes-api', () => ({
+  KubernetesApi: class FakeKubernetesApi {
+    public static instance: FakeKubernetesApi;
+
+    public currentNamespace: string = 'default';
+
+    public core: Core_v1Api = ({
+      createNamespacedSecret: jest.fn().mockImplementation(async (_ns: string, secret: V1Secret) => ({ body: secret })),
+    } as unknown) as Core_v1Api;
+
+    private constructor() {}
+
+    public static create(): void {
+      FakeKubernetesApi.instance = new FakeKubernetesApi();
+    }
+
+    public static fromDefault(): FakeKubernetesApi {
+      return FakeKubernetesApi.instance;
+    }
+  },
 }));

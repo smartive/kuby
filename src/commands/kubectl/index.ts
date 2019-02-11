@@ -6,7 +6,7 @@ import { kubectlRefreshCommand } from './refresh';
 import { kubectlRemoveCommand } from './remove';
 import { kubectlUseCommand } from './use';
 
-const kubectlCommands = [
+const kubectlCommands: CommandModule<any, any>[] = [
   kubectlInstallCommand,
   kubectlListCommand,
   kubectlRefreshCommand,
@@ -18,8 +18,7 @@ export const kubectlCommand: CommandModule = {
   command: 'kubectl',
   describe: 'Utilities for kubectl management.',
 
-  builder: (argv: Argv) =>
-    kubectlCommands.reduce((_, cur) => argv.command(cur), argv),
+  builder: (argv: Argv) => kubectlCommands.reduce((_, cur) => argv.command(cur), argv),
 
   handler(): void {
     showHelp('log');

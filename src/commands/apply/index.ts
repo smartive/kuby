@@ -8,19 +8,13 @@ import { RcFile } from '../../utils/rc-file';
 import { spawn } from '../../utils/spawn';
 import { kubeConfigCommand } from '../kube-config';
 
-interface ApplyArguments extends Arguments, RootArguments {
-  deployFolder: string;
-}
+type ApplyArguments = RootArguments & { deployFolder: string };
 
-interface ApplyCommandModule extends CommandModule {
-  handler(args: ApplyArguments): Promise<void>;
-}
-
-export const applyCommand: ApplyCommandModule = {
+export const applyCommand: CommandModule<RootArguments, ApplyArguments> = {
   command: 'apply [deployFolder]',
   describe: 'Apply all prepared yaml files with kubectl.',
 
-  builder: (argv: Argv) =>
+  builder: (argv: Argv<RootArguments>) =>
     argv
       .positional('deployFolder', {
         default: './deployment/',
@@ -28,7 +22,7 @@ export const applyCommand: ApplyCommandModule = {
         type: 'string',
         normalize: true,
       })
-      .completion('completion', false as any, async (_, argv: Arguments) => {
+      .completion('completion', undefined, async (_, argv: Arguments) => {
         if (argv._.length >= 3) {
           return [];
         }
@@ -43,7 +37,7 @@ export const applyCommand: ApplyCommandModule = {
         return dirs;
       }),
 
-  async handler(args: ApplyArguments): Promise<void> {
+  async handler(args: Arguments<ApplyArguments>): Promise<void> {
     if (args.getYargsCompletions) {
       return;
     }
@@ -64,10 +58,7 @@ export const applyCommand: ApplyCommandModule = {
       });
     }
 
-    const code = await spawn(
-      'kubectl',
-      RcFile.getKubectlArguments(args, ['apply', '-f', args.deployFolder]),
-    );
+    const code = await spawn('kubectl', RcFile.getKubectlArguments(args, ['apply', '-f', args.deployFolder]));
 
     if (code !== 0) {
       logger.error('An error happend during the kubectl command.');

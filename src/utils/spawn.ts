@@ -13,6 +13,6 @@ export function spawn(command: string, args: string[] = []): Promise<number> {
     child.stderr.on('data', logger.error.bind(logger));
     child.stdout.on('data', logger.info.bind(logger));
 
-    child.on('error', err => reject(err)).on('exit', code => resolve(code));
+    child.on('error', err => reject(err)).on('exit', code => resolve(code || 0));
   });
 }

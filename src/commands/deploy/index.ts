@@ -6,17 +6,17 @@ import { Logger } from '../../utils/logger';
 import { applyCommand } from '../apply';
 import { prepareCommand } from '../prepare';
 
-interface DeployArguments extends Arguments, RootArguments {
+type DeployArguments = RootArguments & {
   sourceFolder: string;
   destinationFolder: string;
-}
+};
 
-export const deployCommand: CommandModule = {
+export const deployCommand: CommandModule<RootArguments, DeployArguments> = {
   command: 'deploy [sourceFolder] [destinationFolder]',
   aliases: 'dep',
   describe: 'Prepare and deploy all found yaml files.',
 
-  builder: (argv: Argv) =>
+  builder: (argv: Argv<RootArguments>) =>
     argv
       .positional('sourceFolder', {
         description: 'Folder to search for yaml files.',
@@ -43,7 +43,7 @@ export const deployCommand: CommandModule = {
         return dirs;
       }),
 
-  async handler(args: DeployArguments): Promise<void> {
+  async handler(args: Arguments<DeployArguments>): Promise<void> {
     if (args.getYargsCompletions) {
       return;
     }

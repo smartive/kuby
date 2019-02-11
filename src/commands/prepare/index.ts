@@ -3,24 +3,21 @@ import { emptyDir, outputFile, pathExists, readdir, readFile, stat } from 'fs-ex
 import { posix, sep } from 'path';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
+import { RootArguments } from '../../root-arguments';
 import { envsubst } from '../../utils/envsubst';
 import { ExitCode } from '../../utils/exit-code';
 import { Logger } from '../../utils/logger';
 
-interface PrepareArguments extends Arguments {
+type PrepareArguments = RootArguments & {
   sourceFolder: string;
   destinationFolder: string;
-}
+};
 
-interface PrepareCommandModule extends CommandModule {
-  handler(args: PrepareArguments): Promise<void>;
-}
-
-export const prepareCommand: PrepareCommandModule = {
+export const prepareCommand: CommandModule<RootArguments, PrepareArguments> = {
   command: 'prepare [sourceFolder] [destinationFolder]',
   describe: 'Prepare all found yaml files.',
 
-  builder: (argv: Argv) =>
+  builder: (argv: Argv<RootArguments>) =>
     argv
       .positional('sourceFolder', {
         description: 'Folder to search for yaml files.',
@@ -79,14 +76,8 @@ export const prepareCommand: PrepareCommandModule = {
       const destination = file.replace(new RegExp(sep, 'g'), '-');
       logger.debug(`Copy ${file} to ${destination} and replace env vars.`);
 
-      const content = await readFile(
-        posix.join(args.sourceFolder, file),
-        'utf8',
-      );
-      await outputFile(
-        posix.join(args.destinationFolder, destination),
-        envsubst(content),
-      );
+      const content = await readFile(posix.join(args.sourceFolder, file), 'utf8');
+      await outputFile(posix.join(args.destinationFolder, destination), envsubst(content));
     }
 
     logger.success('Files prepared.');

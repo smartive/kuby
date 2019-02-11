@@ -1,11 +1,11 @@
 import { prompt } from 'inquirer';
 
-import * as Kubectx from '../../src/commands/context/utils/kubectx';
-import { namespaceCommand } from '../../src/commands/namespace';
-import * as Kubens from '../../src/commands/namespace/utils/kubens';
-import { exec } from '../../src/utils/exec';
-import { Logger } from '../../src/utils/logger';
-import { clearGlobalMocks } from '../helpers';
+import * as Kubectx from '../../../src/commands/context/utils/kubectx';
+import { namespaceCommand } from '../../../src/commands/namespace';
+import * as Kubens from '../../../src/commands/namespace/utils/kubens';
+import { exec } from '../../../src/utils/exec';
+import { Logger } from '../../../src/utils/logger';
+import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / namespace', () => {
   let currentContext: jest.Mock;

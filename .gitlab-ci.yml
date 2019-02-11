@@ -22,6 +22,7 @@ create release:
   extends: .base
   stage: release
   image: node:10
+  when: manual
   script:
     - npm ci
     - npm run build

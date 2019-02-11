@@ -5,4 +5,5 @@ export interface RootArguments {
   logLevel: LogLevel;
   context?: string;
   namespace?: string;
+  getYargsCompletions?: boolean;
 }

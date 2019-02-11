@@ -9,17 +9,17 @@ import { spawn } from '../../utils/spawn';
 import { kubeConfigCommand } from '../kube-config';
 import { prepareCommand } from '../prepare';
 
-interface DeleteArguments extends Arguments, RootArguments {
+type DeleteArguments = RootArguments & {
   sourceFolder: string;
   destinationFolder: string;
-}
+};
 
-export const deleteCommand: CommandModule = {
+export const deleteCommand: CommandModule<RootArguments, DeleteArguments> = {
   command: 'delete [sourceFolder] [destinationFolder]',
   aliases: 'del',
   describe: 'Prepare yaml files and execute DELETE on them.',
 
-  builder: (argv: Argv) =>
+  builder: (argv: Argv<RootArguments>) =>
     argv
       .positional('sourceFolder', {
         description: 'Folder to search for yaml files.',
@@ -46,7 +46,7 @@ export const deleteCommand: CommandModule = {
         return dirs;
       }),
 
-  async handler(args: DeleteArguments): Promise<void> {
+  async handler(args: Arguments<DeleteArguments>): Promise<void> {
     if (args.getYargsCompletions) {
       return;
     }
@@ -63,10 +63,7 @@ export const deleteCommand: CommandModule = {
       });
     }
 
-    const code = await spawn(
-      'kubectl',
-      RcFile.getKubectlArguments(args, ['delete', '-f', args.destinationFolder]),
-    );
+    const code = await spawn('kubectl', RcFile.getKubectlArguments(args, ['delete', '-f', args.destinationFolder]));
     if (code !== 0) {
       logger.error('An error happend during the kubectl command.');
       process.exit(ExitCode.error);

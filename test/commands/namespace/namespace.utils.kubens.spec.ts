@@ -1,7 +1,7 @@
-import * as Kubectx from '../../src/commands/context/utils/kubectx';
-import * as Kubens from '../../src/commands/namespace/utils/kubens';
-import { exec } from '../../src/utils/exec';
-import { clearGlobalMocks } from '../helpers';
+import * as Kubectx from '../../../src/commands/context/utils/kubectx';
+import * as Kubens from '../../../src/commands/namespace/utils/kubens';
+import { exec } from '../../../src/utils/exec';
+import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / namespace / utils / kubens', () => {
   let currentContext: jest.Mock;

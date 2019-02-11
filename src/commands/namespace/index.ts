@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import { prompt } from 'inquirer';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
+import { RootArguments } from '../../root-arguments';
 import { exec } from '../../utils/exec';
 import { ExitCode } from '../../utils/exit-code';
 import { Logger } from '../../utils/logger';
@@ -12,13 +13,13 @@ import { getCurrentNamespace, getNamespaces } from './utils/kubens';
 
 const fuzzy = require('fuzzy');
 
-interface NamespaceArguments extends Arguments {
+type NamespaceArguments = RootArguments & {
   name?: string;
-}
+};
 
-const namespaceCommands = [namespaceCreateCommand, namespaceKubeConfigCommand];
+const namespaceCommands: CommandModule<any, any>[] = [namespaceCreateCommand, namespaceKubeConfigCommand];
 
-export const namespaceCommand: CommandModule = {
+export const namespaceCommand: CommandModule<RootArguments, NamespaceArguments> = {
   command: 'namespace [name]',
   aliases: 'ns',
   describe:
@@ -26,7 +27,7 @@ export const namespaceCommand: CommandModule = {
     'prints a list of possible namespaces in the current context. If provided ' +
     'with a name, the command switches directly to that namespace.',
 
-  builder: (argv: Argv) => {
+  builder: (argv: Argv<RootArguments>) => {
     argv
       .positional('name', {
         description: 'Namespace to switch to. If omitted, user is asked.',
@@ -38,7 +39,7 @@ export const namespaceCommand: CommandModule = {
     return namespaceCommands.reduce((_, cur) => argv.command(cur), argv);
   },
 
-  async handler(args: NamespaceArguments): Promise<void> {
+  async handler(args: Arguments<NamespaceArguments>): Promise<void> {
     if (args.getYargsCompletions) {
       return;
     }
@@ -56,9 +57,7 @@ export const namespaceCommand: CommandModule = {
         {
           type: 'autocomplete',
           name: 'namespace',
-          message: `Which namespace do you want to use? ${chalk.dim(
-            `(current: ${current})`,
-          )}`,
+          message: `Which namespace do you want to use? ${chalk.dim(`(current: ${current})`)}`,
           source: async (_: any, input: string) => {
             if (!input) {
               return namespaces;
@@ -89,9 +88,7 @@ export const namespaceCommand: CommandModule = {
     }
 
     const context = await getCurrentContext();
-    await exec(
-      `kubectl config set-context "${context}" --namespace="${args.name}"`,
-    );
+    await exec(`kubectl config set-context "${context}" --namespace="${args.name}"`);
     logger.info(`Active namespace is now "${chalk.yellow(args.name)}".`);
   },
 };

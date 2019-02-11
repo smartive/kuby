@@ -1,10 +1,10 @@
 import chalk from 'chalk';
 
-import { kubectlListCommand } from '../../src/commands/kubectl/list';
-import * as Helpers from '../../src/commands/kubectl/utils/kubectl';
-import * as Version from '../../src/commands/version';
-import { Logger } from '../../src/utils/logger';
-import { clearGlobalMocks } from '../helpers';
+import { kubectlListCommand } from '../../../src/commands/kubectl/list';
+import * as Helpers from '../../../src/commands/kubectl/utils/kubectl';
+import * as Version from '../../../src/commands/version';
+import { Logger } from '../../../src/utils/logger';
+import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / kubectl / list', () => {
   let versionInfo: jest.Mock;
@@ -15,9 +15,7 @@ describe('commands / kubectl / list', () => {
     versionInfo = jest.spyOn(Version, 'getVersionInfo').mockResolvedValue({
       kubectlVersion: 'kubectlversion',
     });
-    localVersions = jest
-      .spyOn(Helpers, 'getLocalVersions')
-      .mockResolvedValue([]);
+    localVersions = jest.spyOn(Helpers, 'getLocalVersions').mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -33,18 +31,14 @@ describe('commands / kubectl / list', () => {
 
   it('should warn when no local installations are found', async () => {
     localVersions.mockResolvedValue([]);
-    await kubectlListCommand.handler({});
-    expect((Logger as any).instance.warn.mock.calls[0][0]).toBe(
-      'No local installations found.',
-    );
+    await kubectlListCommand.handler({} as any);
+    expect((Logger as any).instance.warn.mock.calls[0][0]).toBe('No local installations found.');
   });
 
   it('should list local versions', async () => {
     localVersions.mockResolvedValue(['1.10.0']);
-    await kubectlListCommand.handler({});
-    expect((Logger as any).instance.info.mock.calls[1][0]).toBe(
-      'v1.10.0 (~/.kube/kuby/kubectl/v1.10.0)',
-    );
+    await kubectlListCommand.handler({} as any);
+    expect((Logger as any).instance.info.mock.calls[1][0]).toBe('v1.10.0 (~/.kube/kuby/kubectl/v1.10.0)');
   });
 
   it('should highlight the selected version', async () => {
@@ -52,7 +46,7 @@ describe('commands / kubectl / list', () => {
     versionInfo.mockResolvedValue({
       kubectlVersion: '1.10.0',
     });
-    await kubectlListCommand.handler({});
+    await kubectlListCommand.handler({} as any);
     expect((Logger as any).instance.info.mock.calls[1][0]).toBe(
       `v1.10.0 (~/.kube/kuby/kubectl/v1.10.0)${chalk.green(' selected')}`,
     );

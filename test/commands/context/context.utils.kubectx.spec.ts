@@ -1,11 +1,8 @@
 import { EOL } from 'os';
 
-import {
-  getContexts,
-  getCurrentContext,
-} from '../../src/commands/context/utils/kubectx';
-import { exec } from '../../src/utils/exec';
-import { clearGlobalMocks } from '../helpers';
+import { getContexts, getCurrentContext } from '../../../src/commands/context/utils/kubectx';
+import { exec } from '../../../src/utils/exec';
+import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / context / utils / kubectx', () => {
   beforeAll(() => {
@@ -20,9 +17,7 @@ describe('commands / context / utils / kubectx', () => {
     it('should call kubectl config', async () => {
       (exec as jest.Mock).mockReturnValue('');
       await getContexts();
-      expect(exec as jest.Mock).toHaveBeenCalledWith(
-        'kubectl config get-contexts -o=name',
-      );
+      expect(exec as jest.Mock).toHaveBeenCalledWith('kubectl config get-contexts -o=name');
     });
 
     it('should split contexts by EOL', async () => {
@@ -50,9 +45,7 @@ describe('commands / context / utils / kubectx', () => {
   describe('getCurrentContext()', () => {
     it('should call kubectl config', async () => {
       await getCurrentContext();
-      expect(exec as jest.Mock).toHaveBeenCalledWith(
-        `kubectl config view -o=jsonpath='{.current-context}'`,
-      );
+      expect(exec as jest.Mock).toHaveBeenCalledWith(`kubectl config view -o=jsonpath='{.current-context}'`);
     });
   });
 });

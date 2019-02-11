@@ -1,8 +1,8 @@
 import { write } from 'clipboardy';
 
-import { base64EncodeCommand } from '../../src/commands/base64/encode';
-import { Logger } from '../../src/utils/logger';
-import { clearGlobalMocks } from '../helpers';
+import { base64EncodeCommand } from '../../../src/commands/base64/encode';
+import { Logger } from '../../../src/utils/logger';
+import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / base64 / encode', () => {
   beforeAll(() => {
@@ -15,7 +15,7 @@ describe('commands / base64 / encode', () => {
     await base64EncodeCommand.handler({
       content: 'foobar',
       noClip: false,
-    });
+    } as any);
 
     expect((Logger as any).instance.output.mock.calls[0][0]).toBe('Zm9vYmFy');
   });
@@ -24,7 +24,7 @@ describe('commands / base64 / encode', () => {
     await base64EncodeCommand.handler({
       content: 'foobar',
       noClip: false,
-    });
+    } as any);
 
     expect((write as any).mock.calls[0][0]).toBe('Zm9vYmFy');
   });
@@ -33,7 +33,7 @@ describe('commands / base64 / encode', () => {
     await base64EncodeCommand.handler({
       content: 'foobar',
       noClip: true,
-    });
+    } as any);
 
     expect(write).not.toHaveBeenCalled();
   });
