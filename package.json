@@ -13,7 +13,7 @@
     "semantic-release": "semantic-release",
     "package": "npm run build && pkg --out-path out .",
     "link": "npm run build && npm link",
-    "postinstall": "npm install --no-save ./etc/kubernetes-client-node-0.8.1.tgz"
+    "postinstall": "npm install --unsave-perm --no-save ./etc/kubernetes-client-node-0.8.1.tgz"
   },
   "bin": {
     "kuby": "./build/kubernetes-helpers.js"
