@@ -26,31 +26,16 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@gitlab.com:smartive/open-source/kuby.git"
+    "url": "git@github.com:smartive/kuby.git"
   },
   "bugs": {
-    "url": "https://gitlab.com/smartive/open-source/kuby/issues"
+    "url": "https://github.com/smartive/kuby/issues"
   },
-  "homepage": "https://gitlab.com/smartive/open-source/kuby",
+  "homepage": "https://github.com/smartive/kuby",
   "author": "Christoph Bühler <christoph@smartive.ch>",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
-  },
-  "release": {
-    "verifyConditions": [
-      "@semantic-release/gitlab",
-      "@semantic-release/npm"
-    ],
-    "prepare": [
-      "@semantic-release/npm"
-    ],
-    "publish": [
-      "@semantic-release/gitlab",
-      "@semantic-release/npm"
-    ],
-    "success": false,
-    "fail": false
   },
   "dependencies": {
     "@kubernetes/client-node": "^0.8.1",
