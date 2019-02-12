@@ -12,7 +12,8 @@
     "test:ci": "jest -c jest.json --coverage --runInBand",
     "semantic-release": "semantic-release",
     "package": "npm run build && pkg --out-path out .",
-    "link": "npm run build && npm link"
+    "link": "npm run build && npm link",
+    "postinstall": "npm install --no-save ./etc/kubernetes-client-node-0.8.1.tgz"
   },
   "bin": {
     "kuby": "./build/kubernetes-helpers.js"
@@ -53,7 +54,6 @@
     "fail": false
   },
   "dependencies": {
-    "@kubernetes/client-node": "file:etc/kubernetes-client-node-0.8.1.tgz",
     "apache-md5": "^1.1.2",
     "chalk": "^2.4.2",
     "clipboardy": "^1.2.3",
