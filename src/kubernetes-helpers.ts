@@ -24,6 +24,7 @@ import {
 } from 'yargs';
 
 import { commands } from './commands';
+import { envTrimPrefix } from './utils/env-trim-prefix';
 import { KubernetesApi } from './utils/kubernetes-api';
 import { Logger, LogLevel } from './utils/logger';
 
@@ -39,6 +40,12 @@ strict();
 middleware((args: Arguments<any>) => {
   args.logLevel = (LogLevel[args['logLevel']] as unknown) as LogLevel;
   Logger.level = args['logLevel'];
+});
+
+middleware((args: Arguments<any>) => {
+  if (args.trimEnvPrefix) {
+    envTrimPrefix(args.trimEnvPrefix);
+  }
 });
 
 middleware((args: Arguments<any>) => {
@@ -79,6 +86,11 @@ option('log-level', {
   description: 'Loglevel of the tool.',
   choices: ['debug', 'info', 'warn', 'error'],
   default: 'info',
+});
+option('trim-env-prefix', {
+  alias: 'p',
+  description: 'Prefix to trim from env variables',
+  default: '',
 });
 
 try {
