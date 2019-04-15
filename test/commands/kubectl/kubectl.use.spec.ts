@@ -14,7 +14,7 @@ describe('commands / kubectl / use', () => {
 
   beforeAll(() => {
     process.exit = jest.fn() as any;
-    versionInfo = jest.spyOn(Version, 'getVersionInfo').mockResolvedValue({
+    versionInfo = jest.spyOn<any, any>(Version, 'getVersionInfo').mockResolvedValue({
       kubectlVersion: 'kubectlVersion',
     });
   });
@@ -40,7 +40,7 @@ describe('commands / kubectl / use', () => {
   });
 
   it('should ask the user if no semver version is provided', async () => {
-    (prompt as jest.Mock).mockResolvedValue({ version: '1.8.4' });
+    (prompt as any as jest.Mock).mockResolvedValue({ version: '1.8.4' });
     await kubectlUseCommand.handler({} as any);
     expect(prompt).toHaveBeenCalled();
   });

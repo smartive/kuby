@@ -9,7 +9,7 @@ describe('commands / secret / basic-auth', () => {
 
   beforeAll(() => {
     process.exit = jest.fn() as any;
-    create = jest.spyOn(secretCreateCommand, 'handler').mockResolvedValue(undefined);
+    create = jest.spyOn<any, any>(secretCreateCommand, 'handler').mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -22,20 +22,20 @@ describe('commands / secret / basic-auth', () => {
   });
 
   it('should ask for username when not given', async () => {
-    (prompt as jest.Mock).mockResolvedValueOnce({
+    (prompt as any as jest.Mock).mockResolvedValueOnce({
       username: 'user',
       password: 'pass',
     });
     await cmd.handler({ name: 'secret' } as any);
-    expect(prompt as jest.Mock).toHaveBeenCalled();
+    expect(prompt as any as jest.Mock).toHaveBeenCalled();
   });
 
   it('should ask for password when not given', async () => {
-    (prompt as jest.Mock).mockResolvedValueOnce({
+    (prompt as any as jest.Mock).mockResolvedValueOnce({
       password: 'pass',
     });
     await cmd.handler({ name: 'secret', username: 'user' } as any);
-    expect(prompt as jest.Mock).toHaveBeenCalled();
+    expect(prompt as any as jest.Mock).toHaveBeenCalled();
   });
 
   it('should call secret create handler with specific data', async () => {

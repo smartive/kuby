@@ -54,7 +54,7 @@ describe('commands / kubectl / utils / kubectl', () => {
     let get: jest.Mock;
 
     beforeAll(() => {
-      get = jest.spyOn(Got, 'get').mockResolvedValue({
+      get = jest.spyOn<any, any>(Got, 'get').mockResolvedValue({
         body: JSON.stringify([
           {
             tag_name: 'v1.1.1',
@@ -157,7 +157,7 @@ describe('commands / kubectl / utils / kubectl', () => {
     let get: jest.Mock;
 
     beforeAll(() => {
-      get = jest.spyOn(Got, 'get').mockResolvedValue({
+      get = jest.spyOn<any, any>(Got, 'get').mockResolvedValue({
         body: JSON.stringify([
           {
             tag_name: 'v1.1.1',

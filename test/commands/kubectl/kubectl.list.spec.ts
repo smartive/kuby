@@ -12,7 +12,7 @@ describe('commands / kubectl / list', () => {
 
   beforeAll(() => {
     process.exit = jest.fn() as any;
-    versionInfo = jest.spyOn(Version, 'getVersionInfo').mockResolvedValue({
+    versionInfo = jest.spyOn<any, any>(Version, 'getVersionInfo').mockResolvedValue({
       kubectlVersion: 'kubectlversion',
     });
     localVersions = jest.spyOn(Helpers, 'getLocalVersions').mockResolvedValue([]);
