@@ -32,6 +32,11 @@ export const secretBasicAuthCommand: CommandModule<RootArguments, SecretBasicAut
         'kuby secret basic-auth my-secret',
         'This creates an secret for basic auth and both, the user and the password, will be asked.',
       )
+      .option('dry-run', {
+        boolean: true,
+        default: false,
+        description: `Don't create secret on server. Log it to console instead.`,
+      })
       .positional('name', {
         description: 'Name of the secret to create',
         type: 'string',
@@ -40,6 +45,7 @@ export const secretBasicAuthCommand: CommandModule<RootArguments, SecretBasicAut
   async handler(args: Arguments<SecretBasicAuthArguments>): Promise<void> {
     const logger = new Logger('secrets');
     logger.debug('Create basic auth secret.');
+    console.log(args);
 
     const answers = await prompt([
       {
