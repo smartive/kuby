@@ -1,4 +1,4 @@
-import { V1ObjectMeta, V1Secret } from '@kubernetes/client-node';
+import { dumpYaml, V1ObjectMeta, V1Secret } from '@kubernetes/client-node';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { RootArguments } from '../../../root-arguments';
@@ -8,6 +8,7 @@ import { Logger } from '../../../utils/logger';
 
 type SecretCreateArguments = RootArguments & {
   name: string;
+  dryRun: boolean;
 
   /**
    * Array of already splitted and converted data for the secret.
@@ -32,6 +33,11 @@ export const secretCreateCommand: CommandModule<RootArguments, SecretCreateArgum
       .positional('name', {
         description: 'Name of the secret to create',
         type: 'string',
+      })
+      .option('dry-run', {
+        boolean: true,
+        default: false,
+        description: "Don't create secret on server. Log it to console instead.",
       })
       .positional('data', {
         description: 'Array of secret data in the form of: key=value key=value key=value',
@@ -61,8 +67,7 @@ export const secretCreateCommand: CommandModule<RootArguments, SecretCreateArgum
     logger.info(`Create secret with name "${args.name}".`);
     logger.debug(`Add ${args.data.length} data keys.`);
     try {
-      logger.startSpinner('Creating...');
-      await api.core.createNamespacedSecret(api.currentNamespace, {
+      const secret = {
         ...new V1Secret(),
         apiVersion: 'v1',
         kind: 'Secret',
@@ -71,15 +76,22 @@ export const secretCreateCommand: CommandModule<RootArguments, SecretCreateArgum
           ...new V1ObjectMeta(),
           name: args.name,
         },
-        stringData: args.data.reduce(
+        data: args.data.reduce(
           (obj, cur) => {
-            obj[cur.name] = cur.value;
+            obj[cur.name] = cur.value.base64Encode();
             return obj;
           },
           {} as { [key: string]: string },
         ),
-      });
-      logger.stopSpinner();
+      };
+      if (args.dryRun) {
+        logger.info('Dry run set, only log the secret and return.');
+        logger.output(`\n\n${dumpYaml(secret)}\n\n`);
+      } else {
+        logger.startSpinner('Creating...');
+        await api.core.createNamespacedSecret(api.currentNamespace, secret);
+        logger.stopSpinner();
+      }
       logger.success('Secret created.');
     } catch ({ body: { message } }) {
       logger.stopSpinner();
