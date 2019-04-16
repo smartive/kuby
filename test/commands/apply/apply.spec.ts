@@ -43,7 +43,7 @@ describe('commands / apply', () => {
       },
       process.cwd(),
     );
-    (spawn as jest.Mock<number>).mockReturnValue(1);
+    (spawn as any as jest.Mock<number>).mockReturnValue(1);
     await applyCommand.handler({ deployFolder: './deploy' } as any);
     expect(process.exit).toHaveBeenCalled();
   });

@@ -10,8 +10,8 @@ describe('commands / deploy', () => {
 
   beforeAll(() => {
     process.exit = jest.fn() as any;
-    prepare = jest.spyOn(prepareCommand, 'handler').mockResolvedValue(undefined);
-    apply = jest.spyOn(applyCommand, 'handler').mockResolvedValue(undefined);
+    prepare = jest.spyOn<any, any>(prepareCommand, 'handler').mockResolvedValue(undefined);
+    apply = jest.spyOn<any, any>(applyCommand, 'handler').mockResolvedValue(undefined);
   });
 
   afterEach(() => {

@@ -11,7 +11,7 @@ describe('commands / delete', () => {
 
   beforeAll(() => {
     process.exit = jest.fn() as any;
-    prepare = jest.spyOn(prepareCommand, 'handler').mockResolvedValue(undefined);
+    prepare = jest.spyOn<any, any>(prepareCommand, 'handler').mockResolvedValue(undefined);
     kubeConfig = jest.spyOn(kubeConfigCommand, 'handler').mockResolvedValue(undefined);
   });
 

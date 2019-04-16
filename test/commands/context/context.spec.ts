@@ -21,7 +21,7 @@ describe('commands / context', () => {
   });
 
   it('should ask the user if no <context> is set', async () => {
-    (prompt as jest.Mock).mockResolvedValue({ context: 'current' });
+    (prompt as any as jest.Mock).mockResolvedValue({ context: 'current' });
     (exec as jest.Mock).mockResolvedValueOnce('current').mockResolvedValueOnce(`current${EOL}non-current${EOL}third`);
 
     await contextCommand.handler({} as any);
@@ -54,7 +54,7 @@ describe('commands / context', () => {
   });
 
   it('should switch then context if <context> does exist', async () => {
-    (prompt as jest.Mock).mockResolvedValue({ context: 'current' });
+    (prompt as any as jest.Mock).mockResolvedValue({ context: 'current' });
     (exec as jest.Mock).mockResolvedValueOnce('current').mockResolvedValueOnce(`current${EOL}non-current${EOL}third`);
 
     await contextCommand.handler({ name: 'third' } as any);

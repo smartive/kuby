@@ -9,10 +9,10 @@ import { spawn } from '../src/utils/spawn';
 
 export function clearGlobalMocks(): void {
   (process as any).exit.mockClear();
-  (spawn as jest.Mock<number>).mockClear();
+  (spawn as any as jest.Mock<number>).mockClear();
   (exec as jest.Mock).mockClear();
   (write as jest.Mock).mockClear();
-  (prompt as jest.Mock).mockClear();
+  (prompt as any as jest.Mock).mockClear();
   (registerPrompt as jest.Mock).mockClear();
   (Logger as any).instance = undefined;
   (KubernetesApi as any).instance = undefined;

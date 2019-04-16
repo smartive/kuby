@@ -9,6 +9,7 @@ const apacheMd5 = require('apache-md5');
 
 type SecretBasicAuthArguments = RootArguments & {
   name: string;
+  dryRun: boolean;
   username?: string;
   password?: string;
 };
@@ -32,10 +33,15 @@ export const secretBasicAuthCommand: CommandModule<RootArguments, SecretBasicAut
         'kuby secret basic-auth my-secret',
         'This creates an secret for basic auth and both, the user and the password, will be asked.',
       )
+      .option('dry-run', {
+        boolean: true,
+        default: false,
+        description: "Don't create secret on server. Log it to console instead.",
+      })
       .positional('name', {
         description: 'Name of the secret to create',
         type: 'string',
-      }) as Argv<SecretBasicAuthArguments>,
+      }) as unknown as Argv<SecretBasicAuthArguments>,
 
   async handler(args: Arguments<SecretBasicAuthArguments>): Promise<void> {
     const logger = new Logger('secrets');
