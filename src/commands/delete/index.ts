@@ -60,6 +60,7 @@ export const deleteCommand: CommandModule<RootArguments, DeleteArguments> = {
       await kubeConfigCommand.handler({
         ...args,
         noInteraction: true,
+        force: true,
       });
     }
 

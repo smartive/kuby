@@ -1,19 +1,17 @@
-import {
-  V1Namespace,
-  V1ObjectMeta,
-  V1PolicyRule,
-  V1Role,
-  V1RoleBinding,
-  V1RoleRef,
-  V1ServiceAccount,
-  V1Subject,
-} from '@kubernetes/client-node';
+import { V1Namespace, V1ObjectMeta } from '@kubernetes/client-node';
+import { async } from 'fast-glob';
+import { readFile } from 'fs-extra';
+import { EOL } from 'os';
+import { posix } from 'path';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
 import { RootArguments } from '../../root-arguments';
+import { envsubst } from '../../utils/envsubst';
+import { exec } from '../../utils/exec';
 import { ExitCode } from '../../utils/exit-code';
 import { KubernetesApi } from '../../utils/kubernetes-api';
 import { Logger } from '../../utils/logger';
+import { kubeConfigCommand } from '../kube-config';
 
 type PreviewDeployArguments = RootArguments & {
   name: string;
@@ -47,124 +45,12 @@ async function createNamespace(api: KubernetesApi, name: string): Promise<void> 
   }
 }
 
-async function createServiceAccount(api: KubernetesApi, namespace: string): Promise<void> {
-  const name = 'deploy';
-  try {
-    await api.core.readNamespacedServiceAccount(name, namespace);
-    logger.info('Service account already exists.');
-  } catch (e) {
-    if (e.response.statusCode !== 404) {
-      throw e;
-    }
-
-    await api.core.createNamespacedServiceAccount(namespace, {
-      ...new V1ServiceAccount(),
-      apiVersion: 'v1',
-      kind: 'ServiceAccount',
-      metadata: {
-        ...new V1ObjectMeta(),
-        name,
-      },
-    });
-    logger.success('Created service account "deploy".');
-  }
-}
-
-async function createRole(api: KubernetesApi, namespace: string): Promise<void> {
-  const name = 'deploy-role';
-  try {
-    await api.rbac.readNamespacedRole(name, namespace);
-    logger.info('Role already exists.');
-  } catch (e) {
-    if (e.response.statusCode !== 404) {
-      throw e;
-    }
-
-    await api.rbac.createNamespacedRole(namespace, {
-      ...new V1Role(),
-      apiVersion: 'rbac.authorization.k8s.io/v1',
-      kind: 'Role',
-      metadata: {
-        ...new V1ObjectMeta(),
-        name,
-      },
-      rules: [
-        {
-          ...new V1PolicyRule(),
-          verbs: ['*'],
-          apiGroups: [
-            '',
-            'apps',
-            'batch',
-            'certmanager.k8s.io',
-            'extensions',
-            'rbac.authorization.k8s.io',
-          ],
-          resources: [
-            'certificates',
-            'cronjobs',
-            'configmaps',
-            'deployments',
-            'ingresses',
-            'jobs',
-            'persistentvolumeclaims',
-            'pods',
-            'rolebindings',
-            'roles',
-            'secrets',
-            'serviceaccounts',
-            'services',
-          ],
-        },
-      ],
-    });
-    logger.success('Created role "deploy-role".');
-  }
-}
-
-async function createRoleBinding(api: KubernetesApi, namespace: string): Promise<void> {
-  const name = 'deploy-role-binding';
-  try {
-    await api.rbac.readNamespacedRoleBinding(name, namespace);
-    logger.info('RoleBinding already exists.');
-  } catch (e) {
-    if (e.response.statusCode !== 404) {
-      throw e;
-    }
-
-    await api.rbac.createNamespacedRoleBinding(namespace, {
-      ...new V1RoleBinding(),
-      apiVersion: 'rbac.authorization.k8s.io/v1',
-      kind: 'RoleBinding',
-      metadata: {
-        ...new V1ObjectMeta(),
-        name,
-      },
-      roleRef: {
-        ...new V1RoleRef(),
-        apiGroup: 'rbac.authorization.k8s.io',
-        kind: 'Role',
-        name: 'deploy-role',
-      },
-      subjects: [
-        {
-          ...new V1Subject(),
-          namespace,
-          kind: 'ServiceAccount',
-          name: 'deploy',
-        },
-      ],
-    });
-    logger.success('Created rolebinding "deploy-role-binding".');
-  }
-}
-
 export const previewDeployCommand: CommandModule<RootArguments, PreviewDeployArguments> = {
   command: 'preview-deploy <name> [sourceFolder]',
   aliases: 'prev-dep',
   describe:
-    'Create opinionated preview deployment. This command creates a namespace, ' +
-    'the rolebindings in there and deploys the application in the given namespace.',
+    'Create opinionated preview deployment. This command creates a namespace ' +
+    'and deploys the application in the given namespace.',
 
   builder: (argv: Argv<RootArguments>) =>
     argv
@@ -206,15 +92,32 @@ export const previewDeployCommand: CommandModule<RootArguments, PreviewDeployArg
       KubernetesApi.fromDefault();
 
     await createNamespace(api, name);
-    await createServiceAccount(api, name);
-    await createRole(api, name);
-    await createRoleBinding(api, name);
 
-    // await prepareCommand.handler(args);
-    // await applyCommand.handler({
-    //   ...args,
-    //   deployFolder: args.destinationFolder,
-    // });
+    const files = await async<string>(['**/*.{yml,yaml}'], {
+      cwd: args.sourceFolder,
+    });
+    logger.debug(`Found ${files.length} files for processing.`);
+
+    const yamls = (await Promise.all(files.map(async f => await readFile(posix.join(args.sourceFolder, f), 'utf8'))))
+      .map(yaml => envsubst(yaml))
+      .join(`${EOL}---${EOL}`);
+
+    await kubeConfigCommand.handler({
+      ...args,
+      configContent: args.kubeConfig,
+      noInteraction: true,
+      force: args.ci,
+    });
+
+    logger.debug('Executing <echo "templates" | kubectl -n <name> apply -f ->');
+    try {
+      const result = await exec(`echo "${yamls}" | kubectl -n ${name} apply -f -`);
+      logger.info(result);
+    } catch (e) {
+      logger.error(`Error: ${e}`);
+      process.exit(ExitCode.error);
+      return;
+    }
 
     logger.success(`Preview Deployment applied to namespace "${name}".`);
   },
