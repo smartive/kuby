@@ -106,7 +106,7 @@ alias('h', 'help');
 help('help');
 wrap(terminalWidth());
 
-epilog(chalk.dim(`This tool intends to help with everyday kubernetes administration.`));
+epilog(chalk.dim('This tool intends to help with everyday kubernetes administration.'));
 
 const args = parse();
 if (args._.length === 0 && !args.getYargsCompletions) {

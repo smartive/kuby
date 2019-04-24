@@ -1,4 +1,4 @@
-import { Core_v1Api, KubeConfig } from '@kubernetes/client-node';
+import { Core_v1Api, KubeConfig, RbacAuthorization_v1Api } from '@kubernetes/client-node';
 import { Context } from '@kubernetes/client-node/dist/config_types';
 
 export class KubernetesApi {
@@ -7,26 +7,14 @@ export class KubernetesApi {
   public static namespaceOverride: string | undefined;
 
   /**
-   * Manage elements of the kubernetes core api:
-   * - bindings
-   * - componentstatuses
-   * - configmaps
-   * - endpoints
-   * - events
-   * - limitranges
-   * - namespaces
-   * - nodes
-   * - persistentvolumeclaims
-   * - persistentvolumes
-   * - pods
-   * - podtemplates
-   * - replicationcontrollers
-   * - resourcequotas
-   * - secrets
-   * - serviceaccounts
-   * - services
+   * Manage elements of the kubernetes core api.
    */
   public readonly core: Core_v1Api;
+
+  /**
+   * Manage elements of the kubernetes rbac.authorization/v1 api.
+   */
+  public readonly rbac: RbacAuthorization_v1Api;
 
   /**
    * Manage kube-config.
@@ -63,6 +51,7 @@ export class KubernetesApi {
     }
 
     this.core = this.kubeConfig.makeApiClient(Core_v1Api);
+    this.rbac = this.kubeConfig.makeApiClient(RbacAuthorization_v1Api);
   }
 
   /**
@@ -73,6 +62,15 @@ export class KubernetesApi {
   public static fromDefault(): KubernetesApi {
     const kubeConfig = new KubeConfig();
     kubeConfig.loadFromDefault();
+    return new KubernetesApi(kubeConfig);
+  }
+
+  /**
+   * Creates the kubernetes api from a given string content.
+   */
+  public static fromString(content: string): KubernetesApi {
+    const kubeConfig = new KubeConfig();
+    kubeConfig.loadFromString(content);
     return new KubernetesApi(kubeConfig);
   }
 }
