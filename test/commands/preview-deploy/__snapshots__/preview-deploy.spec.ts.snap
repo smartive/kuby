@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`commands / preview-deploy should create a namespace with the given name 1`] = `
+Object {
+  "apiVersion": "v1",
+  "kind": "Namespace",
+  "metadata": Object {
+    "name": "prev-foobar",
+  },
+}
+`;

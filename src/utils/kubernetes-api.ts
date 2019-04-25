@@ -1,4 +1,4 @@
-import { Core_v1Api, KubeConfig, RbacAuthorization_v1Api } from '@kubernetes/client-node';
+import { Core_v1Api, KubeConfig } from '@kubernetes/client-node';
 import { Context } from '@kubernetes/client-node/dist/config_types';
 
 export class KubernetesApi {
@@ -10,11 +10,6 @@ export class KubernetesApi {
    * Manage elements of the kubernetes core api.
    */
   public readonly core: Core_v1Api;
-
-  /**
-   * Manage elements of the kubernetes rbac.authorization/v1 api.
-   */
-  public readonly rbac: RbacAuthorization_v1Api;
 
   /**
    * Manage kube-config.
@@ -51,7 +46,6 @@ export class KubernetesApi {
     }
 
     this.core = this.kubeConfig.makeApiClient(Core_v1Api);
-    this.rbac = this.kubeConfig.makeApiClient(RbacAuthorization_v1Api);
   }
 
   /**
