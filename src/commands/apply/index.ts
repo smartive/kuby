@@ -55,6 +55,7 @@ export const applyCommand: CommandModule<RootArguments, ApplyArguments> = {
       await kubeConfigCommand.handler({
         ...args,
         noInteraction: true,
+        force: true,
       });
     }
 

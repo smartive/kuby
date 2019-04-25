@@ -1,12 +1,12 @@
-import 'clipboardy';
-import 'inquirer';
-
-import { Core_v1Api, V1Secret } from '@kubernetes/client-node';
 import '../src/utils/exec';
 import '../src/utils/extensions';
 import '../src/utils/kubernetes-api';
 import '../src/utils/logger';
 import '../src/utils/spawn';
+import 'clipboardy';
+import 'inquirer';
+
+import { Core_v1Api, V1Namespace, V1Secret } from '@kubernetes/client-node';
 
 jest.mock('fs');
 jest.mock('../src/utils/spawn', () => ({
@@ -56,15 +56,21 @@ jest.mock('../src/utils/kubernetes-api', () => ({
 
     public core: Core_v1Api = ({
       createNamespacedSecret: jest.fn().mockImplementation(async (_ns: string, secret: V1Secret) => ({ body: secret })),
+      readNamespace: jest.fn().mockResolvedValue({}),
+      createNamespace: jest.fn().mockImplementation(async (_ns: string, namespace: V1Namespace) => ({ body: namespace })),
     } as unknown) as Core_v1Api;
 
-    private constructor() {}
+    private constructor() { }
 
     public static create(): void {
       FakeKubernetesApi.instance = new FakeKubernetesApi();
     }
 
     public static fromDefault(): FakeKubernetesApi {
+      return FakeKubernetesApi.instance;
+    }
+
+    public static fromString(): FakeKubernetesApi {
       return FakeKubernetesApi.instance;
     }
   },

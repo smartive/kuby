@@ -50,24 +50,33 @@ describe('commands / kube-config', () => {
     expect((Logger as any).instance.error.mock.calls[0][0]).toBe('Config content is empty. Aborting.');
   });
 
-  it('should exit when content is not base64', async () => {
+  it('should not convert content when it is not base64', async () => {
     await kubeConfigCommand.handler({
       noInteraction: true,
       configContent: 'FOO',
     } as any);
-    expect(process.exit).toHaveBeenCalledWith(1);
-    expect((Logger as any).instance.error.mock.calls[0][0]).toBe('The content is not base64 encoded. Aborting.');
+    expect(vol.toJSON()).toEqual({
+      [configPath]: 'FOO',
+    });
   });
 
-  it('should exit when env var is not base64', async () => {
+  it('should not convert content when env var is not base64', async () => {
     process.env['KUBE_CONFIG'] = 'FOO';
     await kubeConfigCommand.handler({ noInteraction: true } as any);
-    expect(process.exit).toHaveBeenCalledWith(1);
-    expect((Logger as any).instance.error.mock.calls[0][0]).toBe('The content is not base64 encoded. Aborting.');
+    expect(vol.toJSON()).toEqual({
+      [configPath]: 'FOO',
+    });
   });
 
   it('should write the ~/.kube/config file when it does not exist', async () => {
     await kubeConfigCommand.handler({ configContent: 'Zm9vYmFy' } as any);
+    expect(vol.toJSON()).toEqual({
+      [configPath]: 'foobar',
+    });
+  });
+
+  it('should write the ~/.kube/config file when it does not exist (non b64)', async () => {
+    await kubeConfigCommand.handler({ configContent: 'foobar' } as any);
     expect(vol.toJSON()).toEqual({
       [configPath]: 'foobar',
     });
@@ -84,7 +93,7 @@ describe('commands / kube-config', () => {
     expect(vol.toJSON()).toEqual({
       [configPath]: 'whatever',
     });
-    expect((Logger as any).instance.info.mock.calls[0][0]).toBe('Config already exists, exitting.');
+    expect((Logger as any).instance.info.mock.calls[1][0]).toBe('Config already exists, exitting.');
   });
 
   it('should ask the user if the config should be overwritten', async () => {

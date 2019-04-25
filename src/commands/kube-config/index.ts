@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import { outputFile, pathExists } from 'fs-extra';
 import { Arguments, Argv, CommandModule } from 'yargs';
 
@@ -13,6 +12,7 @@ const defaultEnv = 'KUBE_CONFIG';
 type KubeConfigArguments = RootArguments & {
   configContent?: string;
   noInteraction: boolean;
+  force: boolean;
 };
 
 interface KubeConfigCommandModule extends CommandModule<RootArguments, KubeConfigArguments> {
@@ -23,15 +23,21 @@ export const kubeConfigCommand: KubeConfigCommandModule = {
   command: 'kube-config [configContent]',
   aliases: 'kc',
   describe:
-    `Use the given kube-config content ${chalk.yellow('(base64 encoded)')} ` +
-    `and create the ~/.kube/config file. If the content is omitted, the content ` +
-    `of the env var "$KUBE_CONFIG" is used.`,
+    'Use the given kube-config content ' +
+    'and create the ~/.kube/config file. If the content is omitted, the content ' +
+    'of the env var "$KUBE_CONFIG" is used.',
 
   builder: (argv: Argv<RootArguments>) =>
     (argv
       .positional('configContent', {
-        description: 'Base64 encoded kube-config content.',
+        description: 'kube-config content (base64 encoded or not).',
         type: 'string',
+      })
+      .option('f', {
+        alias: 'force',
+        boolean: true,
+        default: false,
+        description: 'Force login, overwrite existing ~/.kube/config.',
       })
       .option('n', {
         alias: 'no-interaction',
@@ -50,7 +56,7 @@ export const kubeConfigCommand: KubeConfigCommandModule = {
       return;
     }
 
-    const content = (args.configContent || process.env[defaultEnv] || '').trim();
+    let content = (args.configContent || process.env[defaultEnv] || '').trim();
 
     if (!content) {
       logger.error('Config content is empty. Aborting.');
@@ -58,28 +64,28 @@ export const kubeConfigCommand: KubeConfigCommandModule = {
       return;
     }
 
-    if (!content.isBase64()) {
-      logger.error('The content is not base64 encoded. Aborting.');
-      process.exit(ExitCode.error);
-      return;
+    if (content.isBase64()) {
+      logger.info('The content was base64 encoded.');
+      content = content.base64Decode();
     }
 
     if (await pathExists(Filepathes.configPath)) {
-      if (args.noInteraction) {
+      if (args.noInteraction && !args.force) {
         logger.info('Config already exists, exitting.');
         return;
       }
 
       if (
-        !(await simpleConfirm('The kube config (~/.kube/config) already exists. ' + 'Do you want to overwrite it?', false))
+        !args.force &&
+        !(await simpleConfirm('The kube config (~/.kube/config) already exists. Do you want to overwrite it?', false))
       ) {
         return;
       }
     }
 
     logger.info('Writing ~/.kube/config file.');
-    await outputFile(Filepathes.configPath, content.base64Decode());
+    await outputFile(Filepathes.configPath, content);
 
-    logger.success('Login done.');
+    logger.success('~/.kube/config written.');
   },
 };

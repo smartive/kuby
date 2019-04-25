@@ -9,6 +9,7 @@ import { kubeConfigCommand } from './kube-config';
 import { kubectlCommand } from './kubectl';
 import { namespaceCommand } from './namespace';
 import { prepareCommand } from './prepare';
+import { previewDeployCommand } from './preview-deploy';
 import { secretCommand } from './secret';
 import { versionCommand } from './version';
 
@@ -22,6 +23,7 @@ export const commands: CommandModule<any, any>[] = [
   kubectlCommand,
   namespaceCommand,
   prepareCommand,
+  previewDeployCommand,
   secretCommand,
   versionCommand,
 ];

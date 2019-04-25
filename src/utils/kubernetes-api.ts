@@ -7,24 +7,7 @@ export class KubernetesApi {
   public static namespaceOverride: string | undefined;
 
   /**
-   * Manage elements of the kubernetes core api:
-   * - bindings
-   * - componentstatuses
-   * - configmaps
-   * - endpoints
-   * - events
-   * - limitranges
-   * - namespaces
-   * - nodes
-   * - persistentvolumeclaims
-   * - persistentvolumes
-   * - pods
-   * - podtemplates
-   * - replicationcontrollers
-   * - resourcequotas
-   * - secrets
-   * - serviceaccounts
-   * - services
+   * Manage elements of the kubernetes core api.
    */
   public readonly core: Core_v1Api;
 
@@ -73,6 +56,15 @@ export class KubernetesApi {
   public static fromDefault(): KubernetesApi {
     const kubeConfig = new KubeConfig();
     kubeConfig.loadFromDefault();
+    return new KubernetesApi(kubeConfig);
+  }
+
+  /**
+   * Creates the kubernetes api from a given string content.
+   */
+  public static fromString(content: string): KubernetesApi {
+    const kubeConfig = new KubeConfig();
+    kubeConfig.loadFromString(content);
     return new KubernetesApi(kubeConfig);
   }
 }
