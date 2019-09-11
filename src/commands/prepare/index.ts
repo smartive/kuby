@@ -1,8 +1,7 @@
-import { async } from 'fast-glob';
+import * as fastGlob from 'fast-glob';
 import { emptyDir, outputFile, pathExists, readdir, readFile, stat } from 'fs-extra';
 import { posix, sep } from 'path';
 import { Arguments, Argv, CommandModule } from 'yargs';
-
 import { RootArguments } from '../../root-arguments';
 import { envsubst } from '../../utils/envsubst';
 import { ExitCode } from '../../utils/exit-code';
@@ -67,7 +66,7 @@ export const prepareCommand: CommandModule<RootArguments, PrepareArguments> = {
 
     await emptyDir(args.destinationFolder);
 
-    const files = await async<string>(['**/*.{yml,yaml}'], {
+    const files = await fastGlob(['**/*.{yml,yaml}'], {
       cwd: args.sourceFolder,
     });
     logger.debug(`Found ${files.length} files for processing.`);

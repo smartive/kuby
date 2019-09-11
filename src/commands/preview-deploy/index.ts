@@ -1,10 +1,9 @@
 import { V1Namespace, V1ObjectMeta } from '@kubernetes/client-node';
-import { async } from 'fast-glob';
+import * as fastGlob from 'fast-glob';
 import { readFile } from 'fs-extra';
 import { EOL } from 'os';
 import { posix } from 'path';
 import { Arguments, Argv, CommandModule } from 'yargs';
-
 import { RootArguments } from '../../root-arguments';
 import { envsubst } from '../../utils/envsubst';
 import { exec } from '../../utils/exec';
@@ -87,13 +86,13 @@ export const previewDeployCommand: CommandModule<RootArguments, PreviewDeployArg
       return;
     }
 
-    const api = args.kubeConfig ?
-      KubernetesApi.fromString(args.kubeConfig.isBase64() ? args.kubeConfig.base64Decode() : args.kubeConfig) :
-      KubernetesApi.fromDefault();
+    const api = args.kubeConfig
+      ? KubernetesApi.fromString(args.kubeConfig.isBase64() ? args.kubeConfig.base64Decode() : args.kubeConfig)
+      : KubernetesApi.fromDefault();
 
     await createNamespace(api, name);
 
-    const files = await async<string>(['**/*.{yml,yaml}'], {
+    const files = await fastGlob(['**/*.{yml,yaml}'], {
       cwd: args.sourceFolder,
     });
     logger.debug(`Found ${files.length} files for processing.`);
