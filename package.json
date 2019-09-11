@@ -54,7 +54,7 @@
     "semver": "^6.3.0",
     "tslib": "^1.10.0",
     "yargonaut": "^1.1.4",
-    "yargs": "^14.0.0"
+    "yargs": "^13.0.0"
   },
   "devDependencies": {
     "@semantic-release/gitlab": "^3.1.7",
