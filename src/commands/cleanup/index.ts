@@ -7,10 +7,11 @@ import { simpleConfirm } from '../../utils/simple-confirm';
 import { spawn } from '../../utils/spawn';
 
 type CleanupArguments = RootArguments & {
-  name: string;
-  exactMatch: boolean;
-  dryRun: boolean;
+  names: string[];
   resources: string[];
+  dryRun: boolean;
+  exactMatch?: boolean;
+  regex?: boolean;
 };
 
 class Resource {
@@ -21,15 +22,45 @@ class Resource {
   constructor(public readonly type: string, public readonly name: string, public readonly namespace: string) {}
 }
 
+function namePattern({ exactMatch, regex }: CleanupArguments): string {
+  switch (true) {
+    case exactMatch && !regex:
+      return 'exact';
+    case !exactMatch && !regex:
+      return 'partial';
+    case !exactMatch && regex:
+      return 'pattern';
+    default:
+      throw new Error('not possible name combo found.');
+  }
+}
+
+function resourceFilter({ exactMatch, regex, names }: CleanupArguments): (resource: Resource) => boolean {
+  return ({ name }) => {
+    switch (true) {
+      case regex:
+        return names.map(n => new RegExp(n, 'g')).some(exp => exp.test(name));
+      case exactMatch:
+        return names.includes(name);
+      case !exactMatch:
+        names.some(n => name.includes(n));
+      default:
+        return false;
+    }
+  };
+}
+
 export const cleanupCommand: CommandModule<RootArguments, CleanupArguments> = {
-  command: 'cleanup <name>',
-  describe: 'Cleanup a namespace. Remove (delete) the given resources that contain "name" in it.',
+  command: 'cleanup <names...>',
+  describe:
+    'Cleanup a namespace. Remove (delete) the given resources that contain "name" in it (you can add multiple names).',
 
   builder: (argv: Argv<RootArguments>) =>
     (argv
-      .positional('name', {
+      .positional('names', {
         type: 'string',
-        description: 'The of the resources that should be deleted.',
+        array: true,
+        description: 'The names of the resources that should be deleted.',
       })
       .option('resources', {
         alias: 'r',
@@ -46,6 +77,11 @@ export const cleanupCommand: CommandModule<RootArguments, CleanupArguments> = {
           return result;
         },
       })
+      .option('regex', {
+        boolean: true,
+        conflicts: 'exact-match',
+        description: 'Use the inputted names as regex patterns to determine if the resource should be deleted.',
+      })
       .option('dry-run', {
         boolean: true,
         default: false,
@@ -53,19 +89,18 @@ export const cleanupCommand: CommandModule<RootArguments, CleanupArguments> = {
       })
       .option('exact-match', {
         boolean: true,
-        default: false,
         description: 'Use an exact name match and not a partial match.',
       }) as unknown) as Argv<CleanupArguments>,
 
   async handler(args: Arguments<CleanupArguments>): Promise<void> {
     const logger = new Logger('cleanup');
-    logger.debug('Cleanup the actual namespace.');
-    logger.info(
-      `Delete resources: ${args.resources.join(',')} within the namespace with the ${
-        args.exactMatch ? 'exact' : 'partial'
-      } name ${args.name}.`,
+    logger.debug(
+      `Delete resources: ${args.resources.join(',')} within the namespace with the ${namePattern(
+        args,
+      )} names ${args.names.join(', ')}.`,
     );
-
+    logger.info('Cleanup resources from the namespace.');
+    console.log(args);
     const resources = (await exec(
       `kubectl ${RcFile.getKubectlArguments(args, []).join(' ')} get ${args.resources.join(
         ',',
@@ -78,7 +113,7 @@ export const cleanupCommand: CommandModule<RootArguments, CleanupArguments> = {
 
     const toDelete = resources
       .filter(r => !!!args.namespace || args.namespace === r.namespace)
-      .filter(r => (args.exactMatch && args.name === r.name) || (!args.exactMatch && r.name.includes(args.name)))
+      .filter(resourceFilter(args))
       .map(r => r.identifier);
 
     if (toDelete.length <= 0) {
