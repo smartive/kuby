@@ -1,7 +1,6 @@
 import { prompt } from 'inquirer';
 import { vol } from 'memfs';
 import { posix } from 'path';
-
 import { secretDockerRegistryCreateCommand as cmd } from '../../../src/commands/secret/docker-registry/create';
 import { Crypto } from '../../../src/utils/crypto';
 import { exec } from '../../../src/utils/exec';
@@ -12,9 +11,9 @@ import { spawn } from '../../../src/utils/spawn';
 import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / secret / docker-registry / create', () => {
-  let cLoad: jest.Mock;
-  let cSave: jest.Mock;
-  let confirm: jest.Mock;
+  let cLoad: jest.SpyInstance;
+  let cSave: jest.SpyInstance;
+  let confirm: jest.SpyInstance;
 
   beforeAll(() => {
     process.exit = jest.fn() as any;
@@ -71,13 +70,13 @@ describe('commands / secret / docker-registry / create', () => {
   });
 
   it('should ask the user if he wants to use a template', async () => {
-    (prompt as any as jest.Mock).mockResolvedValueOnce({ file: 'foobar' });
+    ((prompt as any) as jest.Mock).mockResolvedValueOnce({ file: 'foobar' });
     await cmd.handler({ name: 'mynewsecret' } as any);
     expect(prompt).toHaveBeenCalled();
   });
 
   it('should not ask the user if no-interaction is flagged', async () => {
-    (prompt as any as jest.Mock).mockResolvedValueOnce({ file: 'foobar' });
+    ((prompt as any) as jest.Mock).mockResolvedValueOnce({ file: 'foobar' });
     await cmd.handler({ name: 'mynewsecret', noInteraction: true } as any);
     expect(prompt).not.toHaveBeenCalled();
   });
@@ -86,13 +85,13 @@ describe('commands / secret / docker-registry / create', () => {
     vol.fromJSON({
       [posix.join(Filepathes.dockerSecretPath, 'from')]: 'foo',
     });
-    (prompt as any as jest.Mock).mockResolvedValueOnce({ file: 'from' });
+    ((prompt as any) as jest.Mock).mockResolvedValueOnce({ file: 'from' });
     await cmd.handler({ name: 'mynewsecret' } as any);
     expect(cLoad).toHaveBeenCalledWith(posix.join(Filepathes.dockerSecretPath, 'from'));
   });
 
   it('should error when no interaction mode is on and not all arguments are given', async () => {
-    (prompt as any as jest.Mock).mockResolvedValueOnce({ file: 'new' });
+    ((prompt as any) as jest.Mock).mockResolvedValueOnce({ file: 'new' });
     await cmd.handler({ name: 'mynewsecret', noInteraction: true } as any);
     expect((Logger as any).instance.error).toHaveBeenLastCalledWith(
       'No interaction mode used but not all information present (server, user, mail, password).',
@@ -101,7 +100,7 @@ describe('commands / secret / docker-registry / create', () => {
   });
 
   it('should ask the user for missing information', async () => {
-    (prompt as any as jest.Mock).mockResolvedValueOnce({ file: 'new' });
+    ((prompt as any) as jest.Mock).mockResolvedValueOnce({ file: 'new' });
     await cmd.handler({ name: 'mynewsecret' } as any);
     expect(prompt).toHaveBeenCalledTimes(2);
   });
@@ -122,7 +121,7 @@ describe('commands / secret / docker-registry / create', () => {
 
   it('should exit if kubectl errors', async () => {
     (spawn as jest.Mock).mockResolvedValue(1);
-    (prompt as any as jest.Mock).mockResolvedValueOnce({ file: 'new' });
+    ((prompt as any) as jest.Mock).mockResolvedValueOnce({ file: 'new' });
     await cmd.handler({ name: 'mynewsecret' } as any);
     expect(process.exit).toHaveBeenCalledWith(1);
     expect((Logger as any).instance.error).toHaveBeenLastCalledWith(

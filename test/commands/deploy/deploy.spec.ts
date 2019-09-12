@@ -5,8 +5,8 @@ import { Logger } from '../../../src/utils/logger';
 import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / deploy', () => {
-  let prepare: jest.Mock;
-  let apply: jest.Mock;
+  let prepare: jest.SpyInstance;
+  let apply: jest.SpyInstance;
 
   beforeAll(() => {
     process.exit = jest.fn() as any;

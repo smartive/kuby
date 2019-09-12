@@ -1,6 +1,5 @@
 import { prompt } from 'inquirer';
 import { vol } from 'memfs';
-
 import * as Kubectx from '../../../src/commands/context/utils/kubectx';
 import { namespaceCreateCommand } from '../../../src/commands/namespace/create';
 import { namespaceKubeConfigCommand } from '../../../src/commands/namespace/kube-config';
@@ -13,10 +12,10 @@ import { spawn } from '../../../src/utils/spawn';
 import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / namespace / create', () => {
-  let currentContext: jest.Mock;
-  let namespaces: jest.Mock;
-  let confirm: jest.Mock;
-  let kubeConfigCommand: jest.Mock;
+  let currentContext: jest.SpyInstance;
+  let namespaces: jest.SpyInstance;
+  let confirm: jest.SpyInstance;
+  let kubeConfigCommand: jest.SpyInstance;
 
   beforeAll(() => {
     process.exit = jest.fn() as any;
@@ -52,12 +51,12 @@ describe('commands / namespace / create', () => {
       [Filepathes.namespaceDefaultRolePath]: 'foobar',
     });
     await namespaceCreateCommand.handler({ name: 'ns3' } as any);
-    expect((prompt as any as jest.Mock).mock.calls[0][0].map((q: any) => q.default)[2]).toBe('foobar');
+    expect(((prompt as any) as jest.Mock).mock.calls[0][0].map((q: any) => q.default)[2]).toBe('foobar');
   });
 
   it('should use the default role if no file exists', async () => {
     await namespaceCreateCommand.handler({ name: 'ns3' } as any);
-    expect((prompt as any as jest.Mock).mock.calls[0][0].map((q: any) => q.default)[2]).toMatch(/kind: Role/g);
+    expect(((prompt as any) as jest.Mock).mock.calls[0][0].map((q: any) => q.default)[2]).toMatch(/kind: Role/g);
   });
 
   it('should ask the user for certain information', async () => {
@@ -71,7 +70,7 @@ describe('commands / namespace / create', () => {
   });
 
   it('should write the default role file when user selects to save the role', async () => {
-    (prompt as any as jest.Mock).mockImplementationOnce(async () => ({
+    ((prompt as any) as jest.Mock).mockImplementationOnce(async () => ({
       createServiceAccount: true,
       serviceAccountName: 'name',
       saveRole: true,
@@ -104,7 +103,7 @@ describe('commands / namespace / create', () => {
   });
 
   it('should fail if no role name is provided', async () => {
-    (prompt as any as jest.Mock).mockImplementationOnce(async () => ({
+    ((prompt as any) as jest.Mock).mockImplementationOnce(async () => ({
       createServiceAccount: true,
       serviceAccountName: 'name',
       saveRole: false,
@@ -133,5 +132,5 @@ describe('commands / namespace / create', () => {
     expect(kubeConfigCommand).toHaveBeenCalled();
   });
 
-  it.skip('TODO: should call namespace kubeconfig command with --ci mode', async () => { });
+  it.skip('TODO: should call namespace kubeconfig command with --ci mode', async () => {});
 });

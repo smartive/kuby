@@ -1,5 +1,4 @@
 import chalk from 'chalk';
-
 import { kubectlListCommand } from '../../../src/commands/kubectl/list';
 import * as Helpers from '../../../src/commands/kubectl/utils/kubectl';
 import * as Version from '../../../src/commands/version';
@@ -7,8 +6,8 @@ import { Logger } from '../../../src/utils/logger';
 import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / kubectl / list', () => {
-  let versionInfo: jest.Mock;
-  let localVersions: jest.Mock;
+  let versionInfo: jest.SpyInstance;
+  let localVersions: jest.SpyInstance;
 
   beforeAll(() => {
     process.exit = jest.fn() as any;

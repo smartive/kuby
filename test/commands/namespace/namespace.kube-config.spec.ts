@@ -1,6 +1,5 @@
 import { prompt } from 'inquirer';
 import { EOL } from 'os';
-
 import * as Kubectx from '../../../src/commands/context/utils/kubectx';
 import { namespaceKubeConfigCommand } from '../../../src/commands/namespace/kube-config';
 import * as Kubens from '../../../src/commands/namespace/utils/kubens';
@@ -9,25 +8,17 @@ import { Logger } from '../../../src/utils/logger';
 import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / namespace / kube-config', () => {
-  let currentNamespace: jest.Mock;
-  let namespaces: jest.Mock;
-  let serviceAccountsForNamespace: jest.Mock;
-  let currentContext: jest.Mock;
+  let currentNamespace: jest.SpyInstance;
+  let namespaces: jest.SpyInstance;
+  let serviceAccountsForNamespace: jest.SpyInstance;
+  let currentContext: jest.SpyInstance;
 
   beforeAll(() => {
     process.exit = jest.fn() as any;
-    currentNamespace = jest
-      .spyOn(Kubens, 'getCurrentNamespace')
-      .mockResolvedValue('currentNs');
-    namespaces = jest
-      .spyOn(Kubens, 'getNamespaces')
-      .mockResolvedValue(['ns1', 'ns2']);
-    serviceAccountsForNamespace = jest
-      .spyOn(Kubens, 'getServiceAccountsForNamespace')
-      .mockResolvedValue(['sa1', 'sa2']);
-    currentContext = jest
-      .spyOn(Kubectx, 'getCurrentContext')
-      .mockResolvedValue('currentCtx');
+    currentNamespace = jest.spyOn(Kubens, 'getCurrentNamespace').mockResolvedValue('currentNs');
+    namespaces = jest.spyOn(Kubens, 'getNamespaces').mockResolvedValue(['ns1', 'ns2']);
+    serviceAccountsForNamespace = jest.spyOn(Kubens, 'getServiceAccountsForNamespace').mockResolvedValue(['sa1', 'sa2']);
+    currentContext = jest.spyOn(Kubectx, 'getCurrentContext').mockResolvedValue('currentCtx');
   });
 
   afterEach(() => {
@@ -60,9 +51,7 @@ describe('commands / namespace / kube-config', () => {
   it('should fail if the namespace does not exist', async () => {
     await namespaceKubeConfigCommand.handler({ namespace: 'foobar' } as any);
     expect(process.exit).toHaveBeenCalledWith(1);
-    expect((Logger as any).instance.error).toHaveBeenLastCalledWith(
-      'The namespace "foobar" does not exist.',
-    );
+    expect((Logger as any).instance.error).toHaveBeenLastCalledWith('The namespace "foobar" does not exist.');
   });
 
   it('should ask the user about the service account if not given', async () => {
@@ -134,10 +123,10 @@ current-context: cluster-context
   it('should output the kube config base64 encoded', async () => {
     const result =
       `${EOL}${EOL}YXBpVmVyc2lvbjogdjEKa2luZDogQ29uZmlnCmNsdXN0ZXJzOgot` +
-      `IGNsdXN0ZXI6CiAgICBzZXJ2ZXI6IGFkZHJlc3MKICAgIGNlcnRpZmljYXRlLWF1dGhvcml0eS1kY` +
-      `XRhOiBjZXJ0aWZpY2F0ZQogIG5hbWU6IGNsdXN0ZXIKdXNlcnM6Ci0gbmFtZTogc2ExCiAgdXNlcj` +
-      `oKICAgIHRva2VuOiBmb29iYXIKcHJlZmVyZW5jZXM6IHt9CmNvbnRleHRzOgotIGNvbnRleHQ6CiA` +
-      `gICBjbHVzdGVyOiBjbHVzdGVyCiAgICB1c2VyOiBzYTEKICAgIG5hbWVzcGFjZTogbnMxCiAgbmFt` +
+      'IGNsdXN0ZXI6CiAgICBzZXJ2ZXI6IGFkZHJlc3MKICAgIGNlcnRpZmljYXRlLWF1dGhvcml0eS1kY' +
+      'XRhOiBjZXJ0aWZpY2F0ZQogIG5hbWU6IGNsdXN0ZXIKdXNlcnM6Ci0gbmFtZTogc2ExCiAgdXNlcj' +
+      'oKICAgIHRva2VuOiBmb29iYXIKcHJlZmVyZW5jZXM6IHt9CmNvbnRleHRzOgotIGNvbnRleHQ6CiA' +
+      'gICBjbHVzdGVyOiBjbHVzdGVyCiAgICB1c2VyOiBzYTEKICAgIG5hbWVzcGFjZTogbnMxCiAgbmFt' +
       `ZTogY2x1c3Rlci1jb250ZXh0CmN1cnJlbnQtY29udGV4dDogY2x1c3Rlci1jb250ZXh0Cg==${EOL}${EOL}`;
 
     (exec as jest.Mock)

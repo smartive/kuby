@@ -1,11 +1,10 @@
 import { prompt } from 'inquirer';
-
 import { secretBasicAuthCommand as cmd } from '../../../src/commands/secret/basic-auth';
 import { secretCreateCommand } from '../../../src/commands/secret/create';
 import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / secret / basic-auth', () => {
-  let create: jest.Mock;
+  let create: jest.SpyInstance;
 
   beforeAll(() => {
     process.exit = jest.fn() as any;
@@ -22,20 +21,20 @@ describe('commands / secret / basic-auth', () => {
   });
 
   it('should ask for username when not given', async () => {
-    (prompt as any as jest.Mock).mockResolvedValueOnce({
+    ((prompt as any) as jest.Mock).mockResolvedValueOnce({
       username: 'user',
       password: 'pass',
     });
     await cmd.handler({ name: 'secret' } as any);
-    expect(prompt as any as jest.Mock).toHaveBeenCalled();
+    expect((prompt as any) as jest.Mock).toHaveBeenCalled();
   });
 
   it('should ask for password when not given', async () => {
-    (prompt as any as jest.Mock).mockResolvedValueOnce({
+    ((prompt as any) as jest.Mock).mockResolvedValueOnce({
       password: 'pass',
     });
     await cmd.handler({ name: 'secret', username: 'user' } as any);
-    expect(prompt as any as jest.Mock).toHaveBeenCalled();
+    expect((prompt as any) as jest.Mock).toHaveBeenCalled();
   });
 
   it('should call secret create handler with specific data', async () => {
