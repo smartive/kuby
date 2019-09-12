@@ -6,7 +6,7 @@ import { RcFile } from '../../utils/rc-file';
 import { simpleConfirm } from '../../utils/simple-confirm';
 import { spawn } from '../../utils/spawn';
 
-type CleanupArguments = RootArguments & {
+export type CleanupArguments = RootArguments & {
   names: string[];
   resources: string[];
   dryRun: boolean;
@@ -40,10 +40,10 @@ function resourceFilter({ exactMatch, regex, names }: CleanupArguments): (resour
     switch (true) {
       case regex:
         return names.map(n => new RegExp(n, 'g')).some(exp => exp.test(name));
-      case exactMatch:
+      case !regex && exactMatch:
         return names.includes(name);
-      case !exactMatch:
-        names.some(n => name.includes(n));
+      case !regex && !exactMatch:
+        return names.some(n => name.includes(n));
       default:
         return false;
     }
@@ -100,7 +100,7 @@ export const cleanupCommand: CommandModule<RootArguments, CleanupArguments> = {
       )} names ${args.names.join(', ')}.`,
     );
     logger.info('Cleanup resources from the namespace.');
-    console.log(args);
+
     const resources = (await exec(
       `kubectl ${RcFile.getKubectlArguments(args, []).join(' ')} get ${args.resources.join(
         ',',
