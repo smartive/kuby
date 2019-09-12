@@ -37,9 +37,9 @@ deploy docker images:
   variables:
     DOCKER_DRIVER: overlay2
     DOCKER_HOST: tcp://localhost:2375
-    DOCKER_BUILDKIT: '1'
+    DOCKER_BUILDKIT: "1"
   services:
-    - docker:dind
+    - docker:18.09-dind
   before_script:
     - apk add --no-cache bash
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
