@@ -6,8 +6,8 @@ import { spawn } from '../../../src/utils/spawn';
 import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / delete', () => {
-  let prepare: jest.Mock;
-  let kubeConfig: jest.Mock;
+  let prepare: jest.SpyInstance;
+  let kubeConfig: jest.SpyInstance;
 
   beforeAll(() => {
     process.exit = jest.fn() as any;

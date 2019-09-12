@@ -1,10 +1,9 @@
-import { async } from 'fast-glob';
+import * as fastGlob from 'fast-glob';
 import { pathExists } from 'fs-extra';
 import { prompt, Separator } from 'inquirer';
 import { EOL } from 'os';
 import { parse, posix } from 'path';
 import { Arguments, Argv, CommandModule } from 'yargs';
-
 import { RootArguments } from '../../../../root-arguments';
 import { Crypto } from '../../../../utils/crypto';
 import { exec } from '../../../../utils/exec';
@@ -120,7 +119,7 @@ export const secretDockerRegistryCreateCommand: CommandModule<RootArguments, Sec
         logger.error(`The file ${path} does not exist. Cannot use template.`);
       }
     } else if (!!!args.from && !args.noInteraction) {
-      const secretFiles = await async<string>(['./*'], {
+      const secretFiles = await fastGlob(['./*'], {
         cwd: Filepathes.dockerSecretPath,
       });
       const selected = (await prompt([
@@ -155,28 +154,28 @@ export const secretDockerRegistryCreateCommand: CommandModule<RootArguments, Sec
       {
         type: 'input',
         name: 'server',
-        message: `The server url of the registry?`,
+        message: 'The server url of the registry?',
         when: () => !args.noInteraction && !!!args.server,
         validate: (input: string) => !!input || 'Please enter a server url.',
       },
       {
         type: 'input',
         name: 'user',
-        message: `The user of the registry?`,
+        message: 'The user of the registry?',
         when: () => !args.noInteraction && !!!args.user,
         validate: (input: string) => !!input || 'Please enter a username.',
       },
       {
         type: 'input',
         name: 'email',
-        message: `The email of the registry user?`,
+        message: 'The email of the registry user?',
         when: () => !args.noInteraction && !!!args.email,
         validate: (input: string) => !!input || 'Please enter an email address.',
       },
       {
         type: 'password',
         name: 'password',
-        message: `The password of the registry user?`,
+        message: 'The password of the registry user?',
         when: () => !args.noInteraction && !!!args.password,
         validate: (input: string) => !!input || 'Please enter a password.',
       },

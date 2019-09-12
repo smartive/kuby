@@ -1,7 +1,6 @@
 import { vol } from 'memfs';
 import { homedir } from 'os';
 import { posix } from 'path';
-
 import { kubectlInstallCommand } from '../../../src/commands/kubectl/install';
 import { kubectlUseCommand } from '../../../src/commands/kubectl/use';
 import * as Helpers from '../../../src/commands/kubectl/utils/kubectl';
@@ -10,12 +9,12 @@ import * as Confirm from '../../../src/utils/simple-confirm';
 import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / kubectl / install', () => {
-  let use: jest.Mock;
-  let confirm: jest.Mock;
+  let use: jest.SpyInstance;
+  let confirm: jest.SpyInstance;
 
-  let remoteVersions: jest.Mock;
-  let localVersions: jest.Mock;
-  let download: jest.Mock;
+  let remoteVersions: jest.SpyInstance;
+  let localVersions: jest.SpyInstance;
+  let download: jest.SpyInstance;
 
   beforeAll(() => {
     process.exit = jest.fn() as any;

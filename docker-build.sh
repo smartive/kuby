@@ -3,7 +3,7 @@ set -e
 
 echo "Create and deploy the various versions for kuby docker image"
 
-kubectl_versions=("1" "1.13" "1.12" "1.11" "1.10" "1.9" "1.8")
+kubectl_versions=("1" "1.14" "1.15" "1.13" "1.12" "1.11" "1.10" "1.9" "1.8")
 image="smartive/kuby"
 
 echo "Build latest docker image"

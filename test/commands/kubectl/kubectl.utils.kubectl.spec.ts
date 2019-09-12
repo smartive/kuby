@@ -3,7 +3,6 @@ import * as Got from 'got';
 import { vol } from 'memfs';
 import { EOL } from 'os';
 import { posix } from 'path';
-
 import * as Helpers from '../../../src/commands/kubectl/utils/kubectl';
 import { Filepathes } from '../../../src/utils/filepathes';
 import { clearGlobalMocks } from '../../helpers';
@@ -51,7 +50,7 @@ describe('commands / kubectl / utils / kubectl', () => {
   });
 
   describe('downloadRemoteVersions()', () => {
-    let get: jest.Mock;
+    let get: jest.SpyInstance;
 
     beforeAll(() => {
       get = jest.spyOn<any, any>(Got, 'get').mockResolvedValue({
@@ -154,7 +153,7 @@ describe('commands / kubectl / utils / kubectl', () => {
   });
 
   describe('getRemoteVersions()', () => {
-    let get: jest.Mock;
+    let get: jest.SpyInstance;
 
     beforeAll(() => {
       get = jest.spyOn<any, any>(Got, 'get').mockResolvedValue({

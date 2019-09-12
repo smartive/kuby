@@ -1,7 +1,7 @@
 import { CommandModule } from 'yargs';
-
 import { applyCommand } from './apply';
 import { base64Command } from './base64';
+import { cleanupCommand } from './cleanup';
 import { contextCommand } from './context';
 import { deleteCommand } from './delete';
 import { deployCommand } from './deploy';
@@ -16,6 +16,7 @@ import { versionCommand } from './version';
 export const commands: CommandModule<any, any>[] = [
   applyCommand,
   base64Command,
+  cleanupCommand,
   contextCommand,
   deleteCommand,
   deployCommand,

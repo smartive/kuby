@@ -2,7 +2,6 @@ import { readFile } from 'fs-extra';
 import { prompt } from 'inquirer';
 import { vol } from 'memfs';
 import { posix } from 'path';
-
 import { kubectlUseCommand } from '../../../src/commands/kubectl/use';
 import * as Version from '../../../src/commands/version';
 import { Filepathes } from '../../../src/utils/filepathes';
@@ -10,7 +9,7 @@ import { Logger } from '../../../src/utils/logger';
 import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / kubectl / use', () => {
-  let versionInfo: jest.Mock;
+  let versionInfo: jest.SpyInstance;
 
   beforeAll(() => {
     process.exit = jest.fn() as any;
@@ -40,7 +39,7 @@ describe('commands / kubectl / use', () => {
   });
 
   it('should ask the user if no semver version is provided', async () => {
-    (prompt as any as jest.Mock).mockResolvedValue({ version: '1.8.4' });
+    ((prompt as any) as jest.Mock).mockResolvedValue({ version: '1.8.4' });
     await kubectlUseCommand.handler({} as any);
     expect(prompt).toHaveBeenCalled();
   });

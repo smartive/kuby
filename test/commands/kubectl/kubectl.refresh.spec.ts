@@ -1,13 +1,12 @@
 import { vol } from 'memfs';
 import { EOL } from 'os';
-
 import { kubectlRefreshCommand } from '../../../src/commands/kubectl/refresh';
 import * as Helpers from '../../../src/commands/kubectl/utils/kubectl';
 import { Filepathes } from '../../../src/utils/filepathes';
 import { clearGlobalMocks } from '../../helpers';
 
 describe('commands / kubectl / refresh', () => {
-  let download: jest.Mock;
+  let download: jest.SpyInstance;
 
   beforeAll(() => {
     process.exit = jest.fn() as any;

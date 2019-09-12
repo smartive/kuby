@@ -1,4 +1,4 @@
-import { Core_v1Api, KubeConfig } from '@kubernetes/client-node';
+import { CoreV1Api, KubeConfig } from '@kubernetes/client-node';
 import { Context } from '@kubernetes/client-node/dist/config_types';
 
 export class KubernetesApi {
@@ -9,7 +9,7 @@ export class KubernetesApi {
   /**
    * Manage elements of the kubernetes core api.
    */
-  public readonly core: Core_v1Api;
+  public readonly core: CoreV1Api;
 
   /**
    * Manage kube-config.
@@ -45,7 +45,7 @@ export class KubernetesApi {
       this.kubeConfig.setCurrentContext(KubernetesApi.contextOverride);
     }
 
-    this.core = this.kubeConfig.makeApiClient(Core_v1Api);
+    this.core = this.kubeConfig.makeApiClient(CoreV1Api);
   }
 
   /**
