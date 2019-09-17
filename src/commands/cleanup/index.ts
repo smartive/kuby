@@ -1,4 +1,5 @@
 import { Arguments, Argv, CommandModule } from 'yargs';
+import { kubeConfigCommand } from '../kube-config';
 import { RootArguments } from '../../root-arguments';
 import { exec } from '../../utils/exec';
 import { Logger } from '../../utils/logger';
@@ -100,6 +101,14 @@ export const cleanupCommand: CommandModule<RootArguments, CleanupArguments> = {
       )} names ${args.names.join(', ')}.`,
     );
     logger.info('Cleanup resources from the namespace.');
+    
+    if(args.ci) {
+      await kubeConfigCommand.handler({
+        ...args,
+        noInteraction: true,
+        force: true,
+      });
+    }
 
     const resources = (await exec(
       `kubectl ${RcFile.getKubectlArguments(args, []).join(' ')} get ${args.resources.join(
