@@ -81,30 +81,30 @@ rules:
 `;
 
 export const namespaceCreateCommand: CommandModule<RootArguments, NamespaceCreateArguments> = {
-  command: "create <name>",
-  describe: "Create a new kubernetes namespace (with optional service account and kubeconfig).",
+  command: 'create <name>',
+  describe: 'Create a new kubernetes namespace (with optional service account and kubeconfig).',
 
   builder: (argv: Argv<RootArguments>) =>
     (argv
-      .positional("name", {
-        description: "Kubernetes namespace name.",
-        type: "string"
+      .positional('name', {
+        description: 'Kubernetes namespace name.',
+        type: 'string',
       })
-      .option("b", {
-        alias: "base64",
+      .option('b', {
+        alias: 'base64',
         default: false,
-        description: "Output the kube-config encoded in base64."
+        description: 'Output the kube-config encoded in base64.',
       })
-      .option("n", {
-        alias: "no-interaction",
+      .option('n', {
+        alias: 'no-interaction',
         boolean: true,
         default: false,
-        description: "No interaction mode, use default answers."
+        description: 'No interaction mode, use default answers.',
       }) as unknown) as Argv<NamespaceCreateArguments>,
 
   async handler(args: Arguments<NamespaceCreateArguments>): Promise<void> {
-    const logger = new Logger("namespaces");
-    logger.debug("Create kubernetes namespace.");
+    const logger = new Logger('namespaces');
+    logger.debug('Create kubernetes namespace.');
 
     const namespaces = await getNamespaces();
 
@@ -115,71 +115,71 @@ export const namespaceCreateCommand: CommandModule<RootArguments, NamespaceCreat
     }
 
     const defaultRole = (await pathExists(Filepathes.namespaceDefaultRolePath))
-      ? await readFile(Filepathes.namespaceDefaultRolePath, "utf8")
+      ? await readFile(Filepathes.namespaceDefaultRolePath, 'utf8')
       : defaultRoleYml;
 
     const questions = [
       {
-        type: "confirm",
-        name: "createServiceAccount",
-        message: "Create a service account?",
-        default: true
+        type: 'confirm',
+        name: 'createServiceAccount',
+        message: 'Create a service account?',
+        default: true,
       },
       {
-        type: "input",
-        name: "serviceAccountName",
+        type: 'input',
+        name: 'serviceAccountName',
         message: `The name of the service account?`,
         default: `${args.name}-deploy`,
         when: (answers: PromptAnswers) => answers.createServiceAccount,
-        validate: (input: string) => !!input || "Please enter a name."
+        validate: (input: string) => !!input || 'Please enter a name.',
       },
       {
-        type: "editor",
-        name: "role",
-        message: "Edit the role for the service account.",
+        type: 'editor',
+        name: 'role',
+        message: 'Edit the role for the service account.',
         default: defaultRole,
-        when: (answers: PromptAnswers) => answers.createServiceAccount
+        when: (answers: PromptAnswers) => answers.createServiceAccount,
       },
       {
-        type: "confirm",
-        name: "saveRole",
-        message: "Save the given role as new default?",
+        type: 'confirm',
+        name: 'saveRole',
+        message: 'Save the given role as new default?',
         default: false,
-        when: (answers: PromptAnswers) => answers.createServiceAccount
-      }
+        when: (answers: PromptAnswers) => answers.createServiceAccount,
+      },
     ];
 
     const answers = (args.noInteraction
       ? {
-          createServiceAccount: true,
-          serviceAccountName: `${args.name}-deploy`,
-          role: defaultRole,
-          saveRole: false
-        }
+        createServiceAccount: true,
+        serviceAccountName: `${args.name}-deploy`,
+        role: defaultRole,
+        saveRole: false,
+      }
       : await prompt(questions)) as PromptAnswers;
 
     if (answers.createServiceAccount && answers.role && answers.saveRole) {
       await outputFile(Filepathes.namespaceDefaultRolePath, answers.role);
-      logger.info("The default role was saved under: ~/.kube/kuby/namespace/default-role.yml");
-      logger.info("If you want to reset it, just delete the file.");
+      logger.info('The default role was saved under: ~/.kube/kuby/namespace/default-role.yml');
+      logger.info('If you want to reset it, just delete the file.');
     }
 
     if (
       !args.noInteraction &&
       !(await simpleConfirm(
         `Create namespace "${chalk.yellow(args.name)}" on context "${chalk.yellow(await getCurrentContext())}"${
-          answers.createServiceAccount ? `, with service account "${chalk.yellow(answers.serviceAccountName)}"` : ""
+          answers.createServiceAccount ? `, with service account "${chalk.yellow(answers.serviceAccountName)}"` : ''
         }. Proceed?`,
-        true
+        true,
       ))
     ) {
-      logger.info("Aborting");
+      logger.info('Aborting');
       return;
     }
 
-    const code = await spawn("kubectl", RcFile.getKubectlCtxArguments(args, ["create", "ns", args.name]));
+    const code = await spawn('kubectl', RcFile.getKubectlCtxArguments(args, ['create', 'ns', args.name]));
     if (code !== 0) {
-      logger.error("An error happend during the kubectl create namespace command.");
+      logger.error('An error happend during the kubectl create namespace command.');
       process.exit(ExitCode.error);
       return;
     }
@@ -192,7 +192,7 @@ export const namespaceCreateCommand: CommandModule<RootArguments, NamespaceCreat
     const role = datasubst(answers.role, { NAME: args.name });
     const roleNameRegex = /^\s*name:\s*(.*)$/gm.exec(role);
     if (!roleNameRegex || !roleNameRegex[1]) {
-      logger.error("No valid role name provided. aborting.");
+      logger.error('No valid role name provided. aborting.');
       process.exit(ExitCode.error);
       return;
     }
@@ -201,7 +201,7 @@ export const namespaceCreateCommand: CommandModule<RootArguments, NamespaceCreat
     const templates = [
       role,
       serviceAccount(args.name, answers.serviceAccountName),
-      rolebinding(args.name, answers.serviceAccountName, roleName)
+      rolebinding(args.name, answers.serviceAccountName, roleName),
     ];
 
     logger.debug(`Executing <echo "templates" | kubectl create -f ->`);
@@ -220,7 +220,7 @@ export const namespaceCreateCommand: CommandModule<RootArguments, NamespaceCreat
     await namespaceKubeConfigCommand.handler({
       ...args,
       namespace: args.name,
-      serviceAccount: answers.serviceAccountName
+      serviceAccount: answers.serviceAccountName,
     });
-  }
+  },
 };
