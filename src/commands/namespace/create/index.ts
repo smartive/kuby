@@ -63,7 +63,7 @@ rules:
       - ''
       - apps
       - batch
-      - certmanager.k8s.io
+      - cert-manager.io
       - extensions
     resources:
       - certificates
