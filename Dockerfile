@@ -1,4 +1,4 @@
-FROM node:10-alpine as build
+FROM node:12-alpine as build
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY ./config ./config
 COPY ./src ./src
 
 RUN npm run build
-RUN npx pkg -t node10-alpine-x64 -o out/kuby .
+RUN npx pkg -t node12-alpine-x64 -o out/kuby .
 
 FROM alpine:3.7 as kuby-releases
 
