@@ -10,7 +10,7 @@ stages:
 test:
   extends: .base
   stage: test
-  image: node:10
+  image: node:12
   script:
     - npm ci
     - npm run test:ci
@@ -21,7 +21,7 @@ test:
 create release:
   extends: .base
   stage: release
-  image: node:10
+  image: node:12
   when: manual
   script:
     - npm ci
@@ -51,7 +51,7 @@ deploy docker images:
 deploy binaries:
   extends: .base
   stage: deploy
-  image: node:10
+  image: node:12
   before_script:
     - npm ci
   script:
