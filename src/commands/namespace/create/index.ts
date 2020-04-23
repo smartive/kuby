@@ -60,22 +60,9 @@ metadata:
   namespace: $\{NAME\}
 rules:
   - apiGroups:
-      - ''
-      - apps
-      - batch
-      - cert-manager.io
-      - extensions
+      - '*'
     resources:
-      - certificates
-      - cronjobs
-      - configmaps
-      - deployments
-      - ingresses
-      - jobs
-      - persistentvolumeclaims
-      - pods
-      - secrets
-      - services
+      - '*'
     verbs:
       - '*'
 `;
