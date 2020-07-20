@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import './utils/extensions';
 
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import { readFileSync } from 'fs-extra';
 import yargonaut = require('yargonaut');
 import {

@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import { remove } from 'fs-extra';
 import { prompt } from 'inquirer';
 import { platform } from 'os';

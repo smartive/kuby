@@ -9,7 +9,7 @@ import {
   readdir,
   readJson,
 } from 'fs-extra';
-import { get, stream } from 'got';
+import got from 'got';
 import { platform } from 'os';
 import { posix } from 'path';
 import { clean, rcompare } from 'semver';
@@ -33,7 +33,7 @@ export async function downloadKubectl(
   );
   await emptyDir(destination);
   return new Promise<void>((resolve, reject) => {
-    stream(url)
+    got.stream(url)
       .on('error', () => {
         logger.spinnerFail('Error during download.');
         reject();
@@ -91,7 +91,7 @@ export async function downloadRemoteVersions(
   logger.startSpinner(`Downloading from: ${getUrl}`, LogLevel.info);
   while (getUrl) {
     logger.setSpinnerText(`Downloading from: ${getUrl}`);
-    const result = await get(getUrl);
+    const result = await got.get(getUrl);
 
     versions.push(
       ...JSON.parse(result.body).map((release: any) => release.tag_name),
