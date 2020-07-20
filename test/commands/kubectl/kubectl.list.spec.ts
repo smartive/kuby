@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import { kubectlListCommand } from '../../../src/commands/kubectl/list';
 import * as Helpers from '../../../src/commands/kubectl/utils/kubectl';
 import * as Version from '../../../src/commands/version';

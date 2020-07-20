@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 import { CommandModule } from 'yargs';
 
 import { Logger } from '../../../utils/logger';
