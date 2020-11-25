@@ -1,12 +1,29 @@
-# Logs
-logs
-*.log
-npm-debug.log*
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
-# Dependency directory
-node_modules
+# Ci things
+node_modules/
+tools/
+nuget/
+artifacts/
+coverage/
+.tmp/
 
-# Typescript stuff
-build
-coverage
-out
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+
+# Testing results
+coverage.json
+coverage.info
