@@ -1,10 +1,6 @@
-﻿{
-  "verifyConditions": [
-    "@semantic-release/github"
-  ],
-  "addChannel": [
-    "@semantic-release/github"
-  ],
+{
+  "verifyConditions": ["@semantic-release/github"],
+  "addChannel": ["@semantic-release/github"],
   "prepare": [
     [
       "@semantic-release/exec",
