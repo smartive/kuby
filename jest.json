@@ -1,7 +1,0 @@
-{
-  "preset": "ts-jest",
-  "setupFiles": ["<rootDir>/test/setup.ts"],
-  "testMatch": ["**/test/**/*.spec.ts"],
-  "roots": ["<rootDir>", "<rootDir>/test"],
-  "collectCoverageFrom": ["<rootDir>/src/**/*.ts"]
-}

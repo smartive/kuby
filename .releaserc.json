@@ -1,0 +1,40 @@
+﻿{
+  "verifyConditions": [
+    "@semantic-release/github"
+  ],
+  "addChannel": [
+    "@semantic-release/github"
+  ],
+  "prepare": [
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "./build.sh --no-logo --version ${nextRelease.version} --target Publish"
+      }
+    ]
+  ],
+  "publish": [
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "artifacts/linux-x64/kuby",
+            "name": "kuby-linux-x64",
+            "label": "Kuby for linux x64 (${nextRelease.gitTag})"
+          },
+          {
+            "path": "artifacts/osx-x64/kuby",
+            "name": "kuby-osx-x64",
+            "label": "Kuby for macOS / OSX x64 (${nextRelease.gitTag})"
+          },
+          {
+            "path": "artifacts/win-x64/kuby.exe",
+            "name": "kuby-win-x64.exe",
+            "label": "Kuby for windows x64 (${nextRelease.gitTag})"
+          }
+        ]
+      }
+    ]
+  ]
+}

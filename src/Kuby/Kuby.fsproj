@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <AssemblyName>kuby</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="ConsoleWriter.fs" />
+        <Compile Include="Strings.fs" />
+        <Compile Include="Kubectl.fs" />
+        <Compile Include="Clipboard.fs" />
+        <Compile Include="Kubernetes\KubeConfig.fs" />
+        <Compile Include="Kubernetes\Context.fs" />
+        <Compile Include="Kubernetes\Namespace.fs" />
+        <Compile Include="Kubernetes\Cluster.fs" />
+        <Compile Include="Commands\ReturnValues.fs" />
+        <Compile Include="Commands\BaseCommand.fs" />
+        <Compile Include="Commands\Base64.fs" />
+        <Compile Include="Commands\Context.fs" />
+        <Compile Include="Commands\CompletionTemplate.fs" />
+        <Compile Include="Commands\KubeConfig.fs" />
+        <Compile Include="Commands\Deployment.fs" />
+        <Compile Include="Commands\Namespace.fs" />
+        <Compile Include="Commands\Secret.fs" />
+        <Compile Include="Commands\Version.fs" />
+        <Compile Include="Commands\Kuby.fs" />
+        <Compile Include="Program.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="DotnetKubernetesClient" Version="1.0.0" />
+        <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.0.0" />
+        <PackageReference Include="Sharprompt" Version="2.0.0" />
+        <PackageReference Include="YamlDotNet" Version="9.1.0" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <KubectlVersion>v1.19.4</KubectlVersion>
+    </PropertyGroup>
+    
+    <Target Name="Cleanup Kubectl" BeforeTargets="Clean">
+        <RemoveDir Directories="$(MSBuildProjectDirectory)\Kubectl" />
+    </Target>
+
+    <Target Name="Download Kubectl" BeforeTargets="BeforeBuild">
+        <DownloadFile Condition="!Exists('$(MSBuildProjectDirectory)\Kubectl\linux\kubectl')" DestinationFolder="$(MSBuildProjectDirectory)\Kubectl\linux" SourceUrl="https://storage.googleapis.com/kubernetes-release/release/$(KubectlVersion)/bin/linux/amd64/kubectl" />
+        <DownloadFile Condition="!Exists('$(MSBuildProjectDirectory)\Kubectl\darwin\kubectl')" DestinationFolder="$(MSBuildProjectDirectory)\Kubectl\darwin" SourceUrl="https://storage.googleapis.com/kubernetes-release/release/$(KubectlVersion)/bin/darwin/amd64/kubectl" />
+        <DownloadFile Condition="!Exists('$(MSBuildProjectDirectory)\Kubectl\windows\kubectl.exe')" DestinationFolder="$(MSBuildProjectDirectory)\Kubectl\windows" SourceUrl="https://storage.googleapis.com/kubernetes-release/release/$(KubectlVersion)/bin/windows/amd64/kubectl.exe" />
+    </Target>
+
+    <ItemGroup>
+        <EmbeddedResource Condition="('$(RuntimeIdentifier)'=='linux-x64' OR '$(Configuration)'=='DEBUG')" Include="Kubectl\linux\kubectl" />
+        <EmbeddedResource Condition="('$(RuntimeIdentifier)'=='osx-x64' OR '$(Configuration)'=='DEBUG')" Include="Kubectl\darwin\kubectl" />
+        <EmbeddedResource Condition="('$(RuntimeIdentifier)'=='win-x64' OR '$(Configuration)'=='DEBUG')" Include="Kubectl\windows\kubectl.exe" />
+        <EmbeddedResource Condition="'$(RuntimeIdentifier)'=='linux-x64' OR '$(RuntimeIdentifier)'=='win-x64' OR '$(Configuration)'=='DEBUG'" Include="Clipboard\Linux\xsel;Clipboard\Windows\*.exe" />
+    </ItemGroup>
+
+</Project>
