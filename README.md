@@ -5,14 +5,9 @@ It does provide some helping commands and eases up deployments.
 
 ### Install
 
-```bash
-npm install -g @smartive/kuby
-```
-
-This adds the `kuby` executable to your global bin.
-
-If you don't have node installed, you can build executables for your system
-with the `package` npm script.
+Download the executable for your system from the releases page.
+Put it into a suitable place and for unix based systems,
+make it executable.
 
 ### Usage
 
