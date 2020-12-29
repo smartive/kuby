@@ -31,7 +31,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="DotnetKubernetesClient" Version="1.0.0" />
+        <PackageReference Include="DotnetKubernetesClient" Version="1.1.0" />
         <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.0.0" />
         <PackageReference Include="Sharprompt" Version="2.0.0" />
         <PackageReference Include="YamlDotNet" Version="9.1.0" />
