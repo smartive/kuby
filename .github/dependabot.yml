@@ -1,0 +1,16 @@
+version: 2
+updates:
+- package-ecosystem: nuget
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 99
+  labels:
+  - dependencies
+  ignore:
+  - dependency-name: YamlDotNet
+    versions:
+    - 10.0.0
+    - 11.0.1
+    - 11.1.0
