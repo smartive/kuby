@@ -1,0 +1,16 @@
+[package]
+name = "kuby"
+version = "0.0.0-development"
+description = "Does nice shite!"
+edition = "2021"
+
+[dependencies]
+kube = { version = "0.69.0" }
+k8s-openapi = { version = "0.14.0", features = ["v1_22"] }
+clap = { version = "3.0.14", features = ["derive"] }
+tokio = { version = "1.16.1", features = ["rt-multi-thread", "macros"] }
+colored = "2.0.0"
+dialoguer = "0.9.0"
+serde = "1.0"
+serde_yaml = "0.8"
+dirs = "4.0.0"
