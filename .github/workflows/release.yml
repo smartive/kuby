@@ -33,7 +33,7 @@ jobs:
       - run: rustup target add ${{ matrix.target }}
 
       - name: Dependencies Ubuntu
-        run: apt install -y libssl-dev
+        run: sudo apt install -y libssl-dev
         if: matrix.os == 'ubuntu-latest'
       - name: Dependencies macOS
         run: brew install openssl
