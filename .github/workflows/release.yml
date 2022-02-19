@@ -30,6 +30,8 @@ jobs:
         with:
           toolchain: stable
 
+      - run: rustup target add ${{ matrix.target }}
+
       - uses: actions-rs/cargo@v1
         with:
           command: build
