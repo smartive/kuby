@@ -1,4 +1,4 @@
-name: Release Crate
+name: Release Binary
 
 on:
   push:
@@ -33,10 +33,12 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release
+          args: --release --target ${{ matrix.target }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.target }}
-          path: target/release/kuby.exe
+          path: |
+            target/${{ matrix.target }}/release/kuby.exe
+            target/${{ matrix.target }}/release/kuby
