@@ -29,15 +29,15 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
 
-      - run: rustup target add ${{ matrix.target }}
-
-      - name: Dependencies Ubuntu
-        run: sudo apt install -y libssl-dev
-        if: matrix.os == 'ubuntu-latest'
-      - name: Dependencies macOS
-        run: brew install openssl
-        if: matrix.os == 'macos-latest'
+      # - name: Dependencies Ubuntu
+      #   run: sudo apt install -y libssl-dev
+      #   if: matrix.os == 'ubuntu-latest'
+      # - name: Dependencies macOS
+      #   run: brew install openssl
+      #   if: matrix.os == 'macos-latest'
       # - name: Dependencies Windows
       #   run: apt install -y libssl-dev
       #   if: matrix.os == 'ubuntu-latest'
@@ -45,6 +45,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
+          use-cross: true
           args: --release --target ${{ matrix.target }}
 
       - name: Upload artifacts
