@@ -1,6 +1,6 @@
 use colored::Colorize;
-use dialoguer::Select;
 use dialoguer::theme::ColorfulTheme;
+use dialoguer::Select;
 
 use crate::kubeconfig::{load, save};
 
@@ -13,15 +13,21 @@ pub async fn context(name: &Option<String>) -> Result<(), Box<dyn std::error::Er
         Some(name) => name.to_string(),
         None => {
             let selected = Select::with_theme(&ColorfulTheme::default())
-                .with_prompt(format!("Select new context (current: {})", current_context.green()))
+                .with_prompt(format!(
+                    "Select new context (current: {})",
+                    current_context.green()
+                ))
                 .default(0)
                 .items(&contexts)
                 .interact()?;
-            contexts.get(selected).unwrap_or(&"".to_string()).to_string()
+            contexts
+                .get(selected)
+                .unwrap_or(&"".to_string())
+                .to_string()
         }
     };
 
-    if current_context == *new_context {
+    if current_context == new_context {
         println!("{} is already set as context.", current_context.green());
         return Ok(());
     }
