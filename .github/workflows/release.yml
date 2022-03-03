@@ -32,9 +32,9 @@ jobs:
           target: ${{ matrix.target }}
           override: true
 
-      # - name: Dependencies Ubuntu
-      #   run: sudo apt install -y libssl-dev
-      #   if: matrix.os == 'ubuntu-latest'
+      - name: Dependencies Ubuntu
+        run: sudo apt install -y libssl-dev
+        if: matrix.os == 'ubuntu-latest'
       # - name: Dependencies macOS
       #   run: brew install openssl
       #   if: matrix.os == 'macos-latest'
