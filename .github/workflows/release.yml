@@ -39,6 +39,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
+          use-cross: true
           args: --release --target ${{ matrix.target }}
 
       - name: upload artifacts
@@ -72,6 +73,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
+          use-cross: true
           args: --release --target ${{ matrix.target }}
 
       - name: upload artifacts
@@ -83,7 +85,7 @@ jobs:
 
   build_macos:
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include:
           - target: aarch64-apple-darwin
@@ -105,6 +107,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
+          use-cross: true
           args: --release --target ${{ matrix.target }}
 
       - name: upload artifacts
