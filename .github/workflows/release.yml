@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Install and setup vcpkg
         uses: lukka/run-vcpkg@v10.1
+        with:
+          vcpkgGitCommitId: b196dacc2f63f37bb75504c36c349042336749cb
       - name: setup openssl
         run: vcpkg install ${{ matrix.openssl_target }}
 
