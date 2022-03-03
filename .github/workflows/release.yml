@@ -25,26 +25,31 @@ jobs:
     name: Build ${{ matrix.target }} on windows
     runs-on: windows-latest
     steps:
-      - name: Install and setup vcpkg
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: install and setup vcpkg
         uses: lukka/run-vcpkg@v10.1
         with:
           vcpkgGitCommitId: b196dacc2f63f37bb75504c36c349042336749cb
+
       - name: setup openssl
         run: vcpkg install ${{ matrix.openssl_target }}
 
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - name: setup rust
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           target: ${{ matrix.target }}
           override: true
 
-      - uses: actions-rs/cargo@v1
+      - name: Bbild
+        uses: actions-rs/cargo@v1
         with:
           command: build
           args: --release --target ${{ matrix.target }}
 
-      - name: Upload artifacts
+      - name: upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.target }}
