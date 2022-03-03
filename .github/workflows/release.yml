@@ -9,17 +9,9 @@ on:
 jobs:
   build_windows:
     strategy:
-      fail-fast: true #test
+      fail-fast: true
       matrix:
         include:
-          # - os: ubuntu-latest
-          #   target: x86_64-unknown-linux-musl
-          # - os: ubuntu-latest
-          #   target: x86_64-unknown-linux-gnu
-          # - os: macos-latest
-          #   target: aarch64-apple-darwin
-          # - os: macos-latest
-          #   target: x86_64-apple-darwin
           - target: x86_64-pc-windows-msvc
             openssl_target: openssl:x64-windows-static-md
     name: Build ${{ matrix.target }} on windows
@@ -43,7 +35,7 @@ jobs:
           target: ${{ matrix.target }}
           override: true
 
-      - name: Bbild
+      - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
@@ -55,4 +47,69 @@ jobs:
           name: ${{ matrix.target }}
           path: |
             target/${{ matrix.target }}/release/kuby.exe
+
+  build_unix:
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+    name: Build ${{ matrix.target }} on ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: setup rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${{ matrix.target }}
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.target }}
+          path: |
+            target/${{ matrix.target }}/release/kuby
+
+  build_macos:
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+          - target: x86_64-apple-darwin
+    name: Build ${{ matrix.target }} on macos
+    runs-on: macos-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: setup rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${{ matrix.target }}
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.target }}
+          path: |
             target/${{ matrix.target }}/release/kuby
