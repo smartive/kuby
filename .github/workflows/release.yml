@@ -7,24 +7,29 @@ on:
       - '**' #test.
 
 jobs:
-  build:
+  build_windows:
     strategy:
-      fail-fast: false #test
+      fail-fast: true #test
       matrix:
         include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-musl
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-          - os: macos-latest
-            target: aarch64-apple-darwin
-          - os: macos-latest
-            target: x86_64-apple-darwin
-          - os: windows
-            target: x86_64-pc-windows-msvc
-    name: Build ${{ matrix.target }} on ${{ matrix.os }}
-    runs-on: ubuntu-latest
+          # - os: ubuntu-latest
+          #   target: x86_64-unknown-linux-musl
+          # - os: ubuntu-latest
+          #   target: x86_64-unknown-linux-gnu
+          # - os: macos-latest
+          #   target: aarch64-apple-darwin
+          # - os: macos-latest
+          #   target: x86_64-apple-darwin
+          - target: x86_64-pc-windows-msvc
+            openssl_target: openssl:x64-windows-static-md
+    name: Build ${{ matrix.target }} on windows
+    runs-on: windows-latest
     steps:
+      - name: Install and setup vcpkg
+        uses: lukka/run-vcpkg@v10.1
+      - name: setup openssl
+        run: vcpkg install ${{ matrix.openssl_target }}
+
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -32,20 +37,9 @@ jobs:
           target: ${{ matrix.target }}
           override: true
 
-      - name: Dependencies Ubuntu
-        run: sudo apt install -y libssl-dev
-        if: matrix.os == 'ubuntu-latest'
-      # - name: Dependencies macOS
-      #   run: brew install openssl
-      #   if: matrix.os == 'macos-latest'
-      # - name: Dependencies Windows
-      #   run: apt install -y libssl-dev
-      #   if: matrix.os == 'ubuntu-latest'
-
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          use-cross: true
           args: --release --target ${{ matrix.target }}
 
       - name: Upload artifacts

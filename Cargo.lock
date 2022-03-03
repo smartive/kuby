@@ -585,6 +585,7 @@ dependencies = [
  "dirs",
  "k8s-openapi",
  "kube",
+ "openssl-sys",
  "serde",
  "serde_yaml",
  "tokio",
