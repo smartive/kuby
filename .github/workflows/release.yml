@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - feat/rework #test.
 
 jobs:
   get_next_version:
@@ -155,4 +154,29 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v3
-      - run: ls -R
+
+      - name: package m1 apple
+        uses: papeloto/action-zip@v1
+        with:
+          files: aarch64-apple-darwin/
+          dest: aarch64-apple-darwin.zip
+      - name: package intel apple
+        uses: papeloto/action-zip@v1
+        with:
+          files: x86_64-apple-darwin/
+          dest: x86_64-apple-darwin.zip
+      - name: package windows x64
+        uses: papeloto/action-zip@v1
+        with:
+          files: x86_64-pc-windows-msvc/
+          dest: x86_64-pc-windows-msvc.zip
+      - name: package unix
+        uses: papeloto/action-zip@v1
+        with:
+          files: x86_64-unknown-linux-gnu/
+          dest: x86_64-unknown-linux-gnu.zip
+
+      - name: create release
+        uses: cycjimmy/semantic-release-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
