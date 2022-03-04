@@ -27,7 +27,7 @@ jobs:
 
   build_windows:
     needs: get_next_version
-    if: needs.get_next_version.outputs.create_release
+    if: needs.get_next_version.outputs.create_release == 'true'
     strategy:
       fail-fast: true
       matrix:
@@ -73,7 +73,7 @@ jobs:
 
   build_unix:
     needs: get_next_version
-    if: needs.get_next_version.outputs.create_release
+    if: needs.get_next_version.outputs.create_release == 'true'
     strategy:
       fail-fast: true
       matrix:
@@ -111,7 +111,7 @@ jobs:
 
   build_macos:
     needs: get_next_version
-    if: needs.get_next_version.outputs.create_release
+    if: needs.get_next_version.outputs.create_release == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -153,7 +153,7 @@ jobs:
       - build_windows
       - build_unix
       - build_macos
-    if: needs.get_next_version.outputs.create_release
+    if: needs.get_next_version.outputs.create_release == 'true'
     name: Create release
     runs-on: ubuntu-latest
     steps:
