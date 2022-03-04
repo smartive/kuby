@@ -19,6 +19,8 @@ jobs:
         with:
           dry_run: true
           working_directory: .github/fetch_version
+      - run: echo ${{ steps.semantic.outputs.new_release_version }}
+      - run: echo ${{ steps.semantic.outputs.new_release_published }}
     outputs:
       new_version: ${{ steps.semantic.outputs.new_release_version }}
       create_release: ${{ steps.semantic.outputs.new_release_published }}
