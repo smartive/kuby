@@ -11,8 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Fetch next version number
     steps:
-      - name: checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
       - name: semantic release
         id: semantic
         uses: cycjimmy/semantic-release-action@v2
@@ -37,11 +36,10 @@ jobs:
     name: Build ${{ matrix.target }} on windows
     runs-on: windows-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       - name: set new version number (${{ needs.get_next_version.outputs.new_version }})
-        run: (get-content -Path .\Cargo.toml) | %{$_ -replace "^version = .*","version = \"${{ needs.get_next_version.outputs.new_version }}\""} | set-content -Path .\Cargo.toml
+        run: (get-content -Path .\Cargo.toml) | %{$_ -replace "version = \`"0.0.0-development\`"","version = `"${{ needs.get_next_version.outputs.new_version }}`""} | set-content -Path .\Cargo.toml
 
       - name: install and setup vcpkg
         uses: lukka/run-vcpkg@v10.1
@@ -83,8 +81,7 @@ jobs:
     name: Build ${{ matrix.target }} on ubuntu
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       - name: set new version number (${{ needs.get_next_version.outputs.new_version }})
         run: sed -i -e 's/^version = .*/version = "${{ needs.get_next_version.outputs.new_version }}"/' Cargo.toml
@@ -121,8 +118,7 @@ jobs:
     name: Build ${{ matrix.target }} on macos
     runs-on: macos-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       - name: set new version number (${{ needs.get_next_version.outputs.new_version }})
         run: sed -i -e 's/^version = .*/version = "${{ needs.get_next_version.outputs.new_version }}"/' Cargo.toml
@@ -157,5 +153,6 @@ jobs:
     name: Create release
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v3
+      - run: ls -R
