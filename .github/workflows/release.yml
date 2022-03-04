@@ -19,12 +19,13 @@ jobs:
         with:
           dry_run: true
           working_directory: .github/fetch_version
-      - name: export new version number
-        run: echo "BUILD_VERSION=${{ steps.semantic.outputs.new_release_version }}" >> $GITHUB_ENV
+    outputs:
+      new_version: ${{ steps.semantic.outputs.new_release_version }}
+      create_release: ${{ steps.semantic.outputs.new_release_published }}
 
   build_windows:
     needs: get_next_version
-    if: jobs.get_next_version.steps.semantic.outputs.new_release_published
+    if: needs.get_next_version.outputs.create_release
     strategy:
       fail-fast: true
       matrix:
@@ -37,8 +38,8 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: set new version number (${{ env.BUILD_VERSION }})
-        run: (get-content -Path .\Cargo.toml) | %{$_ -replace "^version = .*","version = \"${{ env.BUILD_VERSION }}\""} | set-content -Path .\Cargo.toml
+      - name: set new version number (${{ needs.get_next_version.outputs.new_version }})
+        run: (get-content -Path .\Cargo.toml) | %{$_ -replace "^version = .*","version = \"${{ needs.get_next_version.outputs.new_version }}\""} | set-content -Path .\Cargo.toml
 
       - name: install and setup vcpkg
         uses: lukka/run-vcpkg@v10.1
@@ -70,7 +71,7 @@ jobs:
 
   build_unix:
     needs: get_next_version
-    if: jobs.get_next_version.steps.semantic.outputs.new_release_published
+    if: needs.get_next_version.outputs.create_release
     strategy:
       fail-fast: true
       matrix:
@@ -83,8 +84,8 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: set new version number (${{ env.BUILD_VERSION }})
-        run: sed -i -e 's/^version = .*/version = "${{ env.BUILD_VERSION }}"/' Cargo.toml
+      - name: set new version number (${{ needs.get_next_version.outputs.new_version }})
+        run: sed -i -e 's/^version = .*/version = "${{ needs.get_next_version.outputs.new_version }}"/' Cargo.toml
 
       - name: setup rust
         uses: actions-rs/toolchain@v1
@@ -108,21 +109,21 @@ jobs:
 
   build_macos:
     needs: get_next_version
-    if: jobs.get_next_version.steps.semantic.outputs.new_release_published
+    if: needs.get_next_version.outputs.create_release
     strategy:
       fail-fast: false
       matrix:
         include:
           - target: aarch64-apple-darwin
-          # - target: x86_64-apple-darwin
+          - target: x86_64-apple-darwin
     name: Build ${{ matrix.target }} on macos
     runs-on: macos-latest
     steps:
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: set new version number (${{ env.BUILD_VERSION }})
-        run: sed -i -e 's/^version = .*/version = "${{ env.BUILD_VERSION }}"/' Cargo.toml
+      - name: set new version number (${{ needs.get_next_version.outputs.new_version }})
+        run: sed -i -e 's/^version = .*/version = "${{ needs.get_next_version.outputs.new_version }}"/' Cargo.toml
 
       - name: setup rust
         uses: actions-rs/toolchain@v1
@@ -150,7 +151,7 @@ jobs:
       - build_windows
       - build_unix
       - build_macos
-    if: jobs.get_next_version.steps.semantic.outputs.new_release_published
+    if: needs.get_next_version.outputs.create_release
     name: Create release
     runs-on: ubuntu-latest
     steps:
