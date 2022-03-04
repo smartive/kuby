@@ -24,6 +24,7 @@ jobs:
 
   build_windows:
     needs: get_next_version
+    if: jobs.get_next_version.steps.semantic.outputs.new_release_published
     strategy:
       fail-fast: true
       matrix:
@@ -69,6 +70,7 @@ jobs:
 
   build_unix:
     needs: get_next_version
+    if: jobs.get_next_version.steps.semantic.outputs.new_release_published
     strategy:
       fail-fast: true
       matrix:
@@ -106,6 +108,7 @@ jobs:
 
   build_macos:
     needs: get_next_version
+    if: jobs.get_next_version.steps.semantic.outputs.new_release_published
     strategy:
       fail-fast: false
       matrix:
@@ -147,6 +150,7 @@ jobs:
       - build_windows
       - build_unix
       - build_macos
+    if: jobs.get_next_version.steps.semantic.outputs.new_release_published
     name: Create release
     runs-on: ubuntu-latest
     steps:
