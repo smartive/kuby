@@ -1,0 +1,182 @@
+name: Release Binary
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  get_next_version:
+    runs-on: ubuntu-latest
+    name: Fetch next version number
+    steps:
+      - uses: actions/checkout@v2
+      - name: semantic release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v2
+        with:
+          dry_run: true
+          working_directory: .github/fetch_version
+      - run: echo ${{ steps.semantic.outputs.new_release_version }}
+      - run: echo ${{ steps.semantic.outputs.new_release_published }}
+    outputs:
+      create_release: ${{ steps.semantic.outputs.new_release_published }}
+      new_version: ${{ steps.semantic.outputs.new_release_version }}
+
+  build_windows:
+    needs: get_next_version
+    if: needs.get_next_version.outputs.create_release == 'true'
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - target: x86_64-pc-windows-msvc
+            openssl_target: openssl:x64-windows-static-md
+    name: Build ${{ matrix.target }} on windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: set new version number (${{ needs.get_next_version.outputs.new_version }})
+        run: (get-content -Path .\Cargo.toml) | %{$_ -replace "version = \`"0.0.0-development\`"","version = `"${{ needs.get_next_version.outputs.new_version }}`""} | set-content -Path .\Cargo.toml
+
+      - name: install and setup vcpkg
+        uses: lukka/run-vcpkg@v10.1
+        with:
+          vcpkgGitCommitId: b196dacc2f63f37bb75504c36c349042336749cb
+
+      - name: setup openssl
+        run: vcpkg install ${{ matrix.openssl_target }}
+
+      - name: setup rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${{ matrix.target }}
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.target }}
+          path: |
+            target/${{ matrix.target }}/release/kuby.exe
+
+  build_unix:
+    needs: get_next_version
+    if: needs.get_next_version.outputs.create_release == 'true'
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+    name: Build ${{ matrix.target }} on ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: set new version number (${{ needs.get_next_version.outputs.new_version }})
+        run: sed -i -e 's/^version = .*/version = "${{ needs.get_next_version.outputs.new_version }}"/' Cargo.toml
+
+      - name: setup rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${{ matrix.target }}
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.target }}
+          path: |
+            target/${{ matrix.target }}/release/kuby
+
+  build_macos:
+    needs: get_next_version
+    if: needs.get_next_version.outputs.create_release == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+          - target: x86_64-apple-darwin
+    name: Build ${{ matrix.target }} on macos
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: set new version number (${{ needs.get_next_version.outputs.new_version }})
+        run: sed -i -e 's/^version = .*/version = "${{ needs.get_next_version.outputs.new_version }}"/' Cargo.toml
+
+      - name: setup rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          use-cross: true
+          args: --release --target ${{ matrix.target }}
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.target }}
+          path: |
+            target/${{ matrix.target }}/release/kuby
+
+  create_release:
+    needs:
+      - build_windows
+      - build_unix
+      - build_macos
+    if: needs.get_next_version.outputs.create_release == 'true'
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v3
+
+      - name: package m1 apple
+        uses: papeloto/action-zip@v1
+        with:
+          files: aarch64-apple-darwin/
+          dest: aarch64-apple-darwin.zip
+      - name: package intel apple
+        uses: papeloto/action-zip@v1
+        with:
+          files: x86_64-apple-darwin/
+          dest: x86_64-apple-darwin.zip
+      - name: package windows x64
+        uses: papeloto/action-zip@v1
+        with:
+          files: x86_64-pc-windows-msvc/
+          dest: x86_64-pc-windows-msvc.zip
+      - name: package unix
+        uses: papeloto/action-zip@v1
+        with:
+          files: x86_64-unknown-linux-gnu/
+          dest: x86_64-unknown-linux-gnu.zip
+
+      - name: create release
+        uses: cycjimmy/semantic-release-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
