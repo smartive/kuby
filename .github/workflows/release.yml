@@ -18,10 +18,7 @@ jobs:
         uses: cycjimmy/semantic-release-action@v2
         with:
           dry_run: true
-          branches: |
-            ['feat/rework']
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          working_directory: .github/fetch_version
       - name: export new version number
         run: echo "BUILD_VERSION=${{ steps.semantic.outputs.new_release_version }}" >> $GITHUB_ENV
 

@@ -1,0 +1,4 @@
+{
+  "branches": ["master", "feat/rework"],
+  "plugins": ["@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator"]
+}
