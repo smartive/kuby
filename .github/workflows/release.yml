@@ -41,7 +41,7 @@ jobs:
         run: (get-content -Path .\Cargo.toml) | %{$_ -replace "version = \`"0.0.0-development\`"","version = `"${{ needs.get_next_version.outputs.new_version }}`""} | set-content -Path .\Cargo.toml
 
       - name: install and setup vcpkg
-        uses: lukka/run-vcpkg@v10.1
+        uses: lukka/run-vcpkg@v10.7
         with:
           vcpkgGitCommitId: b196dacc2f63f37bb75504c36c349042336749cb
 
