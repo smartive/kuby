@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Fetch next version number
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: semantic release
         id: semantic
         uses: cycjimmy/semantic-release-action@v2
@@ -35,7 +35,7 @@ jobs:
     name: Build ${{ matrix.target }} on windows
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: set new version number (${{ needs.get_next_version.outputs.new_version }})
         run: (get-content -Path .\Cargo.toml) | %{$_ -replace "version = \`"0.0.0-development\`"","version = `"${{ needs.get_next_version.outputs.new_version }}`""} | set-content -Path .\Cargo.toml
@@ -80,7 +80,7 @@ jobs:
     name: Build ${{ matrix.target }} on ubuntu
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: set new version number (${{ needs.get_next_version.outputs.new_version }})
         run: sed -i -e 's/^version = .*/version = "${{ needs.get_next_version.outputs.new_version }}"/' Cargo.toml
@@ -117,7 +117,7 @@ jobs:
     name: Build ${{ matrix.target }} on macos
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: set new version number (${{ needs.get_next_version.outputs.new_version }})
         run: sed -i -e 's/^version = .*/version = "${{ needs.get_next_version.outputs.new_version }}"/' Cargo.toml
@@ -152,7 +152,7 @@ jobs:
     name: Create release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
 
       - name: package m1 apple
