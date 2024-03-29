@@ -11,10 +11,10 @@ dialoguer = "0.9.0"
 dirs = "4.0.0"
 k8s-openapi = { version = "0.14.0", features = ["v1_22"] }
 kube = { version = "0.69.0" }
-openssl-sys = "0.9.72"
+openssl-sys = "0.9.102"
 serde = "1.0"
 serde_yaml = "0.8"
 tokio = { version = "1.16.1", features = ["rt-multi-thread", "macros"] }
 
 [target.'cfg(all(target_arch = "aarch64", target_os = "macos"))'.dependencies]
-openssl-sys = { version = "0.9.72", features = ["vendored"] }
+openssl-sys = { version = "0.9.102", features = ["vendored"] }
